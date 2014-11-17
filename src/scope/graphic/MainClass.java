@@ -60,8 +60,11 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
 
+import de.ixxat.vci3.bal.IBalObject;
+import de.ixxat.vci3.bal.can.CanMessage;
+import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.data.ImportButton;
-import scope.gps.GPSReader;
+import scope.vci.VciJava;
 
 //Main Class
 @SuppressWarnings("serial")
@@ -69,8 +72,13 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 	// Variables
 	static Thread thread1;
-	//private static GPSReader reader = new GPSReader();
-	private boolean activateGpsLogging = false;
+    public static VciJava oVciJava = null;
+    public static IBalObject oBalObject = null;
+    public static ICanMessageReader oCanMsgReader = null;
+    public static Boolean flagStartReading = false;
+    public static CanMessage oCanMsg = null;
+	static String 			canLine 			= null;
+	
 	private boolean activateCanLogging = false;
 	static XYDataset data = null;
 	XYSeries serie0 = new XYSeries("");
@@ -148,7 +156,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	int x;
 	int id;
 	String idx0 = null;
-	String ABCString[];
+	String CanStringSplitted[];
 	String AString;
 	String v1, v2, v3, v4, v5, v6, v7, v8;
 	int value1, value2, value3, value4, value5, value6, value7, value8;
@@ -292,20 +300,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				if (rdbtnBluetooth.isSelected()) {
 					runVci(null);
 					activateCanLogging = true;
-					//reader.start();
-				}
-				if (rdbtnZigbee.isSelected()) {
-//					if ( reader.isConnection())
-//					{
-//						latitude = reader.getCurrentPosition().getLatitude();
-//						longitude = reader.getCurrentPosition().getLongitude();
-//						altitude = reader.getCurrentPosition().getAltitude();
-//						System.out.printf("Init Lat %f, Init Long %f, Init Alt %f", longitude, latitude, altitude );
-//					}
-//					else
-//					{
-//						System.out.println("No valid GPS signal yet");					
-//					}
 				}
 				if (rdbtnImportFile.isSelected()) {
 					flagLogFile = false;
@@ -549,6 +543,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		rdbtnBluetooth.setBounds(496, 48, 109, 25);
 		buttonPanel.add(rdbtnBluetooth);
 		group.add(rdbtnBluetooth);
+		rdbtnBluetooth.setSelected(true);
 
 		rdbtnZigbee = new JRadioButton("ZigBee");
 		rdbtnZigbee.setFont(new Font("Segoe UI", Font.PLAIN, 15));
@@ -557,7 +552,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		rdbtnZigbee.setBounds(496, 78, 109, 25);
 		buttonPanel.add(rdbtnZigbee);
 		group.add(rdbtnZigbee);
-		rdbtnZigbee.setSelected(true);
+		rdbtnZigbee.setSelected(false);
 
 		rdbtnImportFile = new JRadioButton("Import File");
 		rdbtnImportFile.setForeground(Color.LIGHT_GRAY);
@@ -576,6 +571,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		});
 		buttonPanel.add(rdbtnImportFile);
 		group.add(rdbtnImportFile);
+		rdbtnImportFile.setSelected(false);
 
 		JLabel lblProtocol = new JLabel("Protocol");
 		lblProtocol.setForeground(new Color(153, 204, 204));
@@ -862,7 +858,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	public void run() {
 		while (true) {
 
-			// Log file Log+date+.asc is created
 			while (!logFlag) {
 				date = new Date();
 				Log = new File("output/Log_" + formatter.format(date) + ".asc");
@@ -870,132 +865,121 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				headerFlag = false;
 				continue;
 			}
-			if ( 	activateCanLogging == true )
-			{
-				//			 Import oCanMsg with CAN data frame
-				scope.vci.VciJavaDemo oCanMsg = new scope.vci.VciJavaDemo(null);
-
-				String CanMessage = oCanMsg.data;
-				lineToFile = ("" + CanMessage);
-			}
-
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(10);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
+			// Log file Log+date+.asc is created
+			if ( 	activateCanLogging == true )
+			{
+	        	if ( flagStartReading )
+	            {
+	        		oCanMsg = oVciJava.CanMessageReader(oCanMsgReader);
+	    			if ( oCanMsg != null )
+	    			{
+	            		canLine = oCanMsg.toString();
+	            		System.out.printf("recvd message %s\n", canLine);
+	            		lineToFile = ("" + canLine);
 
+	        			if (lineToFile != null && lineToList != lineToFile.intern()
+	        					&& lineToFile.intern() != "null") {
+	        				lineToList = lineToFile;
 
-			if (lineToFile != null && lineToList != lineToFile.intern()
-					&& lineToFile.intern() != "null") {
-				lineToList = lineToFile;
+	        				try {
+	        				// Add data to files
+	        				writerLog = new PrintWriter(new FileWriter(Log, true));
 
-				try {
-				// Add data to files
+	        				while (!headerFlag) {
+	        					writerLog.append("date " + formatterHeader.format(date)
+	        							+ "\r\nbase hex  timestamps absolute"
+	        							+ "\r\ninternal events logged");
+	        					writerLog.close();
+	        					headerFlag = true;
+	        					continue;
+	        				}
+	        					int byteCtrlWrt = 0;
+	        					String[] CanStringSplittedWrt = lineToFile.split("\\s+");
+	        					if (CanStringSplittedWrt[4].startsWith("I")) {
+	        						byteCtrlWrt = 5;
+	        					} else {
+	        						byteCtrlWrt = 4;
+	        					}
+	        					String x_id = CanStringSplittedWrt[byteCtrlWrt].substring(7, 10);
 
-				writerLog = new PrintWriter(new FileWriter(Log, true));
+	        					if (!timeFlag) {
+	        						date = new Date();
+	        						start = (double) date.getTime();
+	        						timeFlag = true;
+	        					}
 
-				while (!headerFlag) {
-					writerLog.append("date " + formatterHeader.format(date)
-							+ "\r\nbase hex  timestamps absolute"
-							+ "\r\ninternal events logged");
-					writerLog.close();
-					headerFlag = true;
-					continue;
-				}
-				if ( 	activateCanLogging == true )
-				{
-					int byteCtrlWrt = 0;
-					String[] ABCStringWrt = lineToFile.split("\\s+");
-					if (ABCStringWrt[4].startsWith("I")) {
-						byteCtrlWrt = 5;
-					} else {
-						byteCtrlWrt = 4;
-					}
-					String x_id = ABCStringWrt[byteCtrlWrt].substring(7, 10);
+	        					date2 = new Date();
+	        					ab = (double) date2.getTime();
 
-					if (!timeFlag) {
-						date = new Date();
-						start = (double) date.getTime();
-						timeFlag = true;
-					}
+	        					AString = CanStringSplittedWrt[1];
+	        					AValueTemp = Double.parseDouble(AString);
+	        					AValue = (ab - start) / 1000;
+	        					df.applyPattern(pattern);
+	        					int dataLength = CanStringSplittedWrt.length - byteCtrlWrt - 2;
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 2) {
+	        						writerLog.append("\r\n   " + df.format(AValue) + " 1  "
+	        								+ x_id + "             Rx   d " + dataLength);
+	        					}
 
-					date2 = new Date();
-					ab = (double) date2.getTime();
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 3) {
+	        						v1 = CanStringSplittedWrt[byteCtrlWrt + 2].substring(2, 4);
+	        						writerLog.append(" " + v1);
+	        					}
 
-					AString = ABCStringWrt[1];
-					AValueTemp = Double.parseDouble(AString);
-					AValue = (ab - start) / 1000;
-					df.applyPattern(pattern);
-					int dataLength = ABCStringWrt.length - byteCtrlWrt - 2;
-					if (ABCStringWrt.length >= byteCtrlWrt + 2) {
-						writerLog.append("\r\n   " + df.format(AValue) + " 1  "
-								+ x_id + "             Rx   d " + dataLength);
-					}
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 4) {
+	        						v2 = CanStringSplittedWrt[byteCtrlWrt + 3].substring(2, 4);
+	        						writerLog.append(" " + v2);
+	        					}
 
-					if (ABCStringWrt.length >= byteCtrlWrt + 3) {
-						v1 = ABCStringWrt[byteCtrlWrt + 2].substring(2, 4);
-						writerLog.append(" " + v1);
-					}
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 5) {
+	        						v3 = CanStringSplittedWrt[byteCtrlWrt + 4].substring(2, 4);
+	        						writerLog.append(" " + v3);
+	        					}
 
-					if (ABCStringWrt.length >= byteCtrlWrt + 4) {
-						v2 = ABCStringWrt[byteCtrlWrt + 3].substring(2, 4);
-						writerLog.append(" " + v2);
-					}
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 6) {
+	        						v4 = CanStringSplittedWrt[byteCtrlWrt + 5].substring(2, 4);
+	        						writerLog.append(" " + v4);
+	        					}
 
-					if (ABCStringWrt.length >= byteCtrlWrt + 5) {
-						v3 = ABCStringWrt[byteCtrlWrt + 4].substring(2, 4);
-						writerLog.append(" " + v3);
-					}
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 7) {
+	        						v5 = CanStringSplittedWrt[byteCtrlWrt + 6].substring(2, 4);
+	        						writerLog.append(" " + v5);
+	        					}
 
-					if (ABCStringWrt.length >= byteCtrlWrt + 6) {
-						v4 = ABCStringWrt[byteCtrlWrt + 5].substring(2, 4);
-						writerLog.append(" " + v4);
-					}
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 8) {
+	        						v6 = CanStringSplittedWrt[byteCtrlWrt + 7].substring(2, 4);
+	        						writerLog.append(" " + v6);
+	        					}
 
-					if (ABCStringWrt.length >= byteCtrlWrt + 7) {
-						v5 = ABCStringWrt[byteCtrlWrt + 6].substring(2, 4);
-						writerLog.append(" " + v5);
-					}
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 9) {
+	        						v7 = CanStringSplittedWrt[byteCtrlWrt + 8].substring(2, 4);
+	        						writerLog.append(" " + v7);
+	        					}
 
-					if (ABCStringWrt.length >= byteCtrlWrt + 8) {
-						v6 = ABCStringWrt[byteCtrlWrt + 7].substring(2, 4);
-						writerLog.append(" " + v6);
-					}
-
-					if (ABCStringWrt.length >= byteCtrlWrt + 9) {
-						v7 = ABCStringWrt[byteCtrlWrt + 8].substring(2, 4);
-						writerLog.append(" " + v7);
-					}
-
-					if (ABCStringWrt.length >= byteCtrlWrt + 10) {
-						v8 = ABCStringWrt[byteCtrlWrt + 9].substring(2, 4);
-						writerLog.append(" " + v8);
-					}
-				}
-
-				if ( activateGpsLogging== true)
-				{
-//					if ( reader.isConnection() && btnStop.isVisible() )
-//					{
-//						latitude = reader.getCurrentPosition().getLatitude();
-//						longitude = reader.getCurrentPosition().getLongitude();
-//						altitude = reader.getCurrentPosition().getAltitude();
-//						System.out.printf("Lat %f, Long %f, Alt %f\r\n", longitude, latitude, altitude );
-//					}
-				}
-				writerLog.append(" " + df.format(latitude) + " "
-						+ df.format(longitude) + " " + df.format(altitude) + "\r\n");
-				writerLog.close();
-
-				} catch (FileNotFoundException e) {
-
-				} catch (IOException e) {
-				}
-				lineCtrl++;
-			} else {
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 10) {
+	        						v8 = CanStringSplittedWrt[byteCtrlWrt + 9].substring(2, 4);
+	        						writerLog.append(" " + v8);
+	        					}
+	        					writerLog.close();
+	        					
+	        				} catch (FileNotFoundException e) {
+	        					System.out.println("File not found");
+	        				} catch (IOException e) {
+	        					System.out.println("General exception");
+	        				}
+	        				lineCtrl++;
+	        			}	            		
+	    			
+	    			}
+	            }
 			}
 
+ 
 			// Get data from CAN data frame
 			if (lineCtrl == 1) {
 
@@ -1033,13 +1017,13 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 				// Read CAN ID from lineToFile as well as from JTextField
 				int byteCtrl = 0;
-				ABCString = lineToFile.split("\\s+");
-				if (ABCString[4].startsWith("I")) {
+				CanStringSplitted = lineToFile.split("\\s+");
+				if (CanStringSplitted[4].startsWith("I")) {
 					byteCtrl = 5;
 				} else {
 					byteCtrl = 4;
 				}
-				String x_id = ABCString[byteCtrl].substring(7, 10);
+				String x_id = CanStringSplitted[byteCtrl].substring(7, 10);
 				x = Integer.parseInt(x_id, 16);
 				idx0 = id_txt.getText();
 
@@ -1053,60 +1037,57 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					id = Integer.parseInt(idx0, 16);
 				} catch (Exception e) {
 				}
-
 				// Compare ID's
 				if (x == id) {
-					AString = ABCString[1];
+					AString = CanStringSplitted[1];
 					AValueTemp = Double.parseDouble(AString);
 
 					// Add data to series depending on the number of
 					// Bytes of the CAN data frame
 
-					if (scope.vci.VciJavaDemo.errCnt == 0) {
 
-						if (ABCString.length >= byteCtrl + 2) {
+						if (CanStringSplitted.length >= byteCtrl + 2) {
 						}
-						if (ABCString.length >= byteCtrl + 3) {
-							v1 = ABCString[byteCtrl + 2].substring(2, 4);
+						if (CanStringSplitted.length >= byteCtrl + 3) {
+							v1 = CanStringSplitted[byteCtrl + 2].substring(2, 4);
 							value1 = Integer.parseInt(v1, 16);
 							serie1.add(AValue, value1);
 						}
-						if (ABCString.length >= byteCtrl + 4) {
-							v2 = ABCString[byteCtrl + 3].substring(2, 4);
+						if (CanStringSplitted.length >= byteCtrl + 4) {
+							v2 = CanStringSplitted[byteCtrl + 3].substring(2, 4);
 							value2 = Integer.parseInt(v2, 16);
 							serie2.add(AValue, value2);
 						}
-						if (ABCString.length >= byteCtrl + 5) {
-							v3 = ABCString[byteCtrl + 4].substring(2, 4);
+						if (CanStringSplitted.length >= byteCtrl + 5) {
+							v3 = CanStringSplitted[byteCtrl + 4].substring(2, 4);
 							value3 = Integer.parseInt(v3, 16);
 							serie3.add(AValue, value3);
 						}
-						if (ABCString.length >= byteCtrl + 6) {
-							v4 = ABCString[byteCtrl + 5].substring(2, 4);
+						if (CanStringSplitted.length >= byteCtrl + 6) {
+							v4 = CanStringSplitted[byteCtrl + 5].substring(2, 4);
 							value4 = Integer.parseInt(v4, 16);
 							serie4.add(AValue, value4);
 						}
-						if (ABCString.length >= byteCtrl + 7) {
-							v5 = ABCString[byteCtrl + 6].substring(2, 4);
+						if (CanStringSplitted.length >= byteCtrl + 7) {
+							v5 = CanStringSplitted[byteCtrl + 6].substring(2, 4);
 							value5 = Integer.parseInt(v5, 16);
 							serie5.add(AValue, value5);
 						}
-						if (ABCString.length >= byteCtrl + 8) {
-							v6 = ABCString[byteCtrl + 7].substring(2, 4);
+						if (CanStringSplitted.length >= byteCtrl + 8) {
+							v6 = CanStringSplitted[byteCtrl + 7].substring(2, 4);
 							value6 = Integer.parseInt(v6, 16);
 							serie6.add(AValue, value6);
 						}
-						if (ABCString.length >= byteCtrl + 9) {
-							v7 = ABCString[byteCtrl + 8].substring(2, 4);
+						if (CanStringSplitted.length >= byteCtrl + 9) {
+							v7 = CanStringSplitted[byteCtrl + 8].substring(2, 4);
 							value7 = Integer.parseInt(v7, 16);
 							serie7.add(AValue, value7);
 						}
-						if (ABCString.length >= byteCtrl + 10) {
-							v8 = ABCString[byteCtrl + 9].substring(2, 4);
+						if (CanStringSplitted.length >= byteCtrl + 10) {
+							v8 = CanStringSplitted[byteCtrl + 9].substring(2, 4);
 							value8 = Integer.parseInt(v8, 16);
 							serie8.add(AValue, value8);
 						}
-					}
 					Thread.currentThread();
 				} else {
 					continue;
@@ -1123,11 +1104,20 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			protected Object doInBackground() throws Exception {
 				logFlag = false;
 				flagStatus = false;
-				scope.vci.VciJavaDemo.main(null);
+		    	oVciJava = new VciJava();
+		    	oBalObject = oVciJava.InitCanBlue();
+		    	oCanMsgReader = oVciJava.StartCan(oBalObject, (short)0);
+		    	if(oCanMsgReader != null)
+		    	{
+		    		flagStartReading = true;
+		    	}
+		    	else
+		    	{
+		    		flagStartReading = false;
+		    	}
 				return null;
 			}
 		};
-
 		worker.execute();
 	}
 
@@ -1135,10 +1125,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	public static void axisConfiguration() {
 
 		int axisCtrl = 1;
-
 		while (axisCtrl <= 8) {
-			
-			
 			if (axisCtrl == 1) {
 				axis = axis1;
 				renderer = renderer1;
@@ -1235,7 +1222,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 	// YesOption method
 	private void YesOption() {
-		scope.vci.VciJavaDemo.ResetDeviceIndex();
+		oVciJava.StopCan(oBalObject, oCanMsgReader);
+		oVciJava.ResetDeviceIndex();
 		flagLogFile = true;
 		flagStatus = true;
 		btnStop.setVisible(false);
@@ -1245,10 +1233,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		rdbtnBluetooth.setEnabled(true);
 		rdbtnZigbee.setEnabled(true);
 		rdbtnImportFile.setEnabled(true);
-//		if ( activateGpsLogging == true )
-//			reader.setRunning(false);
 		activateCanLogging = false;
-		activateGpsLogging = false;
 	}
 
 	// Clear method
@@ -1304,8 +1289,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 							continue;
 						} else {
 
-							ABCString = line.split("\\s+");
-							String x_id = ABCString[2];
+							CanStringSplitted = line.split("\\s+");
+							String x_id = CanStringSplitted[2];
 							x = Integer.parseInt(x_id, 16);
 							idx0 = id_txt.getText();
 
@@ -1322,7 +1307,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 							// Compare ID's
 							if (x == id) {
-								AString = ABCString[0];
+								AString = CanStringSplitted[0];
 								AValue = Double.parseDouble(AString);
 
 								if (AValue - oldAValue >= 5) {
@@ -1345,52 +1330,52 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 								// number of
 								// Bytes of the CAN data frame
 
-								int dataLength = Integer.parseInt(ABCString[5]);
+								int dataLength = Integer.parseInt(CanStringSplitted[5]);
 
 								if (dataLength >= 1) {
-									v1 = ABCString[6];
+									v1 = CanStringSplitted[6];
 									value1 = Integer.parseInt(v1, 16);
 									serie1.add(AValue, value1);
 								}
 
 								if (dataLength >= 2) {
-									v2 = ABCString[7];
+									v2 = CanStringSplitted[7];
 									value2 = Integer.parseInt(v2, 16);
 									serie2.add(AValue, value2);
 								}
 
 								if (dataLength >= 3) {
-									v3 = ABCString[8];
+									v3 = CanStringSplitted[8];
 									value3 = Integer.parseInt(v3, 16);
 									serie3.add(AValue, value3);
 								}
 
 								if (dataLength >= 4) {
-									v4 = ABCString[9];
+									v4 = CanStringSplitted[9];
 									value4 = Integer.parseInt(v4, 16);
 									serie4.add(AValue, value4);
 								}
 
 								if (dataLength >= 5) {
-									v5 = ABCString[10];
+									v5 = CanStringSplitted[10];
 									value5 = Integer.parseInt(v5, 16);
 									serie5.add(AValue, value5);
 								}
 
 								if (dataLength >= 6) {
-									v6 = ABCString[11];
+									v6 = CanStringSplitted[11];
 									value6 = Integer.parseInt(v6, 16);
 									serie6.add(AValue, value6);
 								}
 
 								if (dataLength >= 7) {
-									v7 = ABCString[12];
+									v7 = CanStringSplitted[12];
 									value7 = Integer.parseInt(v7, 16);
 									serie7.add(AValue, value7);
 								}
 
 								if (dataLength >= 8) {
-									v8 = ABCString[13];
+									v8 = CanStringSplitted[13];
 									value8 = Integer.parseInt(v8, 16);
 									serie8.add(AValue, value8);
 								}
