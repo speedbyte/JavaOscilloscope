@@ -65,6 +65,7 @@ import de.ixxat.vci3.bal.can.CanMessage;
 import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.data.ImportButton;
 import scope.vci.VciJava;
+import scope.serial.SimpleRead;
 
 //Main Class
 @SuppressWarnings("serial")
@@ -79,7 +80,10 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     public static CanMessage oCanMsg = null;
 	static String 			canLine 			= null;
 	
-	private boolean activateCanLogging = false;
+	public static SimpleRead oSerialJava = null;
+	
+	private static boolean activateCanLogging = false;
+	private static boolean activateZigbeeLogging = false;
 	static XYDataset data = null;
 	XYSeries serie0 = new XYSeries("");
 	static XYSeries serie1 = new XYSeries("Byte 1");
@@ -300,6 +304,10 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				if (rdbtnBluetooth.isSelected()) {
 					runVci(null);
 					activateCanLogging = true;
+				}
+				if (rdbtnZigbee.isSelected()) {
+					runVci(null);
+					activateZigbeeLogging = true;
 				}
 				if (rdbtnImportFile.isSelected()) {
 					flagLogFile = false;
@@ -856,8 +864,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 	// Run method
 	public void run() {
-		while (true) {
-
+		while (true) 
+		{
 			while (!logFlag) {
 				date = new Date();
 				Log = new File("output/Log_" + formatter.format(date) + ".asc");
@@ -978,8 +986,123 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	    			}
 	            }
 			}
+			if ( 	activateZigbeeLogging == true )
+			{
+	        	if ( flagStartReading )
+	            {
+	        		byte[] data = oSerialJava.SerialMessageReader();
+	    			if ( data != null )
+	    			{
+	    				String datastring = data.toString();
+	    				String[] sentence = datastring.split(",");
+	    				//System.out.println(new String(data, 0, 100));
+	    				for(String word: sentence)
+	    				{
+	    				    if(word.equals("$GPGGA"))
+	    				    {
+	    				    	canLine = "REAL LINE";
+	    				    	System.out.println("found");
+	    				    }
+	    				}
+	            		lineToFile = ("" + canLine);
 
- 
+	        			if (lineToFile != null && lineToList != lineToFile.intern()
+	        					&& lineToFile.intern() != "null") {
+	        				lineToList = lineToFile;
+
+	        				try {
+	        				// Add data to files
+	        				writerLog = new PrintWriter(new FileWriter(Log, true));
+
+	        				while (!headerFlag) {
+	        					writerLog.append("date " + formatterHeader.format(date)
+	        							+ "\r\nbase hex  timestamps absolute"
+	        							+ "\r\ninternal events logged");
+	        					writerLog.close();
+	        					headerFlag = true;
+	        					continue;
+	        				}
+	        					int byteCtrlWrt = 0;
+	        					String[] CanStringSplittedWrt = lineToFile.split("\\s+");
+	        					if (CanStringSplittedWrt[4].startsWith("I")) {
+	        						byteCtrlWrt = 5;
+	        					} else {
+	        						byteCtrlWrt = 4;
+	        					}
+	        					String x_id = CanStringSplittedWrt[byteCtrlWrt].substring(7, 10);
+
+	        					if (!timeFlag) {
+	        						date = new Date();
+	        						start = (double) date.getTime();
+	        						timeFlag = true;
+	        					}
+
+	        					date2 = new Date();
+	        					ab = (double) date2.getTime();
+
+	        					AString = CanStringSplittedWrt[1];
+	        					AValueTemp = Double.parseDouble(AString);
+	        					AValue = (ab - start) / 1000;
+	        					df.applyPattern(pattern);
+	        					int dataLength = CanStringSplittedWrt.length - byteCtrlWrt - 2;
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 2) {
+	        						writerLog.append("\r\n   " + df.format(AValue) + " 1  "
+	        								+ x_id + "             Rx   d " + dataLength);
+	        					}
+
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 3) {
+	        						v1 = CanStringSplittedWrt[byteCtrlWrt + 2].substring(2, 4);
+	        						writerLog.append(" " + v1);
+	        					}
+
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 4) {
+	        						v2 = CanStringSplittedWrt[byteCtrlWrt + 3].substring(2, 4);
+	        						writerLog.append(" " + v2);
+	        					}
+
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 5) {
+	        						v3 = CanStringSplittedWrt[byteCtrlWrt + 4].substring(2, 4);
+	        						writerLog.append(" " + v3);
+	        					}
+
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 6) {
+	        						v4 = CanStringSplittedWrt[byteCtrlWrt + 5].substring(2, 4);
+	        						writerLog.append(" " + v4);
+	        					}
+
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 7) {
+	        						v5 = CanStringSplittedWrt[byteCtrlWrt + 6].substring(2, 4);
+	        						writerLog.append(" " + v5);
+	        					}
+
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 8) {
+	        						v6 = CanStringSplittedWrt[byteCtrlWrt + 7].substring(2, 4);
+	        						writerLog.append(" " + v6);
+	        					}
+
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 9) {
+	        						v7 = CanStringSplittedWrt[byteCtrlWrt + 8].substring(2, 4);
+	        						writerLog.append(" " + v7);
+	        					}
+
+	        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 10) {
+	        						v8 = CanStringSplittedWrt[byteCtrlWrt + 9].substring(2, 4);
+	        						writerLog.append(" " + v8);
+	        					}
+	        					writerLog.close();
+	        					
+	        				} catch (FileNotFoundException e) {
+	        					System.out.println("File not found");
+	        				} catch (IOException e) {
+	        					System.out.println("General exception");
+	        				}
+	        				lineCtrl++;
+	        			}	            		
+	    			
+	    			}
+	            }
+			}
+			
 			// Get data from CAN data frame
 			if (lineCtrl == 1) {
 
@@ -1104,18 +1227,29 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			protected Object doInBackground() throws Exception {
 				logFlag = false;
 				flagStatus = false;
-		    	oVciJava = new VciJava();
-		    	oBalObject = oVciJava.InitCanBlue();
-		    	oCanMsgReader = oVciJava.StartCan(oBalObject, (short)0);
-		    	if(oCanMsgReader != null)
-		    	{
-		    		flagStartReading = true;
-		    	}
-		    	else
-		    	{
-		    		flagStartReading = false;
-		    	}
-				return null;
+		    	
+				if ( activateCanLogging == true )
+				{
+					/* BT CAN */
+					oVciJava = new VciJava();
+			    	oBalObject = oVciJava.InitCanBlue();
+			    	oCanMsgReader = oVciJava.StartCan(oBalObject, (short)0);
+			    	if(oCanMsgReader != null)
+			    	{
+			    		flagStartReading = true;
+			    	}
+			    	else
+			    	{
+			    		flagStartReading = false;
+			    	}
+				}
+				/* Serial */
+				if ( activateZigbeeLogging == true )
+				{
+			    	oSerialJava = new SimpleRead();
+			    	flagStartReading = oSerialJava.oeffneSerialPort("COM78");
+				}
+		    	return null;
 			}
 		};
 		worker.execute();
@@ -1222,8 +1356,18 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 	// YesOption method
 	private void YesOption() {
-		oVciJava.StopCan(oBalObject, oCanMsgReader);
-		oVciJava.ResetDeviceIndex();
+		
+		if ( activateCanLogging == true )
+		{
+			oVciJava.StopCan(oBalObject, oCanMsgReader);
+			oVciJava.ResetDeviceIndex();
+			activateCanLogging = false;
+		}
+		if ( activateZigbeeLogging == true )
+		{
+			oSerialJava.schliesseSerialPort();
+			activateZigbeeLogging = false;
+		}
 		flagLogFile = true;
 		flagStatus = true;
 		btnStop.setVisible(false);
@@ -1233,7 +1377,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		rdbtnBluetooth.setEnabled(true);
 		rdbtnZigbee.setEnabled(true);
 		rdbtnImportFile.setEnabled(true);
-		activateCanLogging = false;
 	}
 
 	// Clear method
