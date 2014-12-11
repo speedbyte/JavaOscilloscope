@@ -11,7 +11,7 @@
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.14.jar"/>
 	<classpathentry kind="lib" path="lib/RXTXcomm.jar" sourcepath="F:/workspace_java/comemso_reichweite_analyse/impl/Application/CAN-Oscilloscope/CAN-Oscilloscope 2.0/lib/RXTXcomm.src.zip">
 		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="CAN-Oscilloscope 2.0/lib"/>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="JavaOscilloscope/lib"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.26-bin.jar"/>

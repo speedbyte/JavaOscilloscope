@@ -65,7 +65,7 @@ import de.ixxat.vci3.bal.can.CanMessage;
 import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.data.ImportButton;
 import scope.vci.VciJava;
-import scope.serial.SimpleRead;
+import scope.serial.SerialJava;
 
 //Main Class
 @SuppressWarnings("serial")
@@ -80,7 +80,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     public static CanMessage oCanMsg = null;
 	static String 			canLine 			= null;
 	
-	public static SimpleRead oSerialJava = null;
+	public static SerialJava oSerialJava = null;
 	
 	private static boolean activateCanLogging = false;
 	private static boolean activateZigbeeLogging = false;
@@ -1174,6 +1174,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 						if (CanStringSplitted.length >= byteCtrl + 3) {
 							v1 = CanStringSplitted[byteCtrl + 2].substring(2, 4);
 							value1 = Integer.parseInt(v1, 16);
+							value1 = (int) (Math.random()*256);
 							serie1.add(AValue, value1);
 						}
 						if (CanStringSplitted.length >= byteCtrl + 4) {
@@ -1246,8 +1247,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				/* Serial */
 				if ( activateZigbeeLogging == true )
 				{
-			    	oSerialJava = new SimpleRead();
-			    	flagStartReading = oSerialJava.oeffneSerialPort("COM78");
+			    	oSerialJava = new SerialJava();
+			    	flagStartReading = oSerialJava.oeffneSerialPort("COM16");
 				}
 		    	return null;
 			}
@@ -1368,6 +1369,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			oSerialJava.schliesseSerialPort();
 			activateZigbeeLogging = false;
 		}
+		flagStartReading = false;
 		flagLogFile = true;
 		flagStatus = true;
 		btnStop.setVisible(false);

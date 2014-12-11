@@ -12,7 +12,7 @@ import java.util.TooManyListenersException;
 
 
 
-public class SimpleRead{
+public class SerialJava{
 
 	/**
 	 * @param args
@@ -43,7 +43,7 @@ public class SimpleRead{
 	byte[] data = null;
 	int secondsRuntime = 60;
 
-	public SimpleRead()
+	public SerialJava()
 	{
 		System.out.println("Konstruktor: EinfachSenden");
 	}
@@ -115,7 +115,7 @@ public class SimpleRead{
 		}
 		
 		serialPortGeoeffnet = true;
-		return true;
+		return serialPortGeoeffnet;
 	}
 
 	public void schliesseSerialPort()
@@ -149,7 +149,6 @@ public class SimpleRead{
 	
 	class serialPortEventListener implements SerialPortEventListener {
 		public void serialEvent(SerialPortEvent event) {
-			//System.out.println("serialPortEventlistener");
 			switch (event.getEventType()) {
 			case SerialPortEvent.DATA_AVAILABLE:
 				serialPortDatenVerfuegbar();
