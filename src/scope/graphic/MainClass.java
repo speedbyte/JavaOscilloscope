@@ -164,7 +164,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	String AString;
 	String v1, v2, v3, v4, v5, v6, v7, v8;
 	int value1, value2, value3, value4, value5, value6, value7, value8;
-	double latitude = 0.0000, longitude = 0.0000; double altitude  = 0.0000;
 
 	double AValueTemp;
 	static double AValue;
@@ -311,7 +310,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				}
 				if (rdbtnImportFile.isSelected()) {
 					flagLogFile = false;
-					runLog();
+					//runLog(); Please see in scratch.
 				}
 
 				timeFlag = false;
@@ -334,10 +333,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		btnStop.setVisible(false);
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-
 				stopMenu();
 			}
-
 		});
 		buttonPanel.add(btnStop);
 
@@ -856,7 +853,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	}
 
 	private void SetBackColorCheck() {
-
 		for (int x = 1; x <= 9; x++) {
 			chckbx[x].setBackground(panelColor);
 		}
@@ -881,19 +877,34 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	    			{
 	            		canLine = oCanMsg.toString();
 	            		System.out.printf("recvd message %s\n", canLine);
+	            		//recvd message Timestamp: 13756081 Flags:      ID: 0x00000100 Data: 0xFF 0xEE 0xDD 0xCC 0xBB 0xAA 0x99 0x88
 	            		lineToFile = ("" + canLine);
 
 	        			if (lineToFile != null && lineToList != lineToFile.intern()
 	        					&& lineToFile.intern() != "null") {
 	        				lineToList = lineToFile;
-        					int byteCtrlWrt = 0;
-        					String[] CanStringSplittedWrt = lineToFile.split("\\s+");
-        					if (CanStringSplittedWrt[4].startsWith("I")) {
-        						byteCtrlWrt = 5;
+        					int byteCtrl = 0;
+        					String[] CanStringSplitted = lineToFile.split("\\s+");
+        					if (CanStringSplitted[4].startsWith("I")) {
+        						byteCtrl = 5;
         					} else {
-        						byteCtrlWrt = 4;
+        						byteCtrl = 4;
         					}
-        					String x_id = CanStringSplittedWrt[byteCtrlWrt].substring(7, 10);
+        					String x_id = CanStringSplitted[byteCtrl].substring(7, 10);
+							// Read CAN ID from lineToFile as well as from JTextField
+							x = Integer.parseInt(x_id, 16);
+							idx0 = id_txt.getText();
+
+							if (idx0.isEmpty()) {
+								idx0 = "0";
+								continue;
+							} else {
+							}
+
+							try {
+								id = Integer.parseInt(idx0, 16);
+							} catch (Exception e) {
+							}
 
         					if (!timeFlag) {
         						date = new Date();
@@ -904,72 +915,99 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
         					date2 = new Date();
         					ab = (double) date2.getTime();
 
-        					AString = CanStringSplittedWrt[1];
+        					AString = CanStringSplitted[1];
         					AValueTemp = Double.parseDouble(AString);
         					AValue = (ab - start) / 1000;
         					df.applyPattern(pattern);
-        					int dataLength = CanStringSplittedWrt.length - byteCtrlWrt - 2;
-        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 2) {
+        					int dataLength = CanStringSplitted.length - byteCtrl - 2;
+        					
+        					if (CanStringSplitted.length >= byteCtrl + 2) {
         						writerLog.append("\r\n   " + df.format(AValue) + " 1  "
         								+ x_id + "             Rx   d " + dataLength);
         					}
 
-        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 3) {
-        						v1 = CanStringSplittedWrt[byteCtrlWrt + 2].substring(2, 4);
+        					if (CanStringSplitted.length >= byteCtrl + 3) {
+        						v1 = CanStringSplitted[byteCtrl + 2].substring(2, 4);
         						writerLog.append(" " + v1);
+    							if (x == id) {
+	        						//value1 = Integer.parseInt(v1, 16);
+									value1 = (int) (Math.random()*256);
+									serie1.add(AValue, value1);
+    							}
         					}
 
-        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 4) {
-        						v2 = CanStringSplittedWrt[byteCtrlWrt + 3].substring(2, 4);
+        					if (CanStringSplitted.length >= byteCtrl + 4) {
+        						v2 = CanStringSplitted[byteCtrl + 3].substring(2, 4);
         						writerLog.append(" " + v2);
+    							if (x == id) {
+	        						//value2 = Integer.parseInt(v2, 16);
+									value2 = (int) (Math.random()*256);
+									serie2.add(AValue, value2);
+    							}
         					}
 
-        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 5) {
-        						v3 = CanStringSplittedWrt[byteCtrlWrt + 4].substring(2, 4);
+        					if (CanStringSplitted.length >= byteCtrl + 5) {
+        						v3 = CanStringSplitted[byteCtrl + 4].substring(2, 4);
         						writerLog.append(" " + v3);
+    							if (x == id) {
+									//value3 = Integer.parseInt(v3, 16);
+									value3 = (int) (Math.random()*256);
+									serie3.add(AValue, value3);
+    							}
         					}
 
-        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 6) {
-        						v4 = CanStringSplittedWrt[byteCtrlWrt + 5].substring(2, 4);
+        					if (CanStringSplitted.length >= byteCtrl + 6) {
+        						v4 = CanStringSplitted[byteCtrl + 5].substring(2, 4);
         						writerLog.append(" " + v4);
+    							if (x == id) {
+									//value4 = Integer.parseInt(v4, 16);
+									value4 = (int) (Math.random()*256);
+									serie4.add(AValue, value4);
+    							}
         					}
 
-        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 7) {
-        						v5 = CanStringSplittedWrt[byteCtrlWrt + 6].substring(2, 4);
+        					if (CanStringSplitted.length >= byteCtrl + 7) {
+        						v5 = CanStringSplitted[byteCtrl + 6].substring(2, 4);
         						writerLog.append(" " + v5);
+    							if (x == id) {
+									//value5 = Integer.parseInt(v5, 16);
+									value5 = (int) (Math.random()*256);
+									serie5.add(AValue, value5);
+    							}
         					}
 
-        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 8) {
-        						v6 = CanStringSplittedWrt[byteCtrlWrt + 7].substring(2, 4);
+        					if (CanStringSplitted.length >= byteCtrl + 8) {
+        						v6 = CanStringSplitted[byteCtrl + 7].substring(2, 4);
         						writerLog.append(" " + v6);
+    							if (x == id) {
+									//value6 = Integer.parseInt(v6, 16);
+									value6 = (int) (Math.random()*256);
+									serie6.add(AValue, value6);
+    							}
         					}
 
-        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 9) {
-        						v7 = CanStringSplittedWrt[byteCtrlWrt + 8].substring(2, 4);
+        					if (CanStringSplitted.length >= byteCtrl + 9) {
+        						v7 = CanStringSplitted[byteCtrl + 8].substring(2, 4);
         						writerLog.append(" " + v7);
+    							if (x == id) {
+									//value7 = Integer.parseInt(v7, 16);
+									value7 = (int) (Math.random()*256);
+									serie7.add(AValue, value7);
+    							}
         					}
 
-        					if (CanStringSplittedWrt.length >= byteCtrlWrt + 10) {
-        						v8 = CanStringSplittedWrt[byteCtrlWrt + 9].substring(2, 4);
+        					if (CanStringSplitted.length >= byteCtrl + 10) {
+        						v8 = CanStringSplitted[byteCtrl + 9].substring(2, 4);
         						writerLog.append(" " + v8);
+    							if (x == id) {
+									//value8 = Integer.parseInt(v8, 16);
+									value8 = (int) (Math.random()*256);
+									serie8.add(AValue, value8);
+    							}
         					}
-	        				lineCtrl++;
 	        			}	            		
-	    			
 	    			}
 	            }
-			}
-		
-			// Get data from CAN data frame
-			if (lineCtrl == 1) {
-
-				try {
-					ReadFrame();
-					lineCtrl = 0;
-					continue;
-				} catch (IOException e) {
-
-				}
 			}
 		}
 	}
@@ -988,100 +1026,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	}
 
 	// ReadFrame method
-	public void ReadFrame() throws IOException {
-
-		String lineTemp = "";
-		while (lineTemp != lineToFile) {
-			lineTemp = lineToFile;
-			if (lineToFile != null && !lineToFile.isEmpty()) {
-
-				// Read CAN ID from lineToFile as well as from JTextField
-				int byteCtrl = 0;
-				CanStringSplitted = lineToFile.split("\\s+");
-				if (CanStringSplitted[4].startsWith("I")) {
-					byteCtrl = 5;
-				} else {
-					byteCtrl = 4;
-				}
-				String x_id = CanStringSplitted[byteCtrl].substring(7, 10);
-				x = Integer.parseInt(x_id, 16);
-				idx0 = id_txt.getText();
-
-				if (idx0.isEmpty()) {
-					idx0 = "0";
-					continue;
-				} else {
-				}
-
-				try {
-					id = Integer.parseInt(idx0, 16);
-				} catch (Exception e) {
-				}
-				// Compare ID's
-				if (x == id) {
-					AString = CanStringSplitted[1];
-					AValueTemp = Double.parseDouble(AString);
-
-					// Add data to series depending on the number of
-					// Bytes of the CAN data frame
-
-						if (CanStringSplitted.length >= byteCtrl + 2) {
-						}
-						if (CanStringSplitted.length >= byteCtrl + 3) {
-							v1 = CanStringSplitted[byteCtrl + 2].substring(2, 4);
-							//value1 = Integer.parseInt(v1, 16);
-							value1 = (int) (Math.random()*256);
-							serie1.add(AValue, value1);
-						}
-						if (CanStringSplitted.length >= byteCtrl + 4) {
-							v2 = CanStringSplitted[byteCtrl + 3].substring(2, 4);
-							//value2 = Integer.parseInt(v2, 16);
-							value2 = (int) (Math.random()*256);
-							serie2.add(AValue, value2);
-						}
-						if (CanStringSplitted.length >= byteCtrl + 5) {
-							v3 = CanStringSplitted[byteCtrl + 4].substring(2, 4);
-							//value3 = Integer.parseInt(v3, 16);
-							value3 = (int) (Math.random()*256);
-							serie3.add(AValue, value3);
-						}
-						if (CanStringSplitted.length >= byteCtrl + 6) {
-							v4 = CanStringSplitted[byteCtrl + 5].substring(2, 4);
-							//value4 = Integer.parseInt(v4, 16);
-							value4 = (int) (Math.random()*256);
-							serie4.add(AValue, value4);
-						}
-						if (CanStringSplitted.length >= byteCtrl + 7) {
-							v5 = CanStringSplitted[byteCtrl + 6].substring(2, 4);
-							//value5 = Integer.parseInt(v5, 16);
-							value5 = (int) (Math.random()*256);
-							serie5.add(AValue, value5);
-						}
-						if (CanStringSplitted.length >= byteCtrl + 8) {
-							v6 = CanStringSplitted[byteCtrl + 7].substring(2, 4);
-							//value6 = Integer.parseInt(v6, 16);
-							value6 = (int) (Math.random()*256);
-							serie6.add(AValue, value6);
-						}
-						if (CanStringSplitted.length >= byteCtrl + 9) {
-							v7 = CanStringSplitted[byteCtrl + 8].substring(2, 4);
-							//value7 = Integer.parseInt(v7, 16);
-							value7 = (int) (Math.random()*256);
-							serie7.add(AValue, value7);
-						}
-						if (CanStringSplitted.length >= byteCtrl + 10) {
-							v8 = CanStringSplitted[byteCtrl + 9].substring(2, 4);
-							//value8 = Integer.parseInt(v8, 16);
-							value8 = (int) (Math.random()*256);
-							serie8.add(AValue, value8);
-						}
-					Thread.currentThread();
-				} else {
-					continue;
-				}
-			}
-		}
-	}
+	public void ReadFrame() throws IOException {}
 
 	// RunVci method
 	public void runVci(String[] args) {
@@ -1101,27 +1046,20 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			    	if(oCanMsgReader != null)
 			    	{
 			    		flagStartReading = true;
-						while (!logFlag) {
+						if (!logFlag) {
 							// Create the log file if not already created
 							date = new Date();
 							Log = new File("output/Log_" + formatter.format(date) + ".asc");
 							logFlag = true;
 							headerFlag = false;
 							// Add data to files
-							try {
-								writerLog = new PrintWriter(new FileWriter(Log, true));
-							} catch (IOException e2) {
-								// TODO Auto-generated catch block
-								e2.printStackTrace();
-							}
+							writerLog = new PrintWriter(new FileWriter(Log, true));
 							writerLog.append("date " + formatterHeader.format(date)
 									+ "\r\nbase hex  timestamps absolute"
 									+ "\r\ninternal events logged");
 							//writerLog.close();				
 							headerFlag = true;
-							continue;
 						}
-			    		
 			    	}
 			    	else
 			    	{
@@ -1285,134 +1223,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			thread1.interrupt();
 			System.exit(0);
 		}
-	}
-
-	// RunLog method
-	private void runLog() {
-
-		final SwingWorker<?, ?> worker2 = new SwingWorker<Object, Object>() {
-			@SuppressWarnings("resource")
-			@Override
-			protected Object doInBackground() throws Exception {
-
-				double oldAValue = 0;
-				InputStream path;
-				BufferedReader br;
-				String line;
-				path = new FileInputStream(selLogFile);
-				br = new BufferedReader(new InputStreamReader(path,
-						Charset.forName("UTF-8")));
-
-				while ((line = br.readLine()) != null && !flagLogFile) {
-
-					line = line.trim();
-
-					if (line != null && !line.isEmpty()) {
-
-						if (Character.isAlphabetic(line.charAt(0))) {
-							continue;
-						} else {
-
-							CanStringSplitted = line.split("\\s+");
-							String x_id = CanStringSplitted[2];
-							x = Integer.parseInt(x_id, 16);
-							idx0 = id_txt.getText();
-
-							if (idx0.isEmpty()) {
-								idx0 = "0";
-								continue;
-							} else {
-							}
-
-							try {
-								id = Integer.parseInt(idx0, 16);
-							} catch (Exception e) {
-							}
-
-							// Compare ID's
-							if (x == id) {
-								AString = CanStringSplitted[0];
-								AValue = Double.parseDouble(AString);
-
-								if (AValue - oldAValue >= 5) {
-									serie1.add(oldAValue + 0.1, null);
-									serie2.add(oldAValue + 0.1, null);
-									serie3.add(oldAValue + 0.1, null);
-									serie4.add(oldAValue + 0.1, null);
-									serie5.add(oldAValue + 0.1, null);
-									serie6.add(oldAValue + 0.1, null);
-									serie7.add(oldAValue + 0.1, null);
-									serie8.add(oldAValue + 0.1, null);
-									
-								
-								} else {
-								}
-
-								oldAValue = AValue;
-
-								// Add data to series depending on the
-								// number of
-								// Bytes of the CAN data frame
-
-								int dataLength = Integer.parseInt(CanStringSplitted[5]);
-
-								if (dataLength >= 1) {
-									v1 = CanStringSplitted[6];
-									value1 = Integer.parseInt(v1, 16);
-									serie1.add(AValue, value1);
-								}
-
-								if (dataLength >= 2) {
-									v2 = CanStringSplitted[7];
-									value2 = Integer.parseInt(v2, 16);
-									serie2.add(AValue, value2);
-								}
-
-								if (dataLength >= 3) {
-									v3 = CanStringSplitted[8];
-									value3 = Integer.parseInt(v3, 16);
-									serie3.add(AValue, value3);
-								}
-
-								if (dataLength >= 4) {
-									v4 = CanStringSplitted[9];
-									value4 = Integer.parseInt(v4, 16);
-									serie4.add(AValue, value4);
-								}
-
-								if (dataLength >= 5) {
-									v5 = CanStringSplitted[10];
-									value5 = Integer.parseInt(v5, 16);
-									serie5.add(AValue, value5);
-								}
-
-								if (dataLength >= 6) {
-									v6 = CanStringSplitted[11];
-									value6 = Integer.parseInt(v6, 16);
-									serie6.add(AValue, value6);
-								}
-
-								if (dataLength >= 7) {
-									v7 = CanStringSplitted[12];
-									value7 = Integer.parseInt(v7, 16);
-									serie7.add(AValue, value7);
-								}
-
-								if (dataLength >= 8) {
-									v8 = CanStringSplitted[13];
-									value8 = Integer.parseInt(v8, 16);
-									serie8.add(AValue, value8);
-								}
-								continue;
-							}
-						}
-					}
-				}
-				YesOption();
-				return null;
-			}
-		};
-		worker2.execute();
 	}
 
 	// GetMonthNum method
