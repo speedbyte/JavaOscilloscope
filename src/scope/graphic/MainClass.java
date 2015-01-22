@@ -119,10 +119,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 	static ValueAxis valueaxis = null;
 	final static Charset ENCODING = StandardCharsets.UTF_8;
-	int lineCtrl = 0;
-	String lineToList = null;
 	String lineToFile = null;
-	String lineToFile2 = null;
 
 	SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd_HH-mm-ss");
 	SimpleDateFormat formatterHeader = new SimpleDateFormat(
@@ -152,24 +149,20 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	static boolean logFlag = false;
 	boolean headerFlag = false;
 	public boolean dataFlag;
-	Date date = null;
-	Date date2 = null;
-	boolean timeFlag = false;
+	boolean timeStartFlag = false;
 
 	int a;
 	int x;
 	int id;
 	String idx0 = null;
 	String CanStringSplitted[];
-	String AString;
 	String v1, v2, v3, v4, v5, v6, v7, v8;
 	int value1, value2, value3, value4, value5, value6, value7, value8;
 
-	double AValueTemp;
-	static double AValue;
+	static double currenttime_second;
 	double timeStamp = 0;
 	static double start;
-	double ab = 0;
+	double current = 0;
 
 	Locale mylocale = Locale.ENGLISH;
 	String pattern = "0.000000";
@@ -313,7 +306,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					//runLog(); Please see in scratch.
 				}
 
-				timeFlag = false;
+				timeStartFlag = false;
 				btnStop.setEnabled(true);
 				btnStop.setVisible(true);
 				btnStart.setEnabled(false);
@@ -872,6 +865,12 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			{
 	        	if ( flagStartReading )
 	            {
+					if (!timeStartFlag) {
+						start = (double) (new Date()).getTime();
+						timeStartFlag = true;
+					}
+					current = (double) (new Date()).getTime();
+					currenttime_second = (current - start) / 1000;
 	        		oCanMsg = oVciJava.CanMessageReader(oCanMsgReader);
 	    			if ( oCanMsg != null )
 	    			{
@@ -880,11 +879,10 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	            		//recvd message Timestamp: 13756081 Flags:      ID: 0x00000100 Data: 0xFF 0xEE 0xDD 0xCC 0xBB 0xAA 0x99 0x88
 	            		lineToFile = ("" + canLine);
 
-	        			if (lineToFile != null && lineToList != lineToFile.intern()
-	        					&& lineToFile.intern() != "null") {
-	        				lineToList = lineToFile;
+	        			if (lineToFile != null ) {
         					int byteCtrl = 0;
         					String[] CanStringSplitted = lineToFile.split("\\s+");
+	        				lineToFile = null;
         					if (CanStringSplitted[4].startsWith("I")) {
         						byteCtrl = 5;
         					} else {
@@ -906,23 +904,11 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 							} catch (Exception e) {
 							}
 
-        					if (!timeFlag) {
-        						date = new Date();
-        						start = (double) date.getTime();
-        						timeFlag = true;
-        					}
-
-        					date2 = new Date();
-        					ab = (double) date2.getTime();
-
-        					AString = CanStringSplitted[1];
-        					AValueTemp = Double.parseDouble(AString);
-        					AValue = (ab - start) / 1000;
         					df.applyPattern(pattern);
         					int dataLength = CanStringSplitted.length - byteCtrl - 2;
         					
         					if (CanStringSplitted.length >= byteCtrl + 2) {
-        						writerLog.append("\r\n   " + df.format(AValue) + " 1  "
+        						writerLog.append("\r\n   " + df.format(currenttime_second) + " 1  "
         								+ x_id + "             Rx   d " + dataLength);
         					}
 
@@ -931,8 +917,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
         						writerLog.append(" " + v1);
     							if (x == id) {
 	        						//value1 = Integer.parseInt(v1, 16);
-									value1 = (int) (Math.random()*256);
-									serie1.add(AValue, value1);
+									value1 = (int) (Math.random()*256)*1000;
+									serie1.add(currenttime_second, value1);
     							}
         					}
 
@@ -942,7 +928,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     							if (x == id) {
 	        						//value2 = Integer.parseInt(v2, 16);
 									value2 = (int) (Math.random()*256);
-									serie2.add(AValue, value2);
+									serie2.add(currenttime_second, value2);
     							}
         					}
 
@@ -952,7 +938,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     							if (x == id) {
 									//value3 = Integer.parseInt(v3, 16);
 									value3 = (int) (Math.random()*256);
-									serie3.add(AValue, value3);
+									serie3.add(currenttime_second, value3);
     							}
         					}
 
@@ -962,7 +948,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     							if (x == id) {
 									//value4 = Integer.parseInt(v4, 16);
 									value4 = (int) (Math.random()*256);
-									serie4.add(AValue, value4);
+									serie4.add(currenttime_second, value4);
     							}
         					}
 
@@ -972,7 +958,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     							if (x == id) {
 									//value5 = Integer.parseInt(v5, 16);
 									value5 = (int) (Math.random()*256);
-									serie5.add(AValue, value5);
+									serie5.add(currenttime_second, value5);
     							}
         					}
 
@@ -982,7 +968,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     							if (x == id) {
 									//value6 = Integer.parseInt(v6, 16);
 									value6 = (int) (Math.random()*256);
-									serie6.add(AValue, value6);
+									serie6.add(currenttime_second, value6);
     							}
         					}
 
@@ -992,7 +978,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     							if (x == id) {
 									//value7 = Integer.parseInt(v7, 16);
 									value7 = (int) (Math.random()*256);
-									serie7.add(AValue, value7);
+									serie7.add(currenttime_second, value7);
     							}
         					}
 
@@ -1002,10 +988,46 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     							if (x == id) {
 									//value8 = Integer.parseInt(v8, 16);
 									value8 = (int) (Math.random()*256);
-									serie8.add(AValue, value8);
+									serie8.add(currenttime_second, value8);
     							}
         					}
 	        			}	            		
+	    			}
+	    			else
+	    			{
+	    				serie0.add(currenttime_second, null);
+	    			}
+	            }
+			}
+			else if ( activateZigbeeLogging == true )
+			{
+	        	if ( flagStartReading )
+	            {
+					if (!timeStartFlag) {
+						start = (double) (new Date()).getTime();
+						timeStartFlag = true;
+					}
+					current = (double) (new Date()).getTime();
+					currenttime_second = (current - start) / 1000;
+	        		int data = 0;
+					data = oSerialJava.getSerialData();
+	    			if ( data != 0)
+	    			{
+	            		//canLine = data.toString();
+	            		System.out.printf("recvd message %d\n", data);
+	            		//recvd message Timestamp: 13756081 Flags:      ID: 0x00000100 Data: 0xFF 0xEE 0xDD 0xCC 0xBB 0xAA 0x99 0x88
+	            		lineToFile = ("" + canLine);
+    					df.applyPattern(pattern);
+    					
+						//writerLog.append(" " + v1);
+						//value1 = Integer.parseInt(v1, 16);
+						value1 = data;
+						serie1.add(currenttime_second, value1);
+	    			}
+	    			else
+	    			{
+	            		//System.out.printf("recvd message %d\n", data);
+	    				serie0.add(currenttime_second, null);
 	    			}
 	            }
 			}
@@ -1014,19 +1036,16 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 	public static void ReadFrameNull() {
 
-		serie1.add(AValue, null);
-		serie2.add(AValue, null);
-		serie3.add(AValue, null);
-		serie4.add(AValue, null);
-		serie5.add(AValue, null);
-		serie6.add(AValue, null);
-		serie7.add(AValue, null);
-		serie8.add(AValue, null);
+		serie1.add(currenttime_second, null);
+		serie2.add(currenttime_second, null);
+		serie3.add(currenttime_second, null);
+		serie4.add(currenttime_second, null);
+		serie5.add(currenttime_second, null);
+		serie6.add(currenttime_second, null);
+		serie7.add(currenttime_second, null);
+		serie8.add(currenttime_second, null);
 		
 	}
-
-	// ReadFrame method
-	public void ReadFrame() throws IOException {}
 
 	// RunVci method
 	public void runVci(String[] args) {
@@ -1046,9 +1065,9 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			    	if(oCanMsgReader != null)
 			    	{
 			    		flagStartReading = true;
-						if (!logFlag) {
+			    		if (!logFlag) {
 							// Create the log file if not already created
-							date = new Date();
+							Date date = new Date();
 							Log = new File("output/Log_" + formatter.format(date) + ".asc");
 							logFlag = true;
 							headerFlag = false;
@@ -1070,7 +1089,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				else if ( activateZigbeeLogging == true )
 				{
 			    	oSerialJava = new SerialJava();
-			    	flagStartReading = oSerialJava.oeffneSerialPort("COM16");
+			    	flagStartReading = oSerialJava.oeffneSerialPort("COM25");
 				}
 		    	return null;
 			}
@@ -1195,6 +1214,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		flagStartReading = false;
 		flagLogFile = true;
 		flagStatus = true;
+		timeStartFlag = false;
 		btnStop.setVisible(false);
 		btnStop.setEnabled(false);
 		btnStart.setVisible(true);

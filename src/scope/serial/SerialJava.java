@@ -35,13 +35,14 @@ public class SerialJava{
 	InputStream inputStream;
 	Boolean serialPortGeoeffnet = false;
 
-	int baudrate = 9600;
+	int baudrate = 115200;
 	int dataBits = SerialPort.DATABITS_8;
 	int stopBits = SerialPort.STOPBITS_1;
 	int parity = SerialPort.PARITY_NONE;
 	String portName = "COM24";
 	byte[] data = null;
 	int secondsRuntime = 60;
+	Boolean serialPortDatenVerfuegbar = false; 
 
 	public SerialJava()
 	{
@@ -129,17 +130,22 @@ public class SerialJava{
 		}
 	}
 	
-	void serialPortDatenVerfuegbar() {
-		try {
+	public int getSerialData() {
+		int num = 0;
+		if ( serialPortDatenVerfuegbar == true ) 
+		{
+			try {
 			data = new byte[1150];
-			int num;
 			while(inputStream.available() > 0) {
 				num = inputStream.read(data, 0, data.length);
 				System.out.printf("%s", new String(data, 0, num));
+				}
+			serialPortDatenVerfuegbar = false;
+			} catch (IOException e) {
+				System.out.println("Fehler beim Lesen empfangener Daten");
 			}
-		} catch (IOException e) {
-			System.out.println("Fehler beim Lesen empfangener Daten");
 		}
+		return num;
 	}
 
 	public byte[] SerialMessageReader()
@@ -151,7 +157,7 @@ public class SerialJava{
 		public void serialEvent(SerialPortEvent event) {
 			switch (event.getEventType()) {
 			case SerialPortEvent.DATA_AVAILABLE:
-				serialPortDatenVerfuegbar();
+				serialPortDatenVerfuegbar = true;				
 				break;
 			case SerialPortEvent.BI:
 			case SerialPortEvent.CD:
