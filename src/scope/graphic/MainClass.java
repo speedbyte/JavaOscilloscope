@@ -180,10 +180,15 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 	final JCheckBox[] chckbx = new JCheckBox[10];
 	{
-		for (int x = 1; x <= 8; x++) {
-			chckbx[x] = new JCheckBox("Byte " + x);
-		}
-		chckbx[9] = new JCheckBox("All Bytes");
+		chckbx[1] = new JCheckBox("Speed");
+		chckbx[2] = new JCheckBox("Height");
+		chckbx[3] = new JCheckBox("Acceleration");
+		chckbx[4] = new JCheckBox("");
+		chckbx[5] = new JCheckBox("");
+		chckbx[6] = new JCheckBox("");
+		chckbx[7] = new JCheckBox("");
+		chckbx[8] = new JCheckBox("");
+		chckbx[9] = new JCheckBox("Everything");
 	}
 	Color panelColor = new Color(50, 50, 50);
 
@@ -1009,24 +1014,70 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					}
 					current = (double) (new Date()).getTime();
 					currenttime_second = (current - start) / 1000;
-	        		int data = 0;
-					data = oSerialJava.getSerialData();
-	    			if ( data != 0)
+					
+	        		byte data = 0;
+					int num = 0;
+	        		num = oSerialJava.getSerialData();
+    				int length = num;
+					if ( num != 0)
 	    			{
-	            		//canLine = data.toString();
-	            		System.out.printf("recvd message %d\n", data);
-	            		//recvd message Timestamp: 13756081 Flags:      ID: 0x00000100 Data: 0xFF 0xEE 0xDD 0xCC 0xBB 0xAA 0x99 0x88
-	            		lineToFile = ("" + canLine);
-    					df.applyPattern(pattern);
-    					
-						//writerLog.append(" " + v1);
-						//value1 = Integer.parseInt(v1, 16);
-						value1 = data;
-						serie1.add(currenttime_second, value1);
+        				System.out.printf("number of bytes read %d\n", num);
+	    				while ( num != 0 )
+	    				{
+		    				data = oSerialJava.SerialByteReader()[length-num];
+		    				num--;
+		    				System.out.printf("recvd message %d\n", data);
+	    					df.applyPattern(pattern);
+							//writerLog.append(" " + v1);
+							//value1 = Integer.parseInt(v1, 16);
+							if ( length - num == 1 )
+							{
+								value1 = (int) (Math.random()*256);
+								serie1.add(currenttime_second, value1);
+							}
+							if ( length - num == 2 )
+							{
+								value2 = (int) (Math.random()*256);
+								serie2.add(currenttime_second, value2);
+							}
+							if ( length - num == 3 )
+							{
+								value3 = (int) (Math.random()*256);
+								serie3.add(currenttime_second, value3);
+							}
+							if ( length - num == 4 )
+							{
+								value4 = (int) (Math.random()*256);
+								serie4.add(currenttime_second, value4);
+							}
+							if ( length - num == 5 )
+							{
+								value5 = (int) (Math.random()*256);
+								serie5.add(currenttime_second, value5);
+							}
+							if ( length - num == 6 )
+							{
+								value6 = (int) (Math.random()*256);
+								serie6.add(currenttime_second, value6);
+							}
+							if ( length - num == 7 )
+							{
+								value7 = (int) (Math.random()*256);
+								serie7.add(currenttime_second, value7);
+							}
+							if ( length - num == 8 )
+							{
+								value8 = (int) (Math.random()*256);
+								serie8.add(currenttime_second, value8);
+							}
+	    				}
+	    				if (num == 0)
+	    				{
+		    				System.out.println("all data read\n");
+	    				}
 	    			}
 	    			else
 	    			{
-	            		//System.out.printf("recvd message %d\n", data);
 	    				serie0.add(currenttime_second, null);
 	    			}
 	            }
