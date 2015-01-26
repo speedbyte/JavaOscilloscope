@@ -31,11 +31,10 @@ public class SerialJava{
 	int dataBits = SerialPort.DATABITS_8;
 	int stopBits = SerialPort.STOPBITS_1;
 	int parity = SerialPort.PARITY_NONE;
-	String portName = "COM24";
+	String portName = "COM108";
 
 	byte[] data_array = null;
 	byte[] data_copied = null;
-	double[] time_array = null;
 
 	Boolean all_data_read = true;
 	
@@ -153,6 +152,7 @@ public class SerialJava{
 				System.out.printf("recvd data = %d\n", data_copied[j]);
 			}
 		}
+		// Send all data received from the serial port
 		all_data_read = true;
 		serialPortDatenVerfuegbar = false;
 		mutex.unlock();
@@ -204,3 +204,23 @@ public class SerialJava{
 		}
 	}	
 }
+
+
+/*
+How mutex helps
+new data coming in
+recvd data = 97
+number of bytes read 1
+recvd message 97
+all data read
+
+new data coming in
+recvd data = 98
+recvd data = 99
+recvd data = 36
+number of bytes read 3
+recvd message 98
+recvd message 99
+recvd message 36
+all data read
+*/

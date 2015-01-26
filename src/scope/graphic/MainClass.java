@@ -143,6 +143,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	double interval = 60;
 	int frequency = 1;
 	double time = 1;
+	int index_dollar = 0;
+	byte[] data_serialport = new byte[20];
 
 	static boolean flagStatus = false;
 	static boolean flagLogFile = false;
@@ -1015,7 +1017,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					current = (double) (new Date()).getTime();
 					currenttime_second = (current - start) / 1000;
 					
-	        		byte data = 0;
 					int num = 0;
 	        		num = oSerialJava.getSerialData();
     				int length = num;
@@ -1024,9 +1025,13 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
         				System.out.printf("number of bytes read %d\n", num);
 	    				while ( num != 0 )
 	    				{
-		    				data = oSerialJava.SerialByteReader()[length-num];
+		    				// the protocol will be executed from this point.
+	    					// store all the variables till a $ is received.
+	    					data_serialport[index_dollar] = oSerialJava.SerialByteReader()[length-num];
 		    				num--;
-		    				System.out.printf("recvd message %d\n", data);
+		    				System.out.printf("recvd message %d\n", data_serialport[index_dollar]);
+		    				index_dollar++;
+			    				index_dollar = 0;
 	    					df.applyPattern(pattern);
 							//writerLog.append(" " + v1);
 							//value1 = Integer.parseInt(v1, 16);
@@ -1140,7 +1145,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				else if ( activateZigbeeLogging == true )
 				{
 			    	oSerialJava = new SerialJava();
-			    	flagStartReading = oSerialJava.oeffneSerialPort("COM25");
+			    	flagStartReading = oSerialJava.oeffneSerialPort("COM108");
 				}
 		    	return null;
 			}
