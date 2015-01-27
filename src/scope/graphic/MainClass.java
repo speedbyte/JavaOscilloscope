@@ -1030,55 +1030,35 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	    					data_serialport[index_dollar] = oSerialJava.SerialByteReader()[length-num];
 		    				num--;
 		    				System.out.printf("recvd message %d\n", data_serialport[index_dollar]);
-		    				index_dollar++;
-			    				index_dollar = 0;
-	    					df.applyPattern(pattern);
-							//writerLog.append(" " + v1);
-							//value1 = Integer.parseInt(v1, 16);
-							if ( length - num == 1 )
-							{
-								value1 = (int) (Math.random()*256);
+		    				if ( data_serialport[index_dollar] == '$' )
+		    				{
+			    				System.out.printf("Trigger oscilloscope, $ at %d\n", (index_dollar+1));
+		    					df.applyPattern(pattern);
+								//writerLog.append(" " + v1);
+								//value1 = Integer.parseInt(v1, 16);
+								//value1 = (int) (Math.random()*256);
+								value1 = data_serialport[0];
 								serie1.add(currenttime_second, value1);
-							}
-							if ( length - num == 2 )
-							{
-								value2 = (int) (Math.random()*256);
+								value2 = data_serialport[1];
 								serie2.add(currenttime_second, value2);
-							}
-							if ( length - num == 3 )
-							{
-								value3 = (int) (Math.random()*256);
+								value3 = data_serialport[2];
 								serie3.add(currenttime_second, value3);
-							}
-							if ( length - num == 4 )
-							{
-								value4 = (int) (Math.random()*256);
+								value4 = data_serialport[3];
 								serie4.add(currenttime_second, value4);
-							}
-							if ( length - num == 5 )
-							{
-								value5 = (int) (Math.random()*256);
-								serie5.add(currenttime_second, value5);
-							}
-							if ( length - num == 6 )
-							{
-								value6 = (int) (Math.random()*256);
-								serie6.add(currenttime_second, value6);
-							}
-							if ( length - num == 7 )
-							{
-								value7 = (int) (Math.random()*256);
-								serie7.add(currenttime_second, value7);
-							}
-							if ( length - num == 8 )
-							{
-								value8 = (int) (Math.random()*256);
-								serie8.add(currenttime_second, value8);
-							}
-	    				}
-	    				if (num == 0)
-	    				{
-		    				System.out.println("all data read\n");
+//								value5 = (int) (Math.random()*256);
+//								serie5.add(currenttime_second, value5);
+//								value6 = (int) (Math.random()*256);
+//								serie6.add(currenttime_second, value6);
+//								value7 = (int) (Math.random()*256);
+//								serie7.add(currenttime_second, value7);
+//								value8 = (int) (Math.random()*256);
+//								serie8.add(currenttime_second, value8);
+								index_dollar = 0;
+		    				}
+		    				else
+		    				{
+		    					index_dollar++;
+		    				}
 	    				}
 	    			}
 	    			else

@@ -40,8 +40,6 @@ public class SerialJava{
 	
 	Mutex mutex = null;
 	
-	
-
 	int pointer = 0;
 			
 	int secondsRuntime = 60;
@@ -146,11 +144,11 @@ public class SerialJava{
 		if ( serialPortDatenVerfuegbar == true ) 
 		{
 			read_bytes = pointer;
-			for ( int j = 0; j < pointer; j++)
-			{
-				data_copied[j] = data_array[j];
-				System.out.printf("recvd data = %d\n", data_copied[j]);
-			}
+		}
+		for ( int j = 0; j < pointer; j++)
+		{
+			//data_copied_again[j] = data_copied[j];
+			//System.out.printf("new data arrived = %d at %d\n", data_array[pointer], pointer);
 		}
 		// Send all data received from the serial port
 		all_data_read = true;
@@ -172,7 +170,6 @@ public class SerialJava{
 			switch (event.getEventType()) {
 			case SerialPortEvent.DATA_AVAILABLE:
 				mutex.lock();
-				System.out.println("new data coming in");
 				if ( all_data_read == true )
 				{
 					pointer = 0;
@@ -187,7 +184,12 @@ public class SerialJava{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				pointer = num;
+				for ( int j = 0; j < num; j++)
+				{
+					data_copied[pointer] = data_array[j];
+					System.out.printf("new data arrived = %d at %d\n", data_array[pointer], pointer);
+					pointer++;
+				}
 				serialPortDatenVerfuegbar = true;				
 				mutex.unlock();
 				break;
