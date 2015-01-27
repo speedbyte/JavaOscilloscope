@@ -38,7 +38,7 @@ public class SerialJava{
 
 	Boolean all_data_read = true;
 	
-	Mutex mutex = null;
+	public Mutex mutex = null;
 	
 	int pointer = 0;
 			
@@ -139,7 +139,6 @@ public class SerialJava{
 	}
 	
 	public int getSerialData() {
-		mutex.lock();
 		int read_bytes = 0;
 		if ( serialPortDatenVerfuegbar == true ) 
 		{
@@ -153,7 +152,6 @@ public class SerialJava{
 		// Send all data received from the serial port
 		all_data_read = true;
 		serialPortDatenVerfuegbar = false;
-		mutex.unlock();
 		return read_bytes;
 		
 	}
@@ -187,7 +185,7 @@ public class SerialJava{
 				for ( int j = 0; j < num; j++)
 				{
 					data_copied[pointer] = data_array[j];
-					System.out.printf("new data arrived = %d at %d\n", data_array[pointer], pointer);
+					//System.out.printf("new data arrived = %d at %d\n", data_array[pointer], pointer);
 					pointer++;
 				}
 				serialPortDatenVerfuegbar = true;				

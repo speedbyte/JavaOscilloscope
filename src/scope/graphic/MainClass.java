@@ -1018,7 +1018,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					currenttime_second = (current - start) / 1000;
 					
 					int num = 0;
-	        		num = oSerialJava.getSerialData();
+	        		oSerialJava.mutex.lock();
+					num = oSerialJava.getSerialData();
     				int length = num;
 					if ( num != 0)
 	    			{
@@ -1029,10 +1030,10 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	    					// store all the variables till a $ is received.
 	    					data_serialport[index_dollar] = oSerialJava.SerialByteReader()[length-num];
 		    				num--;
-		    				System.out.printf("recvd message %d\n", data_serialport[index_dollar]);
+		    				//System.out.printf("recvd message %d\n", data_serialport[index_dollar]);
 		    				if ( data_serialport[index_dollar] == '$' )
 		    				{
-			    				System.out.printf("Trigger oscilloscope, $ at %d\n", (index_dollar+1));
+			    				//System.out.printf("Trigger oscilloscope, $ at %d\n", (index_dollar+1));
 		    					df.applyPattern(pattern);
 								//writerLog.append(" " + v1);
 								//value1 = Integer.parseInt(v1, 16);
@@ -1065,6 +1066,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	    			{
 	    				serie0.add(currenttime_second, null);
 	    			}
+	        		oSerialJava.mutex.unlock();
 	            }
 			}
 		}
