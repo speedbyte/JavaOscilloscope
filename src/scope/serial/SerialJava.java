@@ -27,11 +27,11 @@ public class SerialJava{
 
 	static double currenttime_second;
 	double current;
-	int baudrate = 115200;
+	int baudrate = 38400;
 	int dataBits = SerialPort.DATABITS_8;
 	int stopBits = SerialPort.STOPBITS_1;
 	int parity = SerialPort.PARITY_NONE;
-	String portName = "COM108";
+	String portName = "COM1";
 
 	byte[] data_array = null;
 	byte[] data_copied = null;

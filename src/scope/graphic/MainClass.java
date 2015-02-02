@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 
@@ -144,7 +145,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	int frequency = 1;
 	double time = 1;
 	int index_dollar = 0;
-	byte[] data_serialport = new byte[20];
+	byte[] data_serialport = new byte[200];
 
 	static boolean flagStatus = false;
 	static boolean flagLogFile = false;
@@ -1031,8 +1032,11 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	    					data_serialport[index_dollar] = oSerialJava.SerialByteReader()[length-num];
 		    				num--;
 		    				//System.out.printf("recvd message %d\n", data_serialport[index_dollar]);
-		    				if ( data_serialport[index_dollar] == '$' )
+		    				if ( data_serialport[index_dollar] == '\n' )
 		    				{
+			    				
+		    					data_serialport[index_dollar+1] = '\0';
+		    					System.out.println(Arrays.toString(data_serialport));
 			    				//System.out.printf("Trigger oscilloscope, $ at %d\n", (index_dollar+1));
 		    					df.applyPattern(pattern);
 								//writerLog.append(" " + v1);
@@ -1127,7 +1131,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				else if ( activateZigbeeLogging == true )
 				{
 			    	oSerialJava = new SerialJava();
-			    	flagStartReading = oSerialJava.oeffneSerialPort("COM108");
+			    	flagStartReading = oSerialJava.oeffneSerialPort("COM16");
 				}
 		    	return null;
 			}
