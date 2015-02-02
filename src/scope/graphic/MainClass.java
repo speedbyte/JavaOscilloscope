@@ -1035,7 +1035,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		    				if ( data_serialport[index_dollar] == '\n' )
 		    				{
 			    				
-		    					data_serialport[index_dollar+1] = '\0';
 		    					System.out.println(Arrays.toString(data_serialport));
 			    				//System.out.printf("Trigger oscilloscope, $ at %d\n", (index_dollar+1));
 		    					df.applyPattern(pattern);
