@@ -187,51 +187,51 @@ public class SerialJava{
 	class serialPortEventListener implements SerialPortEventListener {
 		public void serialEvent(SerialPortEvent event) {
 			switch (event.getEventType()) {
-			case SerialPortEvent.DATA_AVAILABLE:
-				mutex.lock();
-				if ( all_data_read == true )
-				{
-					pointer = 0;
-				}
-				all_data_read = false;
-				//current = (double) (new Date()).getTime();
-				//time_array[pointer] = current;
-				int num = 0;
-				try {
-					num = inputStream.read(data_array,0,data_array.length);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				for ( int j = 0; j < num; j++)
-				{
-					data_copied[pointer] = (long)data_array[j] & 0x000000FFL;
-					//System.out.printf("new data arrived = %d at %d\n", data_copied[pointer], pointer);
-					pointer++;
-				}
-				serialPortDatenVerfuegbar = true;				
-				mutex.unlock();
-				break;
-//			case SerialPortEvent.CTS:
+//			case SerialPortEvent.DATA_AVAILABLE:
 //				mutex.lock();
+//				if ( all_data_read == true )
+//				{
+//					pointer = 0;
+//				}
+//				all_data_read = false;
 //				//current = (double) (new Date()).getTime();
 //				//time_array[pointer] = current;
+//				int num = 0;
 //				try {
-//					if ( input.ready())
-//					{
-//						String inputLine=input.readLine();
-//						all_data_read = true;
-//						// Copy to another string
-//						serial_line = inputLine;
-//					}
+//					num = inputStream.read(data_array,0,data_array.length);
 //				} catch (IOException e) {
 //					// TODO Auto-generated catch block
 //					e.printStackTrace();
-//					all_data_read = false;
+//				}
+//				for ( int j = 0; j < num; j++)
+//				{
+//					data_copied[pointer] = (long)data_array[j] & 0x000000FFL;
+//					//System.out.printf("new data arrived = %d at %d\n", data_copied[pointer], pointer);
+//					pointer++;
 //				}
 //				serialPortDatenVerfuegbar = true;				
 //				mutex.unlock();
 //				break;
+			case SerialPortEvent.DATA_AVAILABLE:
+				mutex.lock();
+				//current = (double) (new Date()).getTime();
+				//time_array[pointer] = current;
+				try {
+					if ( input.ready())
+					{
+						String inputLine=input.readLine();
+						all_data_read = true;
+						// Copy to another string
+						serial_line = inputLine;
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					all_data_read = false;
+				}
+				serialPortDatenVerfuegbar = true;				
+				mutex.unlock();
+				break;
 			case SerialPortEvent.BI:
 			case SerialPortEvent.CD:
 			case SerialPortEvent.CTS:

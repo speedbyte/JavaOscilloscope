@@ -80,7 +80,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     public static Boolean flagStartReading = false;
     public static CanMessage oCanMsg = null;
 	static String canLine = null;
-	public static Boolean single_byte_oscilloscope = true;
+	public static Boolean single_byte_oscilloscope = false;
 	public static SerialJava oSerialJava = null;
 	public static String display_string = null;
 	
@@ -1080,21 +1080,26 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					else if ( display_string != null )
 					{
 		        		System.out.println(display_string);
-		        		String[] parts = new String[6];
+		        		String[] parts = new String[10];
 						parts = display_string.split("#");
 						for ( int i = 0; i < parts.length; i++)
 						{
-							System.out.println(parts[i]);
-//							if ( i == 4 )
-//							{
-//								String[] data_magnet = new String[6];
-//								data_magnet = parts[i].split(";");
-//								System.out.println(data_magnet[0]);
-//								System.out.println(data_magnet[1]);
-//								System.out.println(data_magnet[2]);
-//							}
+							//System.out.printf("counter = %d at %s", i, parts[i]);
+							if ( i == 4 )
+							{
+								String[] data_magnet = new String[6];
+								data_magnet = parts[i].split(";");
+								System.out.println(data_magnet[0]);
+								System.out.println(data_magnet[1]);
+								System.out.println(data_magnet[2]);
+		    					value1 = Integer.parseInt(data_magnet[0]);
+								serie1.add(currenttime_second, value1);
+								value2 = Integer.parseInt(data_magnet[1]);
+								serie2.add(currenttime_second, value2);
+								value3 = Integer.parseInt(data_magnet[2]);
+								serie3.add(currenttime_second, value3);
+							}
 						}
-						//num = inputStream.read(data_array,0,data_array.length);
 					}
 	    			else
 	    			{
