@@ -3,11 +3,14 @@ package scope.serial;
 
 import gnu.io.*;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 //import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
+
 import scope.mutex.Mutex;
 
 
@@ -23,6 +26,7 @@ public class SerialJava{
 	SerialPort serialPort;
 	//OutputStream outputStream;
 	InputStream inputStream;
+	BufferedReader input;
 	Boolean serialPortGeoeffnet = false;
 
 	static double currenttime_second;
@@ -34,7 +38,7 @@ public class SerialJava{
 	String portName = "COM1";
 
 	byte[] data_array = null;
-	byte[] data_copied = null;
+	long[] data_copied = null;
 
 	Boolean all_data_read = true;
 	
@@ -44,10 +48,12 @@ public class SerialJava{
 			
 	int secondsRuntime = 60;
 	Boolean serialPortDatenVerfuegbar = false; 
+	
+	String serial_line = null;
 
 	public SerialJava()
 	{
-		data_copied = new byte[100];
+		data_copied = new long[100];
 		data_array = new byte[100];
 		mutex = new Mutex();
 		System.out.println("Konstruktor: EinfachSenden");
@@ -108,6 +114,7 @@ public class SerialJava{
 */
 		try {
 			inputStream = serialPort.getInputStream();
+			input = new BufferedReader(new InputStreamReader(inputStream));
 		} catch (IOException e) {
 			System.out.println("Keinen Zugriff auf InputStream");
 		}
@@ -153,15 +160,29 @@ public class SerialJava{
 		all_data_read = true;
 		serialPortDatenVerfuegbar = false;
 		return read_bytes;
-		
 	}
 
-	public byte[] SerialByteReader()
+	public String getSerialLine() {
+		if ( serialPortDatenVerfuegbar == true ) 
+		{
+			all_data_read = true;
+			serialPortDatenVerfuegbar = false;
+			return serial_line;
+		}
+		return null;
+	}
+
+	
+	public long[] SerialByteReader()
 	{
 		return data_copied;
 	}
 	
 
+	public long[] SerialLineReader()
+	{
+		return data_copied;
+	}
 	
 	class serialPortEventListener implements SerialPortEventListener {
 		public void serialEvent(SerialPortEvent event) {
@@ -184,13 +205,33 @@ public class SerialJava{
 				}
 				for ( int j = 0; j < num; j++)
 				{
-					data_copied[pointer] = data_array[j];
-					//System.out.printf("new data arrived = %d at %d\n", data_array[pointer], pointer);
+					data_copied[pointer] = (long)data_array[j] & 0x000000FFL;
+					//System.out.printf("new data arrived = %d at %d\n", data_copied[pointer], pointer);
 					pointer++;
 				}
 				serialPortDatenVerfuegbar = true;				
 				mutex.unlock();
 				break;
+//			case SerialPortEvent.CTS:
+//				mutex.lock();
+//				//current = (double) (new Date()).getTime();
+//				//time_array[pointer] = current;
+//				try {
+//					if ( input.ready())
+//					{
+//						String inputLine=input.readLine();
+//						all_data_read = true;
+//						// Copy to another string
+//						serial_line = inputLine;
+//					}
+//				} catch (IOException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//					all_data_read = false;
+//				}
+//				serialPortDatenVerfuegbar = true;				
+//				mutex.unlock();
+//				break;
 			case SerialPortEvent.BI:
 			case SerialPortEvent.CD:
 			case SerialPortEvent.CTS:

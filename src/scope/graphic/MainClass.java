@@ -80,8 +80,9 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
     public static Boolean flagStartReading = false;
     public static CanMessage oCanMsg = null;
 	static String canLine = null;
-	
+	public static Boolean single_byte_oscilloscope = true;
 	public static SerialJava oSerialJava = null;
+	public static String display_string = null;
 	
 	private static boolean activateCanLogging = false;
 	private static boolean activateZigbeeLogging = false;
@@ -96,6 +97,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	static XYSeries serie7 = new XYSeries("Byte 7");
 	static XYSeries serie8 = new XYSeries("Byte 8");
 
+	static XYSeries[] serie_array = new XYSeries[9];
+	
 	static XYDataset data = null;
 	static XYDataset data0 = new XYSeriesCollection(serie0);
 	static XYDataset data1 = new XYSeriesCollection(serie1);
@@ -145,7 +148,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	int frequency = 1;
 	double time = 1;
 	int index_dollar = 0;
-	byte[] data_serialport = new byte[200];
+	long[] data_serialport = new long[200];
 
 	static boolean flagStatus = false;
 	static boolean flagLogFile = false;
@@ -160,7 +163,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	String idx0 = null;
 	String CanStringSplitted[];
 	String v1, v2, v3, v4, v5, v6, v7, v8;
-	int value1, value2, value3, value4, value5, value6, value7, value8;
+	long value1, value2, value3, value4, value5, value6, value7, value8;
 
 	static double currenttime_second;
 	double timeStamp = 0;
@@ -1019,9 +1022,17 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					currenttime_second = (current - start) / 1000;
 					
 					int num = 0;
-	        		oSerialJava.mutex.lock();
-					num = oSerialJava.getSerialData();
-    				int length = num;
+					int length = 0;
+					oSerialJava.mutex.lock();
+					if ( single_byte_oscilloscope == true )
+					{
+		        		num = oSerialJava.getSerialData();
+						length = num;
+					}
+					else
+					{
+		        		display_string = oSerialJava.getSerialLine();
+					}
 					if ( num != 0)
 	    			{
         				System.out.printf("number of bytes read %d\n", num);
@@ -1034,14 +1045,14 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		    				//System.out.printf("recvd message %d\n", data_serialport[index_dollar]);
 		    				if ( data_serialport[index_dollar] == '\n' )
 		    				{
-			    				
 		    					System.out.println(Arrays.toString(data_serialport));
 			    				//System.out.printf("Trigger oscilloscope, $ at %d\n", (index_dollar+1));
 		    					df.applyPattern(pattern);
-								//writerLog.append(" " + v1);
+								
+		    					//writerLog.append(" " + v1);
 								//value1 = Integer.parseInt(v1, 16);
 								//value1 = (int) (Math.random()*256);
-								value1 = data_serialport[0];
+		    					value1 = data_serialport[0];
 								serie1.add(currenttime_second, value1);
 								value2 = data_serialport[1];
 								serie2.add(currenttime_second, value2);
@@ -1049,15 +1060,16 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 								serie3.add(currenttime_second, value3);
 								value4 = data_serialport[3];
 								serie4.add(currenttime_second, value4);
-//								value5 = (int) (Math.random()*256);
-//								serie5.add(currenttime_second, value5);
-//								value6 = (int) (Math.random()*256);
-//								serie6.add(currenttime_second, value6);
-//								value7 = (int) (Math.random()*256);
-//								serie7.add(currenttime_second, value7);
-//								value8 = (int) (Math.random()*256);
-//								serie8.add(currenttime_second, value8);
+								value5 = data_serialport[4];
+								serie5.add(currenttime_second, value5);
+								value6 = data_serialport[5];
+								serie6.add(currenttime_second, value6);
+								value7 = data_serialport[6];
+								serie7.add(currenttime_second, value7);
+								value8 = data_serialport[7];
+								serie8.add(currenttime_second, value8);
 								index_dollar = 0;
+								Arrays.fill(data_serialport, (byte)0);
 		    				}
 		    				else
 		    				{
@@ -1065,6 +1077,25 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		    				}
 	    				}
 	    			}
+					else if ( display_string != null )
+					{
+		        		System.out.println(display_string);
+		        		String[] parts = new String[6];
+						parts = display_string.split("#");
+						for ( int i = 0; i < parts.length; i++)
+						{
+							System.out.println(parts[i]);
+//							if ( i == 4 )
+//							{
+//								String[] data_magnet = new String[6];
+//								data_magnet = parts[i].split(";");
+//								System.out.println(data_magnet[0]);
+//								System.out.println(data_magnet[1]);
+//								System.out.println(data_magnet[2]);
+//							}
+						}
+						//num = inputStream.read(data_array,0,data_array.length);
+					}
 	    			else
 	    			{
 	    				serie0.add(currenttime_second, null);
@@ -1130,7 +1161,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				else if ( activateZigbeeLogging == true )
 				{
 			    	oSerialJava = new SerialJava();
-			    	flagStartReading = oSerialJava.oeffneSerialPort("COM16");
+			    	flagStartReading = oSerialJava.oeffneSerialPort("COM108");
 				}
 		    	return null;
 			}
