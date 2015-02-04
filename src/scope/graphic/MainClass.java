@@ -1085,19 +1085,41 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 						for ( int i = 0; i < parts.length; i++)
 						{
 							//System.out.printf("counter = %d at %s", i, parts[i]);
-							if ( i == 4 )
+							//abraca#dsfsd#sdfdsfdsfsd#Run#MF:52;101;48#further
+							try
 							{
-								String[] data_magnet = new String[6];
-								data_magnet = parts[i].split(";");
-								System.out.println(data_magnet[0]);
-								System.out.println(data_magnet[1]);
-								System.out.println(data_magnet[2]);
-		    					value1 = Integer.parseInt(data_magnet[0]);
-								serie1.add(currenttime_second, value1);
-								value2 = Integer.parseInt(data_magnet[1]);
-								serie2.add(currenttime_second, value2);
-								value3 = Integer.parseInt(data_magnet[2]);
-								serie3.add(currenttime_second, value3);
+								if ( i == 4 && parts.length == 6 )
+								{
+									String[] data_magnet = new String[6];
+									data_magnet = parts[i].split(";");
+//									System.out.println((data_magnet[0].split(":"))[1]);
+//									System.out.println(data_magnet[1]);
+//									System.out.println(data_magnet[2]);
+			    					value1 = Integer.parseInt((data_magnet[0].split(":"))[1]);
+									serie1.add(currenttime_second, value1);
+									value2 = Integer.parseInt(data_magnet[1]);
+									serie2.add(currenttime_second, value2);
+									value3 = Integer.parseInt(data_magnet[2]);
+									serie3.add(currenttime_second, value3);
+								}
+								else if ( i == 5 && parts.length == 7 )
+								{
+									String[] data_magnet = new String[6];
+									data_magnet = parts[i].split(";");
+	//									System.out.println((data_magnet[0].split(":"))[1]);
+	//									System.out.println(data_magnet[1]);
+	//									System.out.println(data_magnet[2]);
+			    					value1 = Integer.parseInt((data_magnet[0].split(":"))[1]);
+									serie1.add(currenttime_second, value1);
+									value2 = Integer.parseInt(data_magnet[1]);
+									serie2.add(currenttime_second, value2);
+									value3 = Integer.parseInt(data_magnet[2]);
+									serie3.add(currenttime_second, value3);
+								}
+							}
+							catch (Exception e)
+							{
+								
 							}
 						}
 					}

@@ -226,7 +226,7 @@ public class SerialJava{
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					//e.printStackTrace();
 					all_data_read = false;
 				}
 				serialPortDatenVerfuegbar = true;				
