@@ -1188,7 +1188,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				else if ( activateZigbeeLogging == true )
 				{
 			    	oSerialJava = new SerialJava();
-			    	flagStartReading = oSerialJava.oeffneSerialPort("COM108");
+			    	flagStartReading = oSerialJava.oeffneSerialPort("COM5");
 				}
 		    	return null;
 			}
