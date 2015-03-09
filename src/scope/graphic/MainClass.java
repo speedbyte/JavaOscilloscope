@@ -269,7 +269,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		
 		XYChart xyChart = new XYChart();
 		
-//		XYChart.createNewXYPlot();
+		XYChart.createNewXYSerie("byte1");
+		XYChart.createNewXYSerie("byte2");
 		
 		ChartPanel chartpanel = new PanningChartPanel(XYChart.getJFreeChart());
 		getContentPane().add(chartpanel);
