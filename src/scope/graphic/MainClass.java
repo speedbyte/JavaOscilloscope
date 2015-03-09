@@ -194,7 +194,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		chckbx[6] = new JCheckBox("");
 		chckbx[7] = new JCheckBox("");
 		chckbx[8] = new JCheckBox("");
-		chckbx[9] = new JCheckBox("Everything");
+		chckbx[9] = new JCheckBox("Everything"); 
 	}
 	Color panelColor = new Color(50, 50, 50);
 
@@ -220,53 +220,56 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		setMinimumSize(new Dimension(900, 600));
 		setPreferredSize(new Dimension(900, 600));
 		
-		jfreechart = ChartFactory.createXYStepChart(null, null, null, null,
-				PlotOrientation.VERTICAL, false, false, false);
-		jfreechart.setBackgroundPaint(panelColor);
-		
-//		jfreechart.getXYPlot().setDomainAxis(new NumberAxis());
-//		jfreechart.getXYPlot().setBackgroundPaint(new Color(0, 25, 0));
-//		jfreechart.getXYPlot().setDomainGridlinePaint(new Color(0, 50, 0));
-//		jfreechart.getXYPlot().setDomainGridlineStroke(new BasicStroke(1f));
-//		jfreechart.getXYPlot().setRangeGridlinePaint(new Color(0, 50, 0));
-//		jfreechart.getXYPlot().setRangeGridlineStroke(new BasicStroke(1f));
-//		jfreechart.getXYPlot().setDomainPannable(true);
-//		jfreechart.getXYPlot().setRangePannable(true);
-		
-
-		xyplot = jfreechart.getXYPlot();
-		xyplot.setDomainAxis(new NumberAxis());
-		xyplot.setBackgroundPaint(new Color(0, 25, 0));
-		xyplot.setDomainGridlinePaint(new Color(0, 50, 0));
-		xyplot.setDomainGridlineStroke(new BasicStroke(1f));
-		xyplot.setRangeGridlinePaint(new Color(0, 50, 0));
-		xyplot.setRangeGridlineStroke(new BasicStroke(1f));
-		xyplot.setDomainPannable(true);
-		xyplot.setRangePannable(true);
-
-//		jfreechart.getXYPlot().getDomainAxis().setLabelPaint(Color.BLACK);
-//		jfreechart.getXYPlot().getDomainAxis().setTickLabelPaint(Color.LIGHT_GRAY);
-//		jfreechart.getXYPlot().getDomainAxis().setFixedAutoRange(interval);
-		
-		valueaxis = xyplot.getDomainAxis();
-		valueaxis.setLabelPaint(Color.BLACK);
-		valueaxis.setTickLabelPaint(Color.LIGHT_GRAY);
-		valueaxis.setFixedAutoRange(interval);
-
-		// Axis0 is created as main axis of JFreeChart but is not used
-		final NumberAxis axis0 = (NumberAxis) xyplot.getRangeAxis();
-		jfreechart.getXYPlot().getRenderer().setBaseSeriesVisible(true);
-		axis0.setVisible(false);
-		axis0.setLabelPaint(jfreechart.getXYPlot().getRenderer()
-				.getItemPaint(0, 0));
-		axis0.setTickLabelPaint(jfreechart.getXYPlot().getRenderer()
-				.getItemPaint(0, 0));
-		axis0.setRange(0, 10);
-
-		// AxisConfiguration method is called in order to configure used axis
+//		jfreechart = ChartFactory.createXYStepChart(null, null, null, null,
+//				PlotOrientation.VERTICAL, false, false, false);
+//		jfreechart.setBackgroundPaint(panelColor);
+//		
+////		jfreechart.getXYPlot().setDomainAxis(new NumberAxis());
+////		jfreechart.getXYPlot().setBackgroundPaint(new Color(0, 25, 0));
+////		jfreechart.getXYPlot().setDomainGridlinePaint(new Color(0, 50, 0));
+////		jfreechart.getXYPlot().setDomainGridlineStroke(new BasicStroke(1f));
+////		jfreechart.getXYPlot().setRangeGridlinePaint(new Color(0, 50, 0));
+////		jfreechart.getXYPlot().setRangeGridlineStroke(new BasicStroke(1f));
+////		jfreechart.getXYPlot().setDomainPannable(true);
+////		jfreechart.getXYPlot().setRangePannable(true);
+//		
+//
+//		xyplot = jfreechart.getXYPlot();
+//		xyplot.setDomainAxis(new NumberAxis());
+//		xyplot.setBackgroundPaint(new Color(0, 25, 0));
+//		xyplot.setDomainGridlinePaint(new Color(0, 50, 0));
+//		xyplot.setDomainGridlineStroke(new BasicStroke(1f));
+//		xyplot.setRangeGridlinePaint(new Color(0, 50, 0));
+//		xyplot.setRangeGridlineStroke(new BasicStroke(1f));
+//		xyplot.setDomainPannable(true);
+//		xyplot.setRangePannable(true);
+//
+////		jfreechart.getXYPlot().getDomainAxis().setLabelPaint(Color.BLACK);
+////		jfreechart.getXYPlot().getDomainAxis().setTickLabelPaint(Color.LIGHT_GRAY);
+////		jfreechart.getXYPlot().getDomainAxis().setFixedAutoRange(interval);
+//		
+//		valueaxis = xyplot.getDomainAxis();
+//		valueaxis.setLabelPaint(Color.BLACK);
+//		valueaxis.setTickLabelPaint(Color.LIGHT_GRAY);
+//		valueaxis.setFixedAutoRange(interval);
+//
+//		// Axis0 is created as main axis of JFreeChart but is not used
+//		final NumberAxis axis0 = (NumberAxis) xyplot.getRangeAxis();
+//		jfreechart.getXYPlot().getRenderer().setBaseSeriesVisible(true);
+//		axis0.setVisible(false);
+//		axis0.setLabelPaint(jfreechart.getXYPlot().getRenderer()
+//				.getItemPaint(0, 0));
+//		axis0.setTickLabelPaint(jfreechart.getXYPlot().getRenderer()
+//				.getItemPaint(0, 0));
+//		axis0.setRange(0, 10);
+//
+//		// AxisConfiguration method is called in order to configure used axis
 //		axisConfiguration();
 		
+		
 		XYChart xyChart = new XYChart();
+		
+//		XYChart.createNewXYPlot();
 		
 		ChartPanel chartpanel = new PanningChartPanel(XYChart.getJFreeChart());
 		getContentPane().add(chartpanel);
