@@ -11,8 +11,10 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.AbstractRenderer;
 import org.jfree.chart.renderer.xy.XYStepRenderer;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
@@ -24,19 +26,16 @@ public class XYChart {
 	private static final Paint panelColor = new Color(50, 50, 50);
 
 	private static int xyChartCount = 0;
-	private static List<XYPlot> xyPlotColl = new ArrayList<>();
-	
+	private static List<PlotObj> xyPlotCollection = new ArrayList<>();
 	private static JFreeChart jfreechart = null;
-	private static XYSeriesCollection xyDataSetCollection = new XYSeriesCollection();
 	private static XYPlot xyPlot = null;
-	private static XYStepRenderer xyStepRenderer = null;
-	private static NumberAxis numberAxis = null;
-	
-	private double interval = 60;
+
+	private static double interval = 60;
 	 
 	
 	public XYChart(){
-		XYChart.jfreechart = ChartFactory.createXYStepChart("XY Chart", "x-axis", "y-axis", xyDataSetCollection,
+		XYChart.jfreechart = ChartFactory.createXYStepChart(
+				"XY Chart", "main x-axis", "main y-axis", null,
 				PlotOrientation.VERTICAL, false, false, false);
 		XYChart.jfreechart.setBackgroundPaint(panelColor);
 		
@@ -48,6 +47,9 @@ public class XYChart {
 		XYChart.jfreechart.getXYPlot().setDomainPannable(true);
 		XYChart.jfreechart.getXYPlot().setRangePannable(true);
 		
+		//DomainAxis (x-coordinate) setup,
+		//this axis will be used for all following xyPlots
+		//using this DomainAxis and its own RangeAxis (y-coordinate)
 		XYChart.jfreechart.getXYPlot().setDomainAxis(new NumberAxis());
 		XYChart.jfreechart.getXYPlot().getDomainAxis().setVisible(true);
 		XYChart.jfreechart.getXYPlot().getDomainAxis().setLabelPaint(Color.BLACK);
@@ -56,6 +58,8 @@ public class XYChart {
 		
 		XYChart.jfreechart.getXYPlot().getRangeAxis(0).setRange(0, 10);
 		XYChart.jfreechart.getXYPlot().getRangeAxis(0).setVisible(false);
+		
+		XYChart.xyPlot = XYChart.jfreechart.getXYPlot();
 		
 		/* mainAxis is created to draw the coordinate axis of JFreeChart
 		   but is not used to display data */
@@ -80,41 +84,77 @@ public class XYChart {
 		return XYChart.jfreechart;		
 	}
 	
-	public static void createNewXYSerie(String serieName){
-		if (serieName == null){
-			serieName = "chart"+xyChartCount;
+	public static void createNewXYPlot(String plotName){
+		if (plotName == ""){
+			plotName = "xyPlot "+xyChartCount;
 		}
 		
-		System.out.println(serieName);
+		XYChart.PlotObj plotObj = new XYChart.PlotObj(plotName);
 		
-		XYSeries serie = new XYSeries(serieName);
-		xyDataSetCollection.addSeries(serie);
-
-		xyPlot = XYChart.jfreechart.getXYPlot();
-		xyPlot.setDataset(xyChartCount, xyDataSetCollection);
-		xyPlot.mapDatasetToDomainAxis(xyChartCount, xyChartCount);
+		xyPlotCollection.add(plotObj);
+//		
+//		System.out.println(plotName);
+//		
+//		XYSeries serie = new XYSeries(plotName);
+//		XYSeriesCollection xyDataSetCollection = new XYSeriesCollection();
+//		xyDataSetCollection.addSeries(serie);
+//
+//		xyPlot.setDataset(xyChartCount, xyDataSetCollection);
+//		xyPlot.mapDatasetToDomainAxis(xyChartCount, xyChartCount);
+//		
+//		XYStepRenderer renderer = new XYStepRenderer();
+//		xyPlot.setRenderer(xyChartCount, renderer);
+//		
+//		NumberAxis rangeAxis = new NumberAxis();
+//		rangeAxis.setRange(0, 255);
+//		rangeAxis.setLabel(plotName);
+//		rangeAxis.setTickLabelPaint(renderer.getItemPaint(0, 0));
+//		rangeAxis.setTickLabelsVisible(true);
+//		rangeAxis.setLabelPaint(renderer.getItemPaint(0, 0));
+//		rangeAxis.setVisible(true);
+//		xyPlot.setRangeAxis(xyChartCount, rangeAxis);
+//		
+//		xyChartCount++;
 		
-		XYStepRenderer renderer = new XYStepRenderer();
-		xyPlot.setRenderer(xyChartCount, renderer);
 		
-		NumberAxis domainAxis   = (NumberAxis) xyPlot.getDomainAxis();
-		NumberAxis rangeAxis    = new NumberAxis();
-		rangeAxis.setRange(0, 255);
-		rangeAxis.setLabel(serieName);
-		rangeAxis.setTickLabelPaint(renderer.getItemPaint(0, 0));
-		rangeAxis.setTickLabelsVisible(true);
-		rangeAxis.setLabelPaint(renderer.getItemPaint(0, 0));
-		rangeAxis.setVisible(true);
-		xyPlot.setRangeAxis(xyChartCount, rangeAxis);
-		
-		
-		xyChartCount++;		
-//		XYPlot plot = new XYPlot(serie, domainAxis, rangeAxis, renderer);
+//		NumberAxis domainAxis   = (NumberAxis) xyPlot.getDomainAxis();
+//		XYPlot plot = new XYPlot(xyDataSetCollection, domainAxis, rangeAxis, renderer);
 	}
 
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-
+	private static class PlotObj{
+		int axisIndex				= -1;
+		String plotName				= null;
+		XYSeries serie				= null;
+		XYSeriesCollection dataSet	= null;
+		NumberAxis domainAxis		= null;
+		NumberAxis rangeAxis 		= null;
+		XYStepRenderer renderer 	= null;
+		
+		public PlotObj(String plotName){
+			this.axisIndex = xyChartCount;
+			this.plotName = plotName;
+			this.serie = new XYSeries(plotName);
+			this.dataSet = new XYSeriesCollection(this.serie);
+			this.domainAxis = (NumberAxis) xyPlot.getDomainAxis(); 
+			this.rangeAxis = new NumberAxis();
+			this.renderer = new XYStepRenderer();
+			
+			xyPlot.setDataset(xyChartCount, this.dataSet);
+			xyPlot.mapDatasetToDomainAxis(xyChartCount, xyChartCount);
+			
+			xyPlot.setRenderer(xyChartCount, this.renderer);
+			
+			this.rangeAxis.setRange(0, 255);
+			this.rangeAxis.setLabel(this.plotName);
+			this.rangeAxis.setTickLabelPaint(this.renderer.getItemPaint(0, 0));
+			this.rangeAxis.setTickLabelsVisible(true);
+			this.rangeAxis.setLabelPaint(this.renderer.getItemPaint(0, 0));
+			this.rangeAxis.setVisible(true);
+			xyPlot.setRangeAxis(xyChartCount, this.rangeAxis);
+			
+			xyChartCount++;
+			System.out.println(this.plotName);
+			System.out.println("xyChartCount: "+xyChartCount);
+		}
 	}
-
 }
