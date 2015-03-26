@@ -271,24 +271,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		
 		XYChart.createNewXYPlot("byte1");
 		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		XYChart.createNewXYPlot("byte2");
-		
 		
 		ChartPanel chartpanel = new PanningChartPanel(XYChart.getJFreeChart());
 		getContentPane().add(chartpanel);
@@ -1050,6 +1032,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	    			}
 	            }
 			}
+			
+			//Zigbee
 			else if ( activateZigbeeLogging == true )
 			{
 	        	if ( flagStartReading )

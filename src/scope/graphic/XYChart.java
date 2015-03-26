@@ -26,7 +26,7 @@ public class XYChart {
 	private static final Paint panelColor = new Color(50, 50, 50);
 
 	private static int xyChartCount = 0;
-	private static List<PlotObj> xyPlotCollection = new ArrayList<>();
+	private static List<PlotObj> xyPlotCollection = new ArrayList<PlotObj>();
 	private static JFreeChart jfreechart = null;
 	private static XYPlot xyPlot = null;
 
@@ -92,35 +92,9 @@ public class XYChart {
 		XYChart.PlotObj plotObj = new XYChart.PlotObj(plotName);
 		
 		xyPlotCollection.add(plotObj);
-//		
-//		System.out.println(plotName);
-//		
-//		XYSeries serie = new XYSeries(plotName);
-//		XYSeriesCollection xyDataSetCollection = new XYSeriesCollection();
-//		xyDataSetCollection.addSeries(serie);
-//
-//		xyPlot.setDataset(xyChartCount, xyDataSetCollection);
-//		xyPlot.mapDatasetToDomainAxis(xyChartCount, xyChartCount);
-//		
-//		XYStepRenderer renderer = new XYStepRenderer();
-//		xyPlot.setRenderer(xyChartCount, renderer);
-//		
-//		NumberAxis rangeAxis = new NumberAxis();
-//		rangeAxis.setRange(0, 255);
-//		rangeAxis.setLabel(plotName);
-//		rangeAxis.setTickLabelPaint(renderer.getItemPaint(0, 0));
-//		rangeAxis.setTickLabelsVisible(true);
-//		rangeAxis.setLabelPaint(renderer.getItemPaint(0, 0));
-//		rangeAxis.setVisible(true);
-//		xyPlot.setRangeAxis(xyChartCount, rangeAxis);
-//		
-//		xyChartCount++;
-		
-		
-//		NumberAxis domainAxis   = (NumberAxis) xyPlot.getDomainAxis();
-//		XYPlot plot = new XYPlot(xyDataSetCollection, domainAxis, rangeAxis, renderer);
+		System.out.println("ArrayList size: "+xyPlotCollection.size());
 	}
-
+	
 	private static class PlotObj{
 		int axisIndex				= -1;
 		String plotName				= null;
