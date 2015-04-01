@@ -93,6 +93,28 @@ public class XYChart {
 		
 		xyPlotCollection.add(plotObj);
 		System.out.println("ArrayList size: "+xyPlotCollection.size());
+		
+		//temp test, does not work
+		plotObj.serie.add(10,10);		
+		plotObj.serie.add(20,20);		
+		plotObj.serie.add(100,100);
+		XYSeries tempSerie = plotObj.serie;
+	}
+	
+	public static XYSeries getSerieByName(String plotName){
+		System.out.println("getSerieByName entered");
+		for (PlotObj iter : xyPlotCollection){
+			if (iter.plotName.equals(plotName))
+				System.out.print(iter.plotName + " hat Daten erhalten");
+				return iter.serie;
+		}
+		return null;
+	}
+	
+	public static XYSeries getSeriesByIndex(int index){
+		System.out.println("getSerieByIndex entered");
+		if (xyPlotCollection.isEmpty()) return null;
+		return xyPlotCollection.get(index).serie;
 	}
 	
 	private static class PlotObj{
@@ -125,6 +147,7 @@ public class XYChart {
 			this.rangeAxis.setLabelPaint(this.renderer.getItemPaint(0, 0));
 			this.rangeAxis.setVisible(true);
 			xyPlot.setRangeAxis(xyChartCount, this.rangeAxis);
+			
 			
 			xyChartCount++;
 			System.out.println(this.plotName);
