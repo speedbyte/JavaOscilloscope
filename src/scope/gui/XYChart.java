@@ -1,4 +1,4 @@
-package scope.graphic;
+package scope.gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

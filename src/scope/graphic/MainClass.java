@@ -67,6 +67,8 @@ import de.ixxat.vci3.bal.IBalObject;
 import de.ixxat.vci3.bal.can.CanMessage;
 import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.data.ImportButton;
+import scope.gui.DynamicDataDemo;
+import scope.gui.XYChart;
 import scope.vci.VciJava;
 import scope.serial.SerialJava;
 
@@ -1142,13 +1144,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 									//
 									XYChart.getSerieByName("byte1").add(currenttime_second, value1);
 //									XYChart.getSeriesByIndex(0).add(currenttime_second, value1);
-									
-									demo.pushUpdate(1, 0, 10);
-									demo.pushUpdate(1, 1, 20);
-									demo.pushUpdate(1, 2, 40);
-									demo.pushUpdate(1, 4, 80);
-									demo.pushUpdate(1, 8, 160);
-//									demo.pushUpdate(1, currenttime_second, value1);
+								
 								}
 								else if ( i == 5 && parts.length == 7 )
 								{
