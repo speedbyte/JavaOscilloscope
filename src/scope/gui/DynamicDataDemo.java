@@ -87,8 +87,8 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener,
     @Override
 	public void notifyDataChange() {
 		LinkedList<double[]> dataQ = model.getData();
-		while(dataQ.peek() != null) {
-			double[] xyDataPoint = dataQ.poll();
+		double[] xyDataPoint;
+		while((xyDataPoint = dataQ.poll()) != null) {
 			synchronized ("series update gate") {
 				this.series.add(xyDataPoint[0], xyDataPoint[1]);
 			}
@@ -116,13 +116,22 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener,
         final JFreeChart chart = createChart(dataset);
 
         final ChartPanel chartPanel = new ChartPanel(chart);
-        final JButton button = new JButton("Add New Data Item");
-        button.setActionCommand("ADD_DATA");
-        button.addActionListener(this);
+        
+        final JButton button1 = new JButton("Add New Data Item");
+        button1.setActionCommand("ADD_DATA");
+        button1.addActionListener(this);
 
+        final JButton button2 = new JButton("Draw Refresh");
+        button2.setActionCommand("REFRESH");
+        button2.addActionListener(this);
+        
         final JPanel content = new JPanel(new BorderLayout());
-        content.add(chartPanel);
-        content.add(button, BorderLayout.SOUTH);
+        final JPanel panelButtons = new JPanel(new BorderLayout());
+        
+        content.add(chartPanel, BorderLayout.NORTH);
+        content.add(panelButtons, BorderLayout.SOUTH);
+        panelButtons.add(button1, BorderLayout.NORTH);
+        panelButtons.add(button2, BorderLayout.SOUTH);
         chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
         setContentPane(content);
         
@@ -159,7 +168,7 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener,
         final XYPlot plot = result.getXYPlot();
         ValueAxis axis = plot.getDomainAxis();
         axis.setAutoRange(true);
-        axis.setFixedAutoRange(30);
+        axis.setFixedAutoRange(200);
         axis = plot.getRangeAxis();
         axis.setRange(0.0, 200.0);
         return result;
@@ -194,37 +203,9 @@ public class DynamicDataDemo extends ApplicationFrame implements ActionListener,
 				}
 			}
         }
+        if (e.getActionCommand().equals("REFRESH")) {
+        	System.out.println("Draw Refresh");
+        	model.notifyObservers();     	
+        }        
     }
-//    
-//    public void addRandomData(){
-//    	final double factor = 0.90 + 0.2 * Math.random();
-//        this.lastValue = this.lastValue * factor;
-//        this.series.add(xValue++, this.lastValue);
-//    }
-//    
-//    public void updateSerie(double x, double y){
-//    	this.series.add(x, y);
-//    }
-
-    /**
-     * Starting point for the demonstration application.
-     *
-     * @param args  ignored.
-     */
-//    public static void main(final String[] args) {
-//
-//        final DynamicDataDemo demo = new DynamicDataDemo("Dynamic Data Demo");
-//        demo.pack();
-//        RefineryUtilities.centerFrameOnScreen(demo);
-//        demo.setVisible(true);
-//        
-//        Timer timer = new Timer();
-//        timer.scheduleAtFixedRate(new TimerTask() {
-//        	  @Override
-//        	  public void run() {
-//        	    demo.addRandomData();
-//        	  }
-//        	}, 500, 100);
-//    }
-
 }

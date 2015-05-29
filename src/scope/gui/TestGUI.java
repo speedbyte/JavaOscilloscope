@@ -86,14 +86,23 @@ public class TestGUI {
 //			}
 //		}
 		
-		
+		//Thread sending Data
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
 				double data[] = { rand1.getX(), rand1.getY() };
-				mm.pushUpdate(uuid1, data);
+					mm.pushUpdate(uuid1, data);
 			}
-		}, 500, 20);
+		}, 500, 1);
+		
+		//Thread calling frequently observers to update, determines refresh rate
+		Timer timerNotify = new Timer();
+		timerNotify.scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				mm.notifyObservers();
+			}
+		}, 550, 1);
 	}
 }

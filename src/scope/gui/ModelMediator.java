@@ -30,9 +30,10 @@ public class ModelMediator implements MMInterface, DataSourceInteface {
 	public LinkedList<double[]> getData() {
 		return repository.pollData(tempID);
 	}
-
-	private void notifyObservers() {
-		if (repository.peekData(tempID).size() > 0)
+	
+	@Override
+	public void notifyObservers() {
+//		if (repository.peekData(tempID).size() > 0)
 			for (ViewInterface observer : observerList) {
 				observer.notifyDataChange();
 			}
@@ -46,49 +47,13 @@ public class ModelMediator implements MMInterface, DataSourceInteface {
 		}
 		repository.addData(uuid, data);
 		int bufferQueueLength = repository.peekData(uuid).size();
-		if (bufferQueueLength > 1)
+		if (bufferQueueLength > 0)
 			System.out.println("Data sub queue size: " + bufferQueueLength);
-		notifyObservers();
-	}
-
-	private class DataSourceRepository {
-		private ConcurrentHashMap<UUID, ConcurrentLinkedQueue> dataSourceMap = new ConcurrentHashMap<>();
-
-		public boolean containsKey(UUID uuid) {
-			return dataSourceMap.containsKey(uuid);
-		}
-
-		public void createSerie(UUID uuid) {
-			ConcurrentLinkedQueue<Object> shiftRegisterQueue = new ConcurrentLinkedQueue<>();
-			for (int i = 0; i < 2; i++)
-				shiftRegisterQueue.add(new LinkedList<Object>());
-			dataSourceMap.put(uuid, shiftRegisterQueue);
-		}
-
-		public void removeSerie(UUID uuid) {
-			dataSourceMap.remove(uuid);
-		}
-
-		public void addData(UUID uuid, Object data) {
-			LinkedList tempQ;
-			synchronized (uuid) {
-				tempQ = (LinkedList) dataSourceMap.get(uuid).peek();
-				tempQ.add(data);
+		if (repository.peekData(uuid).size() > 200){
+			synchronized ("pop"){
+				repository.peekData(uuid).pop();
 			}
 		}
-
-		public LinkedList<double[]> peekData(UUID uuid) {
-			return (LinkedList<double[]>) dataSourceMap.get(uuid).peek();
-		}
-
-		public LinkedList<double[]> pollData(UUID uuid) {
-			try {
-				synchronized (uuid) {
-					return (LinkedList<double[]>) dataSourceMap.get(uuid).poll();
-				}
-			} finally {
-				dataSourceMap.get(uuid).add(new LinkedList<>());
-			}
-		}
+//		notifyObservers();
 	}
 }

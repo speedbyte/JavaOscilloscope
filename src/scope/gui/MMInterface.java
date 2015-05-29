@@ -4,4 +4,5 @@ import java.util.LinkedList;
 
 public interface MMInterface extends ObserverInterface {
 	public LinkedList<double[]> getData();
+	public void notifyObservers();	
 }
