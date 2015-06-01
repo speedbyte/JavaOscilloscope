@@ -11,7 +11,11 @@ public class ModelMediator implements MMInterface, DataSourceInteface {
 
 	private List<ViewInterface> observerList = new ArrayList<>();
 	// private List<DataSourceInterface> dataSourceList = new ArrayList<>();
-	private DataSourceRepository repository = new DataSourceRepository();
+//	private DataSourceRepository repository = new DataSourceRepository();
+	
+	private DataRepository repository = new DataRepository();
+	
+	private Ringbuffer<double[]> ringbuffer = new Ringbuffer<>(1000);
 
 	// temporary uuid variable
 	private UUID tempID;
@@ -26,9 +30,16 @@ public class ModelMediator implements MMInterface, DataSourceInteface {
 		observerList.remove(observer);
 	}
 
+//	//original getData()
+//	@Override
+//	public LinkedList<double[]> getData() {
+//		return repository.pollData(tempID);
+//	}
+	
+	//Ringbuffer test
 	@Override
-	public LinkedList<double[]> getData() {
-		return repository.pollData(tempID);
+	public  LinkedList<Double[]> getData() {
+		return repository.getDataSetArrays();
 	}
 	
 	@Override
@@ -38,22 +49,31 @@ public class ModelMediator implements MMInterface, DataSourceInteface {
 				observer.notifyDataChange();
 			}
 	}
-
+	
+//	//orignal pushUpdate
+//	@Override
+//	public void pushUpdate(UUID uuid, double[] data) {
+//		if (!repository.containsKey(uuid)) {
+//			repository.createSerie(uuid);
+//			tempID = uuid;
+//		}
+//		repository.addData(uuid, data);
+//		int bufferQueueLength = repository.peekData(uuid).size();
+//		if (bufferQueueLength > 0)
+//			System.out.println("Data sub queue size: " + bufferQueueLength);
+//		if (repository.peekData(uuid).size() > 200){
+//			synchronized ("pop"){
+//				repository.peekData(uuid).pop();
+//			}
+//		}
+////		notifyObservers();
+//	}
+	
+	//Rinbuffer test
 	@Override
-	public void pushUpdate(UUID uuid, double[] data) {
-		if (!repository.containsKey(uuid)) {
-			repository.createSerie(uuid);
-			tempID = uuid;
-		}
-		repository.addData(uuid, data);
-		int bufferQueueLength = repository.peekData(uuid).size();
-		if (bufferQueueLength > 0)
-			System.out.println("Data sub queue size: " + bufferQueueLength);
-		if (repository.peekData(uuid).size() > 200){
-			synchronized ("pop"){
-				repository.peekData(uuid).pop();
-			}
-		}
-//		notifyObservers();
+	public void pushUpdate(UUID uuid, Double[] data) {
+		ringbuffer.addItem(data);
+
+		notifyObservers();
 	}
 }

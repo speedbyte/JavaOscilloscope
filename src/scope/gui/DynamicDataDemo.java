@@ -1,6 +1,5 @@
 package scope.gui;
 
-
 /* ===========================================================
  * JFreeChart : a free chart library for the Java(tm) platform
  * ===========================================================
@@ -65,147 +64,145 @@ import org.jfree.ui.RefineryUtilities;
 
 import scope.gui.MMInterface;
 
-
 /**
- * A demonstration application showing a time series chart where you can dynamically add
- * (random) data by clicking on a button.
- *
+ * A demonstration application showing a time series chart where you can
+ * dynamically add (random) data by clicking on a button.
+ * 
  */
-public class DynamicDataDemo extends ApplicationFrame implements ActionListener, ViewInterface {
-	
+public class DynamicDataDemo extends ApplicationFrame implements
+		ActionListener, ViewInterface {
+
 	MMInterface model;
 
-    /** The time series data. */
-    private XYSeries series;
-    private XYSeries series2;
+	/** The time series data. */
+	private XYSeries series;
+	private XYSeries series2;
 
-    /** The most recent value added. */
-    private double lastValue = 100.0;
-    private double xValue = 0;
-            
-        
-    @Override
+	/** The most recent value added. */
+	private double lastValue = 100.0;
+	private double xValue = 0;
+
+	private int seriesCount = 2;
+
+	@Override
 	public void notifyDataChange() {
-		LinkedList<double[]> dataQ = model.getData();
-		double[] xyDataPoint;
-		while((xyDataPoint = dataQ.poll()) != null) {
-			synchronized ("series update gate") {
-				this.series.add(xyDataPoint[0], xyDataPoint[1]);
+		LinkedList<Double[]> dataSetArrayQueue = model.getData();
+		Double[] dataSetArray;
+		while ((dataSetArray = dataSetArrayQueue.poll()) != null) {
+			for (int i = 1; i > seriesCount; i++) {
+				this.series.add(dataSetArray[0], dataSetArray[i]);
 			}
 		}
 	}
 
-//	@Override
-//		public void pushUpdate(UUID uuid, double x, double y){
-//			if (uuid == 1) this.series.add(x, y);
-//			if (uuid == 2) this.series2.add(x, y);
-//		}
+	// @Override
+	// public void pushUpdate(UUID uuid, double x, double y){
+	// if (uuid == 1) this.series.add(x, y);
+	// if (uuid == 2) this.series2.add(x, y);
+	// }
 
 	/**
-     * Constructs a new demonstration application.
-     *
-     * @param title  the frame title.
-     */
-    public DynamicDataDemo(final String title) {
+	 * Constructs a new demonstration application.
+	 * 
+	 * @param title
+	 *            the frame title.
+	 */
+	public DynamicDataDemo(final String title) {
 
-        super(title);
-        this.series = new XYSeries("Random Data");
-        final XYSeriesCollection dataset = new XYSeriesCollection(this.series);
-        this.series2 = new XYSeries("2nd Random Data");
-        dataset.addSeries(series2);
-        final JFreeChart chart = createChart(dataset);
+		super(title);
+		this.series = new XYSeries("Random Data");
+		final XYSeriesCollection dataset = new XYSeriesCollection(this.series);
+		this.series2 = new XYSeries("2nd Random Data");
+		// keeps series form clogging up so the display does not slow down
+		this.series.setMaximumItemCount(1100);
+		dataset.addSeries(series2);
+		final JFreeChart chart = createChart(dataset);
 
-        final ChartPanel chartPanel = new ChartPanel(chart);
-        
-        final JButton button1 = new JButton("Add New Data Item");
-        button1.setActionCommand("ADD_DATA");
-        button1.addActionListener(this);
+		final ChartPanel chartPanel = new ChartPanel(chart);
 
-        final JButton button2 = new JButton("Draw Refresh");
-        button2.setActionCommand("REFRESH");
-        button2.addActionListener(this);
-        
-        final JPanel content = new JPanel(new BorderLayout());
-        final JPanel panelButtons = new JPanel(new BorderLayout());
-        
-        content.add(chartPanel, BorderLayout.NORTH);
-        content.add(panelButtons, BorderLayout.SOUTH);
-        panelButtons.add(button1, BorderLayout.NORTH);
-        panelButtons.add(button2, BorderLayout.SOUTH);
-        chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
-        setContentPane(content);
-        
+		final JButton button1 = new JButton("Add New Data Item");
+		button1.setActionCommand("ADD_DATA");
+		button1.addActionListener(this);
+
+		final JButton button2 = new JButton("Draw Refresh");
+		button2.setActionCommand("REFRESH");
+		button2.addActionListener(this);
+
+		final JPanel content = new JPanel(new BorderLayout());
+		final JPanel panelButtons = new JPanel(new BorderLayout());
+
+		content.add(chartPanel, BorderLayout.NORTH);
+		content.add(panelButtons, BorderLayout.SOUTH);
+		panelButtons.add(button1, BorderLayout.NORTH);
+		panelButtons.add(button2, BorderLayout.SOUTH);
+		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));
+		setContentPane(content);
+
 		this.pack();
-	    RefineryUtilities.centerFrameOnScreen(this);
-	    this.setVisible(true);
-    }
-    
-    public void setModel(MMInterface model) {
-    	this.model = model;
-    	this.model.registerObserver(this);
-    }
-    
-    
+		RefineryUtilities.centerFrameOnScreen(this);
+		this.setVisible(true);
+	}
 
-    /**
-     * Creates a sample chart.
-     * 
-     * @param dataset  the dataset.
-     * 
-     * @return A sample chart.
-     */
-    private JFreeChart createChart(final XYDataset dataset) {
-        final JFreeChart result = ChartFactory.createXYStepChart(
-            "Dynamic Data Demo", 
-            "Time", 
-            "Value",
-            dataset, 
-            PlotOrientation.VERTICAL,
-            true, 
-            true, 
-            false
-        );
-        final XYPlot plot = result.getXYPlot();
-        ValueAxis axis = plot.getDomainAxis();
-        axis.setAutoRange(true);
-        axis.setFixedAutoRange(200);
-        axis = plot.getRangeAxis();
-        axis.setRange(0.0, 200.0);
-        return result;
-    }
-    
-    // ****************************************************************************
-    // * JFREECHART DEVELOPER GUIDE                                               *
-    // * The JFreeChart Developer Guide, written by David Gilbert, is available   *
-    // * to purchase from Object Refinery Limited:                                *
-    // *                                                                          *
-    // * http://www.object-refinery.com/jfreechart/guide.html                     *
-    // *                                                                          *
-    // * Sales are used to provide funding for the JFreeChart project - please    * 
-    // * support us so that we can continue developing free software.             *
-    // ****************************************************************************
-    
-    /**
-     * Handles a click on the button by adding new (random) data.
-     *
-     * @param e  the action event.
-     */
-    public void actionPerformed(final ActionEvent e) {
-        if (e.getActionCommand().equals("ADD_DATA")) {
+	public void setModel(MMInterface model) {
+		this.model = model;
+		this.model.registerObserver(this);
+	}
+
+	/**
+	 * Creates a sample chart.
+	 * 
+	 * @param dataset
+	 *            the dataset.
+	 * 
+	 * @return A sample chart.
+	 */
+	private JFreeChart createChart(final XYDataset dataset) {
+		final JFreeChart result = ChartFactory.createXYStepChart(
+				"Dynamic Data Demo", "Time", "Value", dataset,
+				PlotOrientation.VERTICAL, true, true, false);
+		final XYPlot plot = result.getXYPlot();
+		ValueAxis axis = plot.getDomainAxis();
+		axis.setAutoRange(true);
+		axis.setFixedAutoRange(1000);
+		axis = plot.getRangeAxis();
+		axis.setRange(0.0, 200.0);
+		return result;
+	}
+
+	// ****************************************************************************
+	// * JFREECHART DEVELOPER GUIDE *
+	// * The JFreeChart Developer Guide, written by David Gilbert, is available
+	// *
+	// * to purchase from Object Refinery Limited: *
+	// * *
+	// * http://www.object-refinery.com/jfreechart/guide.html *
+	// * *
+	// * Sales are used to provide funding for the JFreeChart project - please *
+	// * support us so that we can continue developing free software. *
+	// ****************************************************************************
+
+	/**
+	 * Handles a click on the button by adding new (random) data.
+	 * 
+	 * @param e
+	 *            the action event.
+	 */
+	public void actionPerformed(final ActionEvent e) {
+		if (e.getActionCommand().equals("ADD_DATA")) {
 			for (int i = 0; i < 10; i++) {
 				final double factor = 0.90 + 0.2 * Math.random();
 				this.lastValue = this.lastValue * factor;
 				final Millisecond now = new Millisecond();
 				System.out.println("Now = " + now.toString());
-				
+
 				synchronized ("series update gate") {
 					this.series.add(xValue++, this.lastValue);
 				}
 			}
-        }
-        if (e.getActionCommand().equals("REFRESH")) {
-        	System.out.println("Draw Refresh");
-        	model.notifyObservers();     	
-        }        
-    }
+		}
+		if (e.getActionCommand().equals("REFRESH")) {
+			System.out.println("Draw Refresh");
+			model.notifyObservers();
+		}
+	}
 }

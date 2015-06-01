@@ -12,12 +12,15 @@ public class TestGUI {
 	private static class Rand {
 		private double x = 0;
 		private double lastY = 100;
+		private int incdec = 1;
 
 		public double getY() {
 			// final double factor = (0.90 + 0.2 * Math.random());
 			// lastY = lastY * factor;
-			lastY = (int) (200 * Math.random());
-			return lastY;
+//			lastY = (int) (200 * Math.random());
+			if(lastY <= 0) incdec = 1;
+			if(lastY >= 200) incdec = -1;
+			return lastY = lastY+incdec;
 		}
 
 		public double getX() {
@@ -87,11 +90,11 @@ public class TestGUI {
 //		}
 		
 		//Thread sending Data
-		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(new TimerTask() {
+		Timer timerData = new Timer();
+		timerData.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				double data[] = { rand1.getX(), rand1.getY() };
+				double[] data = { rand1.getX(), rand1.getY() };
 					mm.pushUpdate(uuid1, data);
 			}
 		}, 500, 1);
@@ -103,6 +106,6 @@ public class TestGUI {
 			public void run() {
 				mm.notifyObservers();
 			}
-		}, 550, 1);
+		}, 20, 1);
 	}
 }

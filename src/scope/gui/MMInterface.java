@@ -3,6 +3,6 @@ package scope.gui;
 import java.util.LinkedList;
 
 public interface MMInterface extends ObserverInterface {
-	public LinkedList<double[]> getData();
+	public LinkedList<Double[]> getData();
 	public void notifyObservers();	
 }
