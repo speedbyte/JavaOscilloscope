@@ -2,12 +2,12 @@ package scope.gui;
 
 import java.util.*;
 
-public interface DataRepositoryInterface {
+public interface DataRepositoryInterface<E> {
 	/* adds data array from serial port without time stamps */
-	void addDataSetArray(Double[] dataSetArray);
-	
+	void addDataSetArray(E array);
+
 	/* returns all data set arrays in a LinkedList */
-	LinkedList<Double[]> getDataSetArrays();
+	LinkedList<E> getDataSetArrays();
 	
 	/* clears all recorded data of the indexed data set,
 	 * further data for that data set will be recorded */

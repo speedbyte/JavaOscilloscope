@@ -77,29 +77,29 @@ public class DynamicDataDemo extends ApplicationFrame implements
 	/** The time series data. */
 	private XYSeries series;
 	private XYSeries series2;
+	private XYSeries series3;
+	private XYSeriesCollection dataset = new XYSeriesCollection();
 
 	/** The most recent value added. */
 	private double lastValue = 100.0;
 	private double xValue = 0;
 
-	private int seriesCount = 2;
+	private int seriesCount = 3;
 
 	@Override
 	public void notifyDataChange() {
-		LinkedList<Double[]> dataSetArrayQueue = model.getData();
-		Double[] dataSetArray;
+		LinkedList<double[]> dataSetArrayQueue = model.getData();
+		double[] dataSetArray;
 		while ((dataSetArray = dataSetArrayQueue.poll()) != null) {
-			for (int i = 1; i > seriesCount; i++) {
-				this.series.add(dataSetArray[0], dataSetArray[i]);
+			for (int arrayIndex = 1, seriesIndex = 0; arrayIndex <= dataset.getSeriesCount();) {
+				System.out.println("serie" + seriesIndex + "	"
+						+ dataSetArray[0] + ", "+ dataSetArray[arrayIndex]);
+				dataset.getSeries(seriesIndex).add(dataSetArray[0],dataSetArray[arrayIndex]);
+				seriesIndex++;
+				arrayIndex++;
 			}
 		}
 	}
-
-	// @Override
-	// public void pushUpdate(UUID uuid, double x, double y){
-	// if (uuid == 1) this.series.add(x, y);
-	// if (uuid == 2) this.series2.add(x, y);
-	// }
 
 	/**
 	 * Constructs a new demonstration application.
@@ -111,11 +111,14 @@ public class DynamicDataDemo extends ApplicationFrame implements
 
 		super(title);
 		this.series = new XYSeries("Random Data");
-		final XYSeriesCollection dataset = new XYSeriesCollection(this.series);
+		this.series.setMaximumItemCount(1000);// keeps series form clogging up so the display does not slow down
 		this.series2 = new XYSeries("2nd Random Data");
-		// keeps series form clogging up so the display does not slow down
-		this.series.setMaximumItemCount(1100);
-		dataset.addSeries(series2);
+		this.series2.setMaximumItemCount(1000);// keeps series form clogging up so the display does not slow down
+		this.series3 = new XYSeries("3rd Random Data");
+		this.series3.setMaximumItemCount(1000);// keeps series form clogging up so the display does not slow down
+		this.dataset.addSeries(series);
+		this.dataset.addSeries(series2);
+		this.dataset.addSeries(series3);
 		final JFreeChart chart = createChart(dataset);
 
 		final ChartPanel chartPanel = new ChartPanel(chart);
@@ -163,7 +166,7 @@ public class DynamicDataDemo extends ApplicationFrame implements
 		final XYPlot plot = result.getXYPlot();
 		ValueAxis axis = plot.getDomainAxis();
 		axis.setAutoRange(true);
-		axis.setFixedAutoRange(1000);
+		axis.setFixedAutoRange(10);
 		axis = plot.getRangeAxis();
 		axis.setRange(0.0, 200.0);
 		return result;
