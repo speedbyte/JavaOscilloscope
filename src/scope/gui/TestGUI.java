@@ -1,9 +1,7 @@
 package scope.gui;
 
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
 
 import javax.swing.SwingUtilities;
 
@@ -31,7 +29,7 @@ public class TestGUI {
 		}
 
 		public double getX() {
-			x = x + 0.05;
+			x = x + 0.02;
 			return x;
 		}
 	}
@@ -48,11 +46,12 @@ public class TestGUI {
 		View XYSeriesChart = new View();
 		RefineryUtilities.centerFrameOnScreen(XYSeriesChart);
 		XYSeriesChart.setVisible(true);
+		XYSeriesChart.initView(4);
 		XYSeriesChart.setModel(mm);
+		
 
 		// init random data source
 		final Rand rand1 = new Rand();
-		final Rand rand2 = new Rand();
 
 		// Thread sending Data
 		Timer timerData = new Timer();
@@ -62,12 +61,14 @@ public class TestGUI {
 				double[] data = { rand1.getX(),
 						rand1.getYRand(),
 						rand1.getYWave(),
-						rand1.getYWave()+rand1.getYRand() };
-				System.out.println(data[0] + ", " + data[1]);
+						rand1.getYWave()+rand1.getYRand(),
+						rand1.getYRand()
+						};
+//				System.out.println(data[0] + ", " + data[1]);
 				mm.pushDataArray(data);
-				System.out.println("data array pushed");
+//				System.out.println("data array pushed");
 			}
-		}, 0, 50);
+		}, 0, 20);
 
 //		 //Thread calling frequently observers to update, determines refresh rate
 //		Timer timerNotify = new Timer();
@@ -76,6 +77,6 @@ public class TestGUI {
 //			public void run() {
 //				mm.notifyObservers();
 //			}
-//		}, 0, 40);
+//		}, 0, 20);
 	}
 }

@@ -24,10 +24,12 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Stack;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -77,8 +79,10 @@ import scope.graphic.PanningChartPanel;
 public class View extends JFrame implements ViewInterface, ActionListener {
 
 	// Variables
-	MMInterface model;
-
+	private MMInterface model;
+	private static ArrayList<JCheckBox> checkBoxList = new ArrayList<>();
+	private static int initDatasetCount = 0;
+	
 	public static VciJava oVciJava = null;
 	public static IBalObject oBalObject = null;
 	public static ICanMessageReader oCanMsgReader = null;
@@ -222,9 +226,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 
 		setMinimumSize(new Dimension(900, 600));
 		setPreferredSize(new Dimension(900, 600));
-		
 
-		jfreechart = ChartFactory.createXYStepChart("", "", "", data0,
+		jfreechart = ChartFactory.createXYStepChart(null, null, null, null,
 				PlotOrientation.VERTICAL, false, false, false);
 		jfreechart.setBackgroundPaint(panelColor);
 		jfreechart.getXYPlot().setDomainAxis(new NumberAxis());
@@ -254,8 +257,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		axis0.setRange(0, 10);
 
 		// AxisConfiguration method is called in order to configure used axis
-		//TODO
+		// TODO done
 		axisConfiguration();
+
+		// dummy data set to advance domain/x-axis if no data is received
+		xyplot.setDataset(0, data0);
 
 		ChartPanel chartpanel = new PanningChartPanel(jfreechart);
 		getContentPane().add(chartpanel);
@@ -266,6 +272,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		this.setTitle("Oscilloscope");
 
 		// Jpanel and Swing elements are configured
+		
 		JPanel jpanel = new JPanel();
 		jpanel.setBackground(panelColor);
 		jpanel.setMinimumSize(new Dimension(800, 190));
@@ -281,23 +288,80 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 
 		panel.setPreferredSize(new Dimension(800, 25));
 		panel.setMinimumSize(new Dimension(800, 25));
-		panel_1.add(panel);
 		panel.setBackground(panelColor);
 		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		panel_1.add(panel);
 
+		//TODO done
+		final JPanel checkBoxBar = new JPanel();
+		checkBoxBar.setBackground(panelColor);
+		checkBoxBar.setLayout (new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel.add(checkBoxBar);
+		
+		final JPanel upperLeftButtons = new JPanel();
+		upperLeftButtons.setBackground(panelColor);
+		upperLeftButtons.setLayout (new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		panel.add(upperLeftButtons);
+		
+		
+		JButton addDataset = new JButton("Add Data");
+		addDataset.setFont(new Font("Tahoma", Font.BOLD, 12));
+		addDataset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				int checkBoxListIndex = checkBoxList.size();
+				int plotCtrIndex  = checkBoxList.size()+1;
+				
+				if (checkBoxListIndex < View.initDatasetCount) {
+					View.xyplot.getRangeAxis(plotCtrIndex).setTickLabelsVisible(true);
+					View.xyplot.getRangeAxis(plotCtrIndex).setVisible(true);
+					
+					JCheckBox checkBox = createCheckBox(plotCtrIndex);
+					checkBoxList.add(checkBox);
+					checkBoxBar.add(checkBox);
+					checkBox.revalidate();
+				}
+			}
+		});
+		upperLeftButtons.add(addDataset);
+		
+		JButton removeDataset = new JButton("Remove Data");
+		removeDataset.setFont(new Font("Tahoma", Font.BOLD, 12));
+		removeDataset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//TODO
+				int checkBoxListIndex = checkBoxList.size()-1;
+				int plotCtrIndex = checkBoxList.size();
+				
+				View.xyplot.getRangeAxis(plotCtrIndex).setTickLabelsVisible(false);
+				View.xyplot.getRangeAxis(plotCtrIndex).setVisible(false);
+				View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(false);
+				
+				JCheckBox lastAddedCheckBox = checkBoxList.get(checkBoxListIndex);
+				lastAddedCheckBox.revalidate();
+				checkBoxBar.remove(lastAddedCheckBox);
+				checkBoxList.remove(lastAddedCheckBox);
+			}
+		});
+		upperLeftButtons.add(removeDataset);
+		
+		ImportButton btnImportValues = new ImportButton("Upload File");
+		btnImportValues.button.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		upperLeftButtons.add(btnImportValues.button);
+		
 		// adds check boxes to "panel"
 		// TODO
 		int x = 1;
 		while (x <= 9) {
 			chckbx[x].setForeground(Color.LIGHT_GRAY);
 			chckbx[x].setBackground(panelColor);
-			panel.add(chckbx[x]);
+//			checkBoxBar.add(chckbx[x]);
 			x++;
 		}
+		
+		
 
-		ImportButton btnImportValues = new ImportButton("Upload File");
-		btnImportValues.button.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		panel.add(btnImportValues.button);
+		
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setBackground(panelColor);
@@ -311,7 +375,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnStart.setVisible(true);
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				clear();
+				clearAllSeries();
 				if (rdbtnBluetooth.isSelected()) {
 					// runVci(null);
 					activateCanLogging = true;
@@ -539,7 +603,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				case JOptionPane.NO_OPTION:
 					break;
 				case JOptionPane.YES_OPTION:
-					clear();
+					clearAllSeries();
 				}
 			}
 		});
@@ -878,11 +942,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		jpanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 		BorderFactory.createLineBorder(Color.black);
 		chartpanel.setPreferredSize(new Dimension(800, 400));
-
-		// View.xyplot.setRenderer(1, new XYDotRenderer());
-		// View.xyplot.getRangeAxis(1).setVisible(true);
-//		xyplot.getRendererForDataset(data1).setSeriesVisible(0, true, false);
-//		XYSeries coll = ((XYSeriesCollection) data1).getSeries(0);
 	}
 
 	// End of View constructor
@@ -1031,18 +1090,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		rdbtnImportFile.setEnabled(true);
 	}
 
-	// Clear method
-	private void clear() {
-		serie1.clear();
-		serie2.clear();
-		serie3.clear();
-		serie4.clear();
-		serie5.clear();
-		serie6.clear();
-		serie7.clear();
-		serie8.clear();
-
-	}
 
 	// ActionPerformed method
 	public void actionPerformed(ActionEvent e) {
@@ -1051,21 +1098,107 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			System.exit(0);
 		}
 	}
+		
+	/* Clear all Data stored in Series */
+	private void clearAllSeries() {
+		int datasetCount = View.xyplot.getDatasetCount();
+		for (int plotCtrIndex = 0; plotCtrIndex < datasetCount; plotCtrIndex++) {
+			((XYSeriesCollection) View.xyplot
+					.getDataset(plotCtrIndex)).getSeries(0).clear();
+		}
+	}
+	
+	private JCheckBox createCheckBox(final int plotCtrIndex) {
+		final JCheckBox checkBox = new JCheckBox("Data " + String.valueOf(plotCtrIndex));
+		checkBox.setForeground(Color.LIGHT_GRAY);
+		checkBox.setBackground(panelColor);
+		
+		checkBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 
+				if (checkBox.isSelected()) {
+					View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(true);
+//					axis1.setTickLabelsVisible(true);
+//					axis1.setVisible(true);
+					axis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
+					for (JCheckBox chechBoxItem : checkBoxList) {
+						chechBoxItem.setBackground(panelColor);
+					}
+					checkBox.setBackground(new Color(0, 0, 20));
+				} else {
+					View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(false);
+//					axis1.setTickLabelsVisible(false);
+//					axis1.setVisible(false);
+				}
+			}
+		});		
+		return checkBox;		
+	}
+	
 	@Override
 	public void notifyDataChange() {
 		LinkedList<double[]> dataArrayQueue = model.getData();
 		double[] dataArray;
+		int datasetCount = View.xyplot.getDatasetCount();
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			View.serie0.add(dataArray[0], null);
-			View.serie1.add(dataArray[0], dataArray[1]);
-			View.serie2.add(dataArray[0], dataArray[2]);
-			View.serie3.add(dataArray[0], dataArray[3]);
+			/*TODO replace dataArray.lenght by datasetCount or initDatasetCount
+			 *  when needless datasets are removed*/
+			for (int plotCtrIndex = 1; plotCtrIndex < dataArray.length; plotCtrIndex++) {
+				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex))
+						.getSeries(0).add(dataArray[0], dataArray[plotCtrIndex]);
+			}
 		}
 	}
 
 	public void setModel(MMInterface model) {
 		this.model = model;
 		this.model.registerObserver(this);
+	}
+
+	@Override
+	public void initView(int arrayDataCount) {
+		this.initDatasetCount = arrayDataCount;
+		
+		for (int plotCtrIndex = 1; plotCtrIndex <= arrayDataCount; plotCtrIndex++) {
+			/*
+			 * Creating one axis, dataset container, serie and renderer for one
+			 * data set to represent (e.g. speed)
+			 */
+			String name = new String("Data " + String.valueOf(plotCtrIndex));
+
+			XYStepRenderer xyRenderer = new XYStepRenderer();
+			NumberAxis numberAxis = new NumberAxis(name);
+			XYDataset dataset = new XYSeriesCollection();
+			XYSeries serie = new XYSeries(name);
+
+			/* Configuring xyRenderer */
+			xyRenderer.setBaseSeriesVisible(false);
+			/* Associate xyRenderer with the corresponding plot control index */
+			View.xyplot.setRenderer(plotCtrIndex, xyRenderer);
+
+			/* Configuring the numberAxis */
+			numberAxis.setTickLabelsVisible(false);
+			numberAxis.setVisible(false);
+			numberAxis.setRange(-5, 260);
+			numberAxis.setLabelPaint(xyRenderer.getItemPaint(0, 0));
+			numberAxis.setTickLabelPaint(xyRenderer.getItemPaint(0, 0));
+			/* Associate numberAxis with the corresponding plot control index,
+			 * setting it up as rangeAxis (y-axis) */
+			View.xyplot.setRangeAxis(plotCtrIndex, numberAxis);
+
+			/* Associate dataset with the corresponding plot control index */
+			View.xyplot.setDataset(plotCtrIndex, dataset);
+			/* Binding dataset to previously created numberAxis */
+			View.xyplot.mapDatasetToRangeAxis(plotCtrIndex, plotCtrIndex);
+
+			/*
+			 * Adds the serie to the created and set up dataset, serie will be
+			 * storing one incoming data set (e.g. speed) while representation
+			 * of this data set is defined by the xyRenderer, dataset and
+			 * numberAxis
+			 */
+			((XYSeriesCollection) dataset).addSeries(serie);
+		}
 	}
 }

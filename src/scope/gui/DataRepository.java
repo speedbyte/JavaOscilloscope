@@ -9,7 +9,7 @@ public class DataRepository<E> implements DataRepositoryInterface<E>{
 
 	@Override
 	public void addDataSetArray(E dataSetArray) {
-		System.out.println("write:	"+dataSetArray);
+//		System.out.println("write:	"+dataSetArray);
 		ringbuffer.addItem(dataSetArray);
 	}
 
@@ -18,7 +18,7 @@ public class DataRepository<E> implements DataRepositoryInterface<E>{
 		LinkedList<E> list = new LinkedList<>();
 		E item;
 		while ((item = ringbuffer.getItem()) != null){
-			System.out.println("read:	"+item);
+//			System.out.println("read:	"+item);
 			list.add(item);
 		}
 		return list;

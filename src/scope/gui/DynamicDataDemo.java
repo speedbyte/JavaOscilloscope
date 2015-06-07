@@ -208,4 +208,10 @@ public class DynamicDataDemo extends ApplicationFrame implements
 			model.notifyObservers();
 		}
 	}
+
+	@Override
+	public void initView(int dataSetCount) {
+		// TODO Auto-generated method stub
+		
+	}
 }
