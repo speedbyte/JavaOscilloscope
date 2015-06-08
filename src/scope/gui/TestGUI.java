@@ -7,6 +7,8 @@ import javax.swing.SwingUtilities;
 
 import org.jfree.ui.RefineryUtilities;
 
+import scope.gui.MMInterface;;
+
 public class TestGUI {
 
 	private static class Rand {

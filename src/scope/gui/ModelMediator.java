@@ -21,7 +21,6 @@ public class ModelMediator implements MMInterface {
 		observerList.remove(observer);
 	}
 	
-	//Ringbuffer test
 	@Override
 	public  LinkedList<double[]> getData() {
 		return repository.getDataSetArrays();
@@ -34,7 +33,6 @@ public class ModelMediator implements MMInterface {
 		}
 	}
 	
-	//Rinbuffer test
 	@Override
 	public void pushDataArray(double[] data) {
 		repository.addDataSetArray(data);
