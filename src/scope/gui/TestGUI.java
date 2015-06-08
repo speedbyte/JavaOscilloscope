@@ -46,7 +46,7 @@ public class TestGUI {
 		View XYSeriesChart = new View();
 		RefineryUtilities.centerFrameOnScreen(XYSeriesChart);
 		XYSeriesChart.setVisible(true);
-		XYSeriesChart.initView(4);
+		XYSeriesChart.initView(8);
 		XYSeriesChart.setModel(mm);
 		
 

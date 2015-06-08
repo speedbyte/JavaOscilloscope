@@ -74,7 +74,7 @@ import scope.vci.VciJava;
 import scope.serial.SerialJava;
 import scope.graphic.PanningChartPanel;
 
-//Main Class
+//View Class
 @SuppressWarnings("serial")
 public class View extends JFrame implements ViewInterface, ActionListener {
 
@@ -96,39 +96,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	private static boolean activateCanLogging = false;
 	private static boolean activateZigbeeLogging = false;
 
-	static XYSeries serie0 = new XYSeries("");
-	static XYSeries serie1 = new XYSeries("Byte 1");
-	static XYSeries serie2 = new XYSeries("Byte 2");
-	static XYSeries serie3 = new XYSeries("Byte 3");
-	static XYSeries serie4 = new XYSeries("Byte 4");
-	static XYSeries serie5 = new XYSeries("Byte 5");
-	static XYSeries serie6 = new XYSeries("Byte 6");
-	static XYSeries serie7 = new XYSeries("Byte 7");
-	static XYSeries serie8 = new XYSeries("Byte 8");
-
-	static XYSeries[] serie_array = new XYSeries[9];
-
-	static XYDataset data = null;
+	static XYSeries serie0 = new XYSeries("Dummy");
 	static XYDataset data0 = new XYSeriesCollection(serie0);
-	static XYDataset data1 = new XYSeriesCollection(serie1);
-	static XYDataset data2 = new XYSeriesCollection(serie2);
-	static XYDataset data3 = new XYSeriesCollection(serie3);
-	static XYDataset data4 = new XYSeriesCollection(serie4);
-	static XYDataset data5 = new XYSeriesCollection(serie5);
-	static XYDataset data6 = new XYSeriesCollection(serie6);
-	static XYDataset data7 = new XYSeriesCollection(serie7);
-	static XYDataset data8 = new XYSeriesCollection(serie8);
 
 	static NumberAxis axis;
-	static NumberAxis axis1 = new NumberAxis("Byte 1");
-	static NumberAxis axis2 = new NumberAxis("Byte 2");
-	static NumberAxis axis3 = new NumberAxis("Byte 3");
-	static NumberAxis axis4 = new NumberAxis("Byte 4");
-	static NumberAxis axis5 = new NumberAxis("Byte 5");
-	static NumberAxis axis6 = new NumberAxis("Byte 6");
-	static NumberAxis axis7 = new NumberAxis("Byte 7");
-	static NumberAxis axis8 = new NumberAxis("Byte 8");
-	static NumberAxis axis9 = new NumberAxis("");
+
 
 	static ValueAxis valueaxis = null;
 	final static Charset ENCODING = StandardCharsets.UTF_8;
@@ -143,15 +115,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 
 	static XYPlot xyplot;
 	static JFreeChart jfreechart = null;
-	static XYStepRenderer renderer = null;
-	final static XYStepRenderer renderer1 = null;
-	final static XYStepRenderer renderer2 = null;
-	final static XYStepRenderer renderer3 = null;
-	final static XYStepRenderer renderer4 = null;
-	final static XYStepRenderer renderer5 = null;
-	final static XYStepRenderer renderer6 = null;
-	final static XYStepRenderer renderer7 = null;
-	final static XYStepRenderer renderer8 = null;
 
 	double interval = 60;
 	int frequency = 1;
@@ -193,18 +156,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	JRadioButton rdbtnZigbee;
 	JRadioButton rdbtnImportFile;
 
-	final JCheckBox[] chckbx = new JCheckBox[10];
-	{
-		chckbx[1] = new JCheckBox("Speed");
-		chckbx[2] = new JCheckBox("Height");
-		chckbx[3] = new JCheckBox("Acceleration");
-		chckbx[4] = new JCheckBox("");
-		chckbx[5] = new JCheckBox("");
-		chckbx[6] = new JCheckBox("");
-		chckbx[7] = new JCheckBox("");
-		chckbx[8] = new JCheckBox("");
-		chckbx[9] = new JCheckBox("Everything");
-	}
 	Color panelColor = new Color(50, 50, 50);
 
 	// Main method
@@ -256,11 +207,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		axis0.setVisible(false);
 		axis0.setRange(0, 10);
 
-		// AxisConfiguration method is called in order to configure used axis
-		// TODO done
-		axisConfiguration();
-
-		// dummy data set to advance domain/x-axis if no data is received
+		/* dummy data set to advance domain/x-axis if no data is received */
 		xyplot.setDataset(0, data0);
 
 		ChartPanel chartpanel = new PanningChartPanel(jfreechart);
@@ -332,15 +279,17 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				//TODO
 				int checkBoxListIndex = checkBoxList.size()-1;
 				int plotCtrIndex = checkBoxList.size();
-				
-				View.xyplot.getRangeAxis(plotCtrIndex).setTickLabelsVisible(false);
-				View.xyplot.getRangeAxis(plotCtrIndex).setVisible(false);
-				View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(false);
-				
-				JCheckBox lastAddedCheckBox = checkBoxList.get(checkBoxListIndex);
-				lastAddedCheckBox.revalidate();
-				checkBoxBar.remove(lastAddedCheckBox);
-				checkBoxList.remove(lastAddedCheckBox);
+				if (!checkBoxList.isEmpty()) {
+					View.xyplot.getRangeAxis(plotCtrIndex)
+							.setTickLabelsVisible(false);
+					View.xyplot.getRangeAxis(plotCtrIndex).setVisible(false);
+					View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(false);
+
+					JCheckBox lastAddedCheckBox = checkBoxList.get(checkBoxListIndex);
+					lastAddedCheckBox.revalidate();
+					checkBoxBar.remove(lastAddedCheckBox);
+					checkBoxList.remove(lastAddedCheckBox);
+				}
 			}
 		});
 		upperLeftButtons.add(removeDataset);
@@ -348,19 +297,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		ImportButton btnImportValues = new ImportButton("Upload File");
 		btnImportValues.button.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		upperLeftButtons.add(btnImportValues.button);
-		
-		// adds check boxes to "panel"
-		// TODO
-		int x = 1;
-		while (x <= 9) {
-			chckbx[x].setForeground(Color.LIGHT_GRAY);
-			chckbx[x].setBackground(panelColor);
-//			checkBoxBar.add(chckbx[x]);
-			x++;
-		}
-		
-		
-
 		
 		
 		JPanel buttonPanel = new JPanel();
@@ -480,31 +416,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		auto.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		auto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (axis == axis9) {
-					axis1.setAutoRange(true);
-					axis2.setAutoRange(true);
-					axis3.setAutoRange(true);
-					axis4.setAutoRange(true);
-					axis5.setAutoRange(true);
-					axis6.setAutoRange(true);
-					axis7.setAutoRange(true);
-					axis8.setAutoRange(true);
-					valueaxis.setAutoRange(true);
-					axis1.setAutoRange(false);
-					axis2.setAutoRange(false);
-					axis3.setAutoRange(false);
-					axis4.setAutoRange(false);
-					axis5.setAutoRange(false);
-					axis6.setAutoRange(false);
-					axis7.setAutoRange(false);
-					axis8.setAutoRange(false);
-				} else {
-					axis.setAutoRange(true);
-					axis.setAutoRange(false);
-				}
+				axis.setAutoRange(true);
+				axis.setAutoRange(false);
 			}
 		});
 		buttonPanel.add(auto);
+		
 		JLabel lblIndividualControls = new JLabel("Control");
 		lblIndividualControls.setForeground(new Color(153, 204, 204));
 		lblIndividualControls.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -679,356 +596,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			}
 		});
 
-		chckbx[1].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbx[1].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(1)
-							.setBaseSeriesVisible(true);
-					axis1.setTickLabelsVisible(true);
-					axis1.setVisible(true);
-					axis = axis1;
-					SetBackColorCheck();
-					chckbx[1].setBackground(new Color(0, 0, 20));
-				} else {
-					jfreechart.getXYPlot().getRenderer(1)
-							.setBaseSeriesVisible(false);
-					axis1.setTickLabelsVisible(false);
-					axis1.setVisible(false);
-				}
-
-			}
-		});
-		chckbx[2].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbx[2].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(2)
-							.setBaseSeriesVisible(true);
-					axis2.setTickLabelsVisible(true);
-					axis2.setVisible(true);
-					axis = axis2;
-					SetBackColorCheck();
-					chckbx[2].setBackground(new Color(0, 0, 20));
-				} else {
-					jfreechart.getXYPlot().getRenderer(2)
-							.setBaseSeriesVisible(false);
-					axis2.setTickLabelsVisible(false);
-					axis2.setVisible(false);
-				}
-
-			}
-		});
-		chckbx[3].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbx[3].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(3)
-							.setBaseSeriesVisible(true);
-					axis3.setTickLabelsVisible(true);
-					axis3.setVisible(true);
-					axis = axis3;
-					SetBackColorCheck();
-					chckbx[3].setBackground(new Color(0, 0, 20));
-				} else {
-					jfreechart.getXYPlot().getRenderer(3)
-							.setBaseSeriesVisible(false);
-					axis3.setTickLabelsVisible(false);
-					axis3.setVisible(false);
-				}
-
-			}
-		});
-		chckbx[4].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbx[4].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(4)
-							.setBaseSeriesVisible(true);
-					axis4.setTickLabelsVisible(true);
-					axis4.setVisible(true);
-					axis = axis4;
-					SetBackColorCheck();
-					chckbx[4].setBackground(new Color(0, 0, 20));
-				} else {
-					jfreechart.getXYPlot().getRenderer(4)
-							.setBaseSeriesVisible(false);
-					axis4.setTickLabelsVisible(false);
-					axis4.setVisible(false);
-				}
-
-			}
-		});
-		chckbx[5].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbx[5].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(5)
-							.setBaseSeriesVisible(true);
-					axis5.setTickLabelsVisible(true);
-					axis5.setVisible(true);
-					axis = axis5;
-					SetBackColorCheck();
-					chckbx[5].setBackground(new Color(0, 0, 20));
-				} else {
-					jfreechart.getXYPlot().getRenderer(5)
-							.setBaseSeriesVisible(false);
-					axis5.setTickLabelsVisible(false);
-					axis5.setVisible(false);
-				}
-
-			}
-		});
-		chckbx[6].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbx[6].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(6)
-							.setBaseSeriesVisible(true);
-					axis6.setTickLabelsVisible(true);
-					axis6.setVisible(true);
-					axis = axis6;
-					SetBackColorCheck();
-					chckbx[6].setBackground(new Color(0, 0, 20));
-				} else {
-					jfreechart.getXYPlot().getRenderer(6)
-							.setBaseSeriesVisible(false);
-					axis6.setTickLabelsVisible(false);
-					axis6.setVisible(false);
-				}
-
-			}
-		});
-		chckbx[7].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbx[7].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(7)
-							.setBaseSeriesVisible(true);
-					axis7.setTickLabelsVisible(true);
-					axis7.setVisible(true);
-					axis = axis7;
-					SetBackColorCheck();
-					chckbx[7].setBackground(new Color(0, 0, 20));
-				} else {
-					jfreechart.getXYPlot().getRenderer(7)
-							.setBaseSeriesVisible(false);
-					axis7.setTickLabelsVisible(false);
-					axis7.setVisible(false);
-				}
-
-			}
-		});
-		chckbx[8].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				if (chckbx[8].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(8)
-							.setBaseSeriesVisible(true);
-					axis8.setTickLabelsVisible(true);
-					axis8.setVisible(true);
-					axis = axis8;
-					SetBackColorCheck();
-					chckbx[8].setBackground(new Color(0, 0, 20));
-				} else {
-					jfreechart.getXYPlot().getRenderer(8)
-							.setBaseSeriesVisible(false);
-					axis8.setTickLabelsVisible(false);
-					axis8.setVisible(false);
-				}
-
-			}
-		});
-
-		chckbx[9].addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (chckbx[9].isSelected()) {
-					axis = axis9;
-
-					jfreechart.getXYPlot().getRenderer(1)
-							.setBaseSeriesVisible(true);
-					jfreechart.getXYPlot().getRenderer(2)
-							.setBaseSeriesVisible(true);
-					jfreechart.getXYPlot().getRenderer(3)
-							.setBaseSeriesVisible(true);
-					jfreechart.getXYPlot().getRenderer(4)
-							.setBaseSeriesVisible(true);
-					jfreechart.getXYPlot().getRenderer(5)
-							.setBaseSeriesVisible(true);
-					jfreechart.getXYPlot().getRenderer(6)
-							.setBaseSeriesVisible(true);
-					jfreechart.getXYPlot().getRenderer(7)
-							.setBaseSeriesVisible(true);
-					jfreechart.getXYPlot().getRenderer(8)
-							.setBaseSeriesVisible(true);
-
-					axis1.setTickLabelsVisible(true);
-					axis2.setTickLabelsVisible(true);
-					axis3.setTickLabelsVisible(true);
-					axis4.setTickLabelsVisible(true);
-					axis5.setTickLabelsVisible(true);
-					axis6.setTickLabelsVisible(true);
-					axis7.setTickLabelsVisible(true);
-					axis8.setTickLabelsVisible(true);
-
-					axis1.setVisible(true);
-					axis2.setVisible(true);
-					axis3.setVisible(true);
-					axis4.setVisible(true);
-					axis5.setVisible(true);
-					axis6.setVisible(true);
-					axis7.setVisible(true);
-					axis8.setVisible(true);
-
-					chckbx[1].setSelected(true);
-					chckbx[2].setSelected(true);
-					chckbx[3].setSelected(true);
-					chckbx[4].setSelected(true);
-					chckbx[5].setSelected(true);
-					chckbx[6].setSelected(true);
-					chckbx[7].setSelected(true);
-					chckbx[8].setSelected(true);
-
-				} else {
-
-					jfreechart.getXYPlot().getRenderer(1)
-							.setBaseSeriesVisible(false);
-					jfreechart.getXYPlot().getRenderer(2)
-							.setBaseSeriesVisible(false);
-					jfreechart.getXYPlot().getRenderer(3)
-							.setBaseSeriesVisible(false);
-					jfreechart.getXYPlot().getRenderer(4)
-							.setBaseSeriesVisible(false);
-					jfreechart.getXYPlot().getRenderer(5)
-							.setBaseSeriesVisible(false);
-					jfreechart.getXYPlot().getRenderer(6)
-							.setBaseSeriesVisible(false);
-					jfreechart.getXYPlot().getRenderer(7)
-							.setBaseSeriesVisible(false);
-					jfreechart.getXYPlot().getRenderer(8)
-							.setBaseSeriesVisible(false);
-
-					axis1.setTickLabelsVisible(false);
-					axis2.setTickLabelsVisible(false);
-					axis3.setTickLabelsVisible(false);
-					axis4.setTickLabelsVisible(false);
-					axis5.setTickLabelsVisible(false);
-					axis6.setTickLabelsVisible(false);
-					axis7.setTickLabelsVisible(false);
-					axis8.setTickLabelsVisible(false);
-
-					axis1.setVisible(false);
-					axis2.setVisible(false);
-					axis3.setVisible(false);
-					axis4.setVisible(false);
-					axis5.setVisible(false);
-					axis6.setVisible(false);
-					axis7.setVisible(false);
-					axis8.setVisible(false);
-
-					chckbx[1].setSelected(false);
-					chckbx[2].setSelected(false);
-					chckbx[3].setSelected(false);
-					chckbx[4].setSelected(false);
-					chckbx[5].setSelected(false);
-					chckbx[6].setSelected(false);
-					chckbx[7].setSelected(false);
-					chckbx[8].setSelected(false);
-
-				}
-			}
-		});
-
 		jpanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 		BorderFactory.createLineBorder(Color.black);
 		chartpanel.setPreferredSize(new Dimension(800, 400));
 	}
+	/* End of View constructor */
 
-	// End of View constructor
-
-	private void SetBackColorCheck() {
-		for (int x = 1; x <= 9; x++) {
-			chckbx[x].setBackground(panelColor);
-		}
-	}
-
-	public static void ReadFrameNull() {
-
-		serie1.add(currenttime_second, null);
-		serie2.add(currenttime_second, null);
-		serie3.add(currenttime_second, null);
-		serie4.add(currenttime_second, null);
-		serie5.add(currenttime_second, null);
-		serie6.add(currenttime_second, null);
-		serie7.add(currenttime_second, null);
-		serie8.add(currenttime_second, null);
-
-	}
-
-	// AxisConfiguration method
-	public static void axisConfiguration() {
-
-		int axisCtrl = 1;
-		while (axisCtrl <= 8) {
-			if (axisCtrl == 1) {
-				axis = axis1;
-				renderer = renderer1;
-				data = data1;
-			}
-			if (axisCtrl == 2) {
-				axis = axis2;
-				renderer = renderer2;
-				data = data2;
-			}
-			if (axisCtrl == 3) {
-				axis = axis3;
-				renderer = renderer3;
-				data = data3;
-			}
-			if (axisCtrl == 4) {
-				axis = axis4;
-				renderer = renderer4;
-				data = data4;
-			}
-			if (axisCtrl == 5) {
-				axis = axis5;
-				renderer = renderer5;
-				data = data5;
-			}
-			if (axisCtrl == 6) {
-				axis = axis6;
-				renderer = renderer6;
-				data = data6;
-			}
-			if (axisCtrl == 7) {
-				axis = axis7;
-				renderer = renderer7;
-				data = data7;
-			}
-			if (axisCtrl == 8) {
-				axis = axis8;
-				renderer = renderer8;
-				data = data8;
-			}
-
-			xyplot.setRangeAxis(axisCtrl, axis);
-			axis.setTickLabelsVisible(false);
-			axis.setVisible(false);
-			xyplot.setDataset(axisCtrl, data);
-			xyplot.mapDatasetToRangeAxis(axisCtrl, axisCtrl);
-			renderer = new XYStepRenderer();
-			xyplot.setRenderer(axisCtrl, renderer);
-			jfreechart.getXYPlot().getRenderer(axisCtrl)
-					.setBaseSeriesVisible(false);
-			axis.setLabelPaint(jfreechart.getXYPlot().getRenderer(axisCtrl)
-					.getItemPaint(0, 0));
-			axis.setTickLabelPaint(jfreechart.getXYPlot().getRenderer(axisCtrl)
-					.getItemPaint(0, 0));
-			xyplot.setRangeAxis(axisCtrl, axis);
-			axis.setRange(-5, 260);
-			axisCtrl++;
-		}
-	}
 
 	// CloseMenu method
 	private void closeMenu() {
@@ -1118,8 +691,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 
 				if (checkBox.isSelected()) {
 					View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(true);
-//					axis1.setTickLabelsVisible(true);
-//					axis1.setVisible(true);
+					/* TODO description */
 					axis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
 					for (JCheckBox chechBoxItem : checkBoxList) {
 						chechBoxItem.setBackground(panelColor);
@@ -1127,8 +699,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 					checkBox.setBackground(new Color(0, 0, 20));
 				} else {
 					View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(false);
-//					axis1.setTickLabelsVisible(false);
-//					axis1.setVisible(false);
 				}
 			}
 		});		
@@ -1139,11 +709,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	public void notifyDataChange() {
 		LinkedList<double[]> dataArrayQueue = model.getData();
 		double[] dataArray;
-		int datasetCount = View.xyplot.getDatasetCount();
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			View.serie0.add(dataArray[0], null);
-			/*TODO replace dataArray.lenght by datasetCount or initDatasetCount
-			 *  when needless datasets are removed*/
 			for (int plotCtrIndex = 1; plotCtrIndex < dataArray.length; plotCtrIndex++) {
 				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex))
 						.getSeries(0).add(dataArray[0], dataArray[plotCtrIndex]);
