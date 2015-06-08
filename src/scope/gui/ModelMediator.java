@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class ModelMediator implements MMInterface {
 
 	private List<ViewInterface> observerList = new ArrayList<>();
-	private DataRepository<double[]> repository = new DataRepository<>();
+	private DataRepository<long[]> repository = new DataRepository<>();
 	
 
 	@Override
@@ -22,7 +22,7 @@ public class ModelMediator implements MMInterface {
 	}
 	
 	@Override
-	public  LinkedList<double[]> getData() {
+	public  LinkedList<long[]> getData() {
 		return repository.getDataSetArrays();
 	}
 	
@@ -34,8 +34,9 @@ public class ModelMediator implements MMInterface {
 	}
 	
 	@Override
-	public void pushDataArray(double[] data) {
+	public void pushDataArray(long[] data) {
 		repository.addDataSetArray(data);
 		notifyObservers();
+		System.out.println("View notified");
 	}
 }

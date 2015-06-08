@@ -18,7 +18,7 @@ public interface DataRepositoryInterface<E> {
 	void removeDataSet(int dataSetIndex);
 	
 	/* get last length of the array that was added with addDataSetArray */
-	int getDataSetArrayLenth();
+	int getDataSetArrayLength();
 	
 	/* get count of data sets that are actually recorded */
 	int getDataSetCount();

@@ -37,7 +37,7 @@ public class DataRepository<E> implements DataRepositoryInterface<E>{
 	}
 
 	@Override
-	public int getDataSetArrayLenth() {
+	public int getDataSetArrayLength() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

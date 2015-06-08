@@ -88,8 +88,8 @@ public class DynamicDataDemo extends ApplicationFrame implements
 
 	@Override
 	public void notifyDataChange() {
-		LinkedList<double[]> dataSetArrayQueue = model.getData();
-		double[] dataSetArray;
+		LinkedList<long[]> dataSetArrayQueue = model.getData();
+		long[] dataSetArray;
 		while ((dataSetArray = dataSetArrayQueue.poll()) != null) {
 			for (int arrayIndex = 1, seriesIndex = 0; arrayIndex <= dataset.getSeriesCount();) {
 				System.out.println("serie" + seriesIndex + "	"

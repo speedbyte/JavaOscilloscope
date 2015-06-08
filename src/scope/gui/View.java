@@ -707,8 +707,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	
 	@Override
 	public void notifyDataChange() {
-		LinkedList<double[]> dataArrayQueue = model.getData();
-		double[] dataArray;
+		LinkedList<long[]> dataArrayQueue = model.getData();
+		long[] dataArray;
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			View.serie0.add(dataArray[0], null);
 			for (int plotCtrIndex = 1; plotCtrIndex < dataArray.length; plotCtrIndex++) {

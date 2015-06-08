@@ -3,7 +3,7 @@ package scope.gui;
 import java.util.LinkedList;
 
 public interface MMInterface extends ObserverInterface {
-	void pushDataArray(double[] data);
-	public LinkedList<double[]> getData();
+	void pushDataArray(long[] data);
+	public LinkedList<long[]> getData();
 	public void notifyObservers();	
 }

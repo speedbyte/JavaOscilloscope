@@ -12,17 +12,17 @@ import scope.gui.MMInterface;;
 public class TestGUI {
 
 	private static class Rand {
-		private double x = 0;
-		private double lastY = 100;
+		private long x = 0;
+		private long lastY = 100;
 		private int incdec = 1;
 
-		public double getYRand() {
+		public long getYRand() {
 //			 final double factor = (0.90 + 0.2 * Math.random());
 //			 lastY = lastY * factor;
-			 double randNum = (200 * Math.random());
+			 long randNum = (long) (200 * Math.random());
 			 return randNum;
 		}
-		public double getYWave() {
+		public long getYWave() {
 			if (lastY <= 0)
 				incdec = 1;
 			if (lastY >= 200)
@@ -30,8 +30,8 @@ public class TestGUI {
 			return lastY = lastY + incdec;
 		}
 
-		public double getX() {
-			x = x + 0.02;
+		public long getX() {
+			x = (long) (x + 1);
 			return x;
 		}
 	}
@@ -60,13 +60,13 @@ public class TestGUI {
 		timerData.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				double[] data = { rand1.getX(),
+				long[] data = { rand1.getX(),
 						rand1.getYRand(),
 						rand1.getYWave(),
 						rand1.getYWave()+rand1.getYRand(),
 						rand1.getYRand()
 						};
-//				System.out.println(data[0] + ", " + data[1]);
+				System.out.println(data[0] + ", " + data[1]);
 				mm.pushDataArray(data);
 //				System.out.println("data array pushed");
 			}
