@@ -73,6 +73,7 @@ import scope.data.ImportButton;
 import scope.vci.VciJava;
 import scope.serial.SerialJava;
 import scope.graphic.PanningChartPanel;
+import scope.graphic.SerialReaderInterface;
 
 //View Class
 @SuppressWarnings("serial")
@@ -80,6 +81,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 
 	// Variables
 	private MMInterface model;
+	private SerialReaderInterface reader;
 	private static ArrayList<JCheckBox> checkBoxList = new ArrayList<>();
 	private static int initDatasetCount = 0;
 	
@@ -167,7 +169,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 
 	// View constructor, the chart is created
 	public View() {
-
+		
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent arg0) {
@@ -239,7 +241,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		panel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		panel_1.add(panel);
 
-		//TODO done
 		final JPanel checkBoxBar = new JPanel();
 		checkBoxBar.setBackground(panelColor);
 		checkBoxBar.setLayout (new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -251,9 +252,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		panel.add(upperLeftButtons);
 		
 		
-		JButton addDataset = new JButton("Add Data");
-		addDataset.setFont(new Font("Tahoma", Font.BOLD, 12));
-		addDataset.addActionListener(new ActionListener() {
+		JButton btnAddDataset = new JButton("Add Data");
+		btnAddDataset.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnAddDataset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
 				int checkBoxListIndex = checkBoxList.size();
@@ -267,16 +268,16 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 					checkBoxList.add(checkBox);
 					checkBoxBar.add(checkBox);
 					checkBox.revalidate();
+					checkBox.repaint();
 				}
 			}
 		});
-		upperLeftButtons.add(addDataset);
+		upperLeftButtons.add(btnAddDataset);
 		
-		JButton removeDataset = new JButton("Remove Data");
-		removeDataset.setFont(new Font("Tahoma", Font.BOLD, 12));
-		removeDataset.addActionListener(new ActionListener() {
+		JButton btnRemoveDataset = new JButton("Remove Data");
+		btnRemoveDataset.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnRemoveDataset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//TODO
 				int checkBoxListIndex = checkBoxList.size()-1;
 				int plotCtrIndex = checkBoxList.size();
 				if (!checkBoxList.isEmpty()) {
@@ -292,7 +293,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				}
 			}
 		});
-		upperLeftButtons.add(removeDataset);
+		upperLeftButtons.add(btnRemoveDataset);
 		
 		ImportButton btnImportValues = new ImportButton("Upload File");
 		btnImportValues.button.setFont(new Font("Tahoma", Font.PLAIN, 12));
@@ -312,20 +313,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				clearAllSeries();
-				if (rdbtnBluetooth.isSelected()) {
-					// runVci(null);
-					activateCanLogging = true;
-				}
-				if (rdbtnZigbee.isSelected()) {
-					// runVci(null);
-					activateZigbeeLogging = true;
-				}
-				if (rdbtnImportFile.isSelected()) {
-					flagLogFile = false;
-					// runLog(); Please see in scratch.
-				}
-
-				timeStartFlag = false;
+				reader.startReading();
 				btnStop.setEnabled(true);
 				btnStop.setVisible(true);
 				btnStart.setEnabled(false);
@@ -541,7 +529,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		rdbtnBluetooth.setBounds(496, 48, 109, 25);
 		buttonPanel.add(rdbtnBluetooth);
 		group.add(rdbtnBluetooth);
-		rdbtnBluetooth.setSelected(true);
+		rdbtnBluetooth.setSelected(false);
+		rdbtnBluetooth.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				reader.setReadBluetooth();;
+			}
+		});
 
 		rdbtnZigbee = new JRadioButton("ZigBee");
 		rdbtnZigbee.setFont(new Font("Segoe UI", Font.PLAIN, 15));
@@ -550,7 +543,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		rdbtnZigbee.setBounds(496, 78, 109, 25);
 		buttonPanel.add(rdbtnZigbee);
 		group.add(rdbtnZigbee);
-		rdbtnZigbee.setSelected(false);
+		rdbtnZigbee.setSelected(true);
+		rdbtnZigbee.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				reader.setReadZigbee();
+			}
+		});
 
 		rdbtnImportFile = new JRadioButton("Import File");
 		rdbtnImportFile.setForeground(Color.LIGHT_GRAY);
@@ -559,12 +557,14 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		rdbtnImportFile.setBounds(496, 106, 109, 25);
 		rdbtnImportFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				//TODO
 				JFileChooser chooserLog = new JFileChooser("user.home");
 				FileNameExtensionFilter filter = new FileNameExtensionFilter(
 						"Log Files", "txt", "text", "asc");
 				chooserLog.setFileFilter(filter);
 				chooserLog.showOpenDialog(null);
-				selLogFile = chooserLog.getSelectedFile();
+//				selLogFile = chooserLog.getSelectedFile();
+				reader.setImportFile(chooserLog.getSelectedFile());
 			}
 		});
 		buttonPanel.add(rdbtnImportFile);
@@ -599,6 +599,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		jpanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 		BorderFactory.createLineBorder(Color.black);
 		chartpanel.setPreferredSize(new Dimension(800, 400));
+		
+		this.setVisible(true);
+		RefineryUtilities.centerFrameOnScreen(this);
 	}
 	/* End of View constructor */
 
@@ -639,21 +642,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 
 	// YesOption method
 	private void YesOption() {
-
-		if (activateCanLogging == true) {
-			oVciJava.StopCan(oBalObject, oCanMsgReader);
-			oVciJava.ResetDeviceIndex();
-			activateCanLogging = false;
-			writerLog.close();
-		}
-		if (activateZigbeeLogging == true) {
-			oSerialJava.schliesseSerialPort();
-			activateZigbeeLogging = false;
-		}
-		flagStartReading = false;
-		flagLogFile = true;
-		flagStatus = true;
-		timeStartFlag = false;
+		reader.stopReading();
+		
 		btnStop.setVisible(false);
 		btnStop.setEnabled(false);
 		btnStart.setVisible(true);
@@ -663,11 +653,10 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		rdbtnImportFile.setEnabled(true);
 	}
 
-
 	// ActionPerformed method
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("EXIT")) {
-			// thread1.interrupt();
+			reader.terminateReader();
 			System.exit(0);
 		}
 	}
@@ -707,8 +696,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	
 	@Override
 	public void notifyDataChange() {
-		LinkedList<long[]> dataArrayQueue = model.getData();
-		long[] dataArray;
+		LinkedList<double[]> dataArrayQueue = model.getData();
+		double[] dataArray;
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			View.serie0.add(dataArray[0], null);
 			for (int plotCtrIndex = 1; plotCtrIndex < dataArray.length; plotCtrIndex++) {
@@ -716,11 +705,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 						.getSeries(0).add(dataArray[0], dataArray[plotCtrIndex]);
 			}
 		}
-	}
-
-	public void setModel(MMInterface model) {
-		this.model = model;
-		this.model.registerObserver(this);
 	}
 
 	@Override
@@ -767,5 +751,19 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			 */
 			((XYSeriesCollection) dataset).addSeries(serie);
 		}
+	}
+
+
+	@Override
+	public void setModel(MMInterface model) {
+		this.model = model;
+		this.model.registerObserver(this);
+	}
+
+
+	@Override
+	public void setReader(SerialReaderInterface reader) {
+		this.reader = reader;
+		this.reader.setReadZigbee();
 	}
 }

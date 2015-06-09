@@ -2,7 +2,7 @@ package scope.gui;
 
 import java.util.*;
 
-public class Ringbuffer<E> extends AbstractList<E> implements Iterator<E>, RandomAccess{
+public class Ringbuffer<E> extends AbstractList<E> implements Iterator<E>, RandomAccess {
 	private int bufferLength = 0;
 	private int capacity = 0;
 	private int size = 0;

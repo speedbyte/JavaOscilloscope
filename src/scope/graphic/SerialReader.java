@@ -65,27 +65,33 @@ import de.ixxat.vci3.bal.IBalObject;
 import de.ixxat.vci3.bal.can.CanMessage;
 import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.data.ImportButton;
+import scope.gui.MMInterface;
+import scope.gui.ModelMediator;
+import scope.gui.View;
+import scope.gui.ViewInterface;
 import scope.vci.VciJava;
 import scope.serial.SerialJava;
 
 //Main Class
 @SuppressWarnings("serial")
-public class MainClass extends JFrame implements Runnable, ActionListener {
+public class SerialReader extends JFrame implements SerialReaderInterface,
+		Runnable, ActionListener {
 
 	// Variables
 	static Thread thread1;
-    public static VciJava oVciJava = null;
-    public static IBalObject oBalObject = null;
-    public static ICanMessageReader oCanMsgReader = null;
-    public static Boolean flagStartReading = false;
-    public static CanMessage oCanMsg = null;
+	public static VciJava oVciJava = null;
+	public static IBalObject oBalObject = null;
+	public static ICanMessageReader oCanMsgReader = null;
+	public static Boolean flagStartReading = false;
+	public static CanMessage oCanMsg = null;
 	static String canLine = null;
 	public static Boolean single_byte_oscilloscope = false;
 	public static SerialJava oSerialJava = null;
 	public static String display_string = null;
-	
+
 	private static boolean activateCanLogging = false;
 	private static boolean activateZigbeeLogging = false;
+	private static boolean activateImportFile = false;
 
 	static XYSeries serie0 = new XYSeries("");
 	static XYSeries serie1 = new XYSeries("Byte 1");
@@ -98,7 +104,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	static XYSeries serie8 = new XYSeries("Byte 8");
 
 	static XYSeries[] serie_array = new XYSeries[9];
-	
+
 	static XYDataset data = null;
 	static XYDataset data0 = new XYSeriesCollection(serie0);
 	static XYDataset data1 = new XYSeriesCollection(serie1);
@@ -198,16 +204,31 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	}
 	Color panelColor = new Color(50, 50, 50);
 
+	/* variables for a test */
+	static ModelMediator mm;
+
 	// Main method
 	public static void main(String[] args) {
-		MainClass XYSeriesChart = new MainClass();
-		RefineryUtilities.centerFrameOnScreen(XYSeriesChart);
-		XYSeriesChart.setVisible(true);
-		thread1.start();
+		// TODO
+		SerialReader reader = new SerialReader();
+		/* will not be needed once gui removed from reader */
+		RefineryUtilities.centerFrameOnScreen(reader);
+		reader.setVisible(true);
+
+		// init mediator
+		mm = new ModelMediator();
+
+		ViewInterface view = new View();
+		view.setReader(reader);
+		view.setModel(mm);
+		view.initView(8);
 	}
 
 	// MainClass constructor, the chart is created
-	public MainClass() {
+	public SerialReader() {
+
+		thread1 = new Thread(this);
+		thread1.start();
 
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -217,7 +238,6 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		});
 		setMinimumSize(new Dimension(900, 600));
 		setPreferredSize(new Dimension(900, 600));
-		thread1 = new Thread(this);
 		jfreechart = ChartFactory.createXYStepChart("", "", "", data0,
 				PlotOrientation.VERTICAL, false, false, false);
 		jfreechart.setBackgroundPaint(panelColor);
@@ -299,10 +319,8 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		btnStart.setBounds(687, 79, 92, 20);
 		btnStart.setForeground(Color.BLACK);
 		btnStart.setVisible(true);
-		btnStart.addActionListener(new ActionListener() 
-		{
-			public void actionPerformed(ActionEvent e) 
-			{
+		btnStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
 				clear();
 				if (rdbtnBluetooth.isSelected()) {
 					runVci(null);
@@ -314,7 +332,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				}
 				if (rdbtnImportFile.isSelected()) {
 					flagLogFile = false;
-					//runLog(); Please see in scratch.
+					// runLog(); Please see in scratch.
 				}
 
 				timeStartFlag = false;
@@ -345,7 +363,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		JButton btn1P = new JButton("MORE");
 		btn1P.setHorizontalAlignment(SwingConstants.LEFT);
 		btn1P.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btn1P.setIcon(new ImageIcon(MainClass.class
+		btn1P.setIcon(new ImageIcon(SerialReader.class
 				.getResource("/resourses_images/Wave_1.png")));
 		btn1P.setBounds(30, 70, 95, 25);
 		btn1P.addActionListener(new ActionListener() {
@@ -358,7 +376,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		JButton btn1M = new JButton("LESS");
 		btn1M.setHorizontalAlignment(SwingConstants.LEFT);
 		btn1M.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btn1M.setIcon(new ImageIcon(MainClass.class
+		btn1M.setIcon(new ImageIcon(SerialReader.class
 				.getResource("/resourses_images/Wave_2.png")));
 		btn1M.setBounds(30, 105, 95, 25);
 		btn1M.addActionListener(new ActionListener() {
@@ -370,7 +388,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 		JButton btn2P = new JButton("UP");
 		btn2P.setHorizontalAlignment(SwingConstants.LEFT);
-		btn2P.setIcon(new ImageIcon(MainClass.class
+		btn2P.setIcon(new ImageIcon(SerialReader.class
 				.getResource("/resourses_images/ArrowUp.png")));
 		btn2P.setFont(new Font("Tahoma", Font.BOLD, 11));
 		btn2P.setActionCommand("");
@@ -385,7 +403,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		JButton btn2M = new JButton("DOWN");
 		btn2M.setHorizontalAlignment(SwingConstants.LEFT);
 		btn2M.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btn2M.setIcon(new ImageIcon(MainClass.class
+		btn2M.setIcon(new ImageIcon(SerialReader.class
 				.getResource("/resourses_images/ArrowDown.png")));
 		btn2M.setBounds(135, 105, 84, 25);
 		btn2M.addActionListener(new ActionListener() {
@@ -453,7 +471,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 		JButton btn3P = new JButton("MORE");
 		btn3P.setHorizontalAlignment(SwingConstants.LEFT);
-		btn3P.setIcon(new ImageIcon(MainClass.class
+		btn3P.setIcon(new ImageIcon(SerialReader.class
 				.getResource("/resourses_images/Wave_3.png")));
 		btn3P.setFont(new Font("Tahoma", Font.BOLD, 11));
 		btn3P.setBounds(229, 70, 95, 25);
@@ -468,7 +486,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 		JButton btn3M = new JButton("LESS");
 		btn3M.setHorizontalAlignment(SwingConstants.LEFT);
-		btn3M.setIcon(new ImageIcon(MainClass.class
+		btn3M.setIcon(new ImageIcon(SerialReader.class
 				.getResource("/resourses_images/Wave_1.png")));
 		btn3M.setFont(new Font("Tahoma", Font.BOLD, 11));
 		btn3M.setBounds(229, 105, 95, 25);
@@ -611,144 +629,160 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			public void actionPerformed(ActionEvent e) {
 
 				if (chckbx[1].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(1).setBaseSeriesVisible(true);
+					jfreechart.getXYPlot().getRenderer(1)
+							.setBaseSeriesVisible(true);
 					axis1.setTickLabelsVisible(true);
 					axis1.setVisible(true);
 					axis = axis1;
 					SetBackColorCheck();
 					chckbx[1].setBackground(new Color(0, 0, 20));
 				} else {
-					jfreechart.getXYPlot().getRenderer(1).setBaseSeriesVisible(false);
+					jfreechart.getXYPlot().getRenderer(1)
+							.setBaseSeriesVisible(false);
 					axis1.setTickLabelsVisible(false);
 					axis1.setVisible(false);
 				}
-			
+
 			}
 		});
 		chckbx[2].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				if (chckbx[2].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(2).setBaseSeriesVisible(true);
+					jfreechart.getXYPlot().getRenderer(2)
+							.setBaseSeriesVisible(true);
 					axis2.setTickLabelsVisible(true);
 					axis2.setVisible(true);
 					axis = axis2;
 					SetBackColorCheck();
 					chckbx[2].setBackground(new Color(0, 0, 20));
 				} else {
-					jfreechart.getXYPlot().getRenderer(2).setBaseSeriesVisible(false);
+					jfreechart.getXYPlot().getRenderer(2)
+							.setBaseSeriesVisible(false);
 					axis2.setTickLabelsVisible(false);
 					axis2.setVisible(false);
 				}
-			
+
 			}
 		});
 		chckbx[3].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				if (chckbx[3].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(3).setBaseSeriesVisible(true);
+					jfreechart.getXYPlot().getRenderer(3)
+							.setBaseSeriesVisible(true);
 					axis3.setTickLabelsVisible(true);
 					axis3.setVisible(true);
 					axis = axis3;
 					SetBackColorCheck();
 					chckbx[3].setBackground(new Color(0, 0, 20));
 				} else {
-					jfreechart.getXYPlot().getRenderer(3).setBaseSeriesVisible(false);
+					jfreechart.getXYPlot().getRenderer(3)
+							.setBaseSeriesVisible(false);
 					axis3.setTickLabelsVisible(false);
 					axis3.setVisible(false);
 				}
-			
+
 			}
 		});
 		chckbx[4].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				if (chckbx[4].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(4).setBaseSeriesVisible(true);
+					jfreechart.getXYPlot().getRenderer(4)
+							.setBaseSeriesVisible(true);
 					axis4.setTickLabelsVisible(true);
 					axis4.setVisible(true);
 					axis = axis4;
 					SetBackColorCheck();
 					chckbx[4].setBackground(new Color(0, 0, 20));
 				} else {
-					jfreechart.getXYPlot().getRenderer(4).setBaseSeriesVisible(false);
+					jfreechart.getXYPlot().getRenderer(4)
+							.setBaseSeriesVisible(false);
 					axis4.setTickLabelsVisible(false);
 					axis4.setVisible(false);
 				}
-			
+
 			}
 		});
 		chckbx[5].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				if (chckbx[5].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(5).setBaseSeriesVisible(true);
+					jfreechart.getXYPlot().getRenderer(5)
+							.setBaseSeriesVisible(true);
 					axis5.setTickLabelsVisible(true);
 					axis5.setVisible(true);
 					axis = axis5;
 					SetBackColorCheck();
 					chckbx[5].setBackground(new Color(0, 0, 20));
 				} else {
-					jfreechart.getXYPlot().getRenderer(5).setBaseSeriesVisible(false);
+					jfreechart.getXYPlot().getRenderer(5)
+							.setBaseSeriesVisible(false);
 					axis5.setTickLabelsVisible(false);
 					axis5.setVisible(false);
 				}
-			
+
 			}
 		});
 		chckbx[6].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				if (chckbx[6].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(6).setBaseSeriesVisible(true);
+					jfreechart.getXYPlot().getRenderer(6)
+							.setBaseSeriesVisible(true);
 					axis6.setTickLabelsVisible(true);
 					axis6.setVisible(true);
 					axis = axis6;
 					SetBackColorCheck();
 					chckbx[6].setBackground(new Color(0, 0, 20));
 				} else {
-					jfreechart.getXYPlot().getRenderer(6).setBaseSeriesVisible(false);
+					jfreechart.getXYPlot().getRenderer(6)
+							.setBaseSeriesVisible(false);
 					axis6.setTickLabelsVisible(false);
 					axis6.setVisible(false);
 				}
-			
+
 			}
 		});
 		chckbx[7].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				if (chckbx[7].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(7).setBaseSeriesVisible(true);
+					jfreechart.getXYPlot().getRenderer(7)
+							.setBaseSeriesVisible(true);
 					axis7.setTickLabelsVisible(true);
 					axis7.setVisible(true);
 					axis = axis7;
 					SetBackColorCheck();
 					chckbx[7].setBackground(new Color(0, 0, 20));
 				} else {
-					jfreechart.getXYPlot().getRenderer(7).setBaseSeriesVisible(false);
+					jfreechart.getXYPlot().getRenderer(7)
+							.setBaseSeriesVisible(false);
 					axis7.setTickLabelsVisible(false);
 					axis7.setVisible(false);
 				}
-			
+
 			}
 		});
 		chckbx[8].addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
 				if (chckbx[8].isSelected()) {
-					jfreechart.getXYPlot().getRenderer(8).setBaseSeriesVisible(true);
+					jfreechart.getXYPlot().getRenderer(8)
+							.setBaseSeriesVisible(true);
 					axis8.setTickLabelsVisible(true);
 					axis8.setVisible(true);
 					axis = axis8;
 					SetBackColorCheck();
 					chckbx[8].setBackground(new Color(0, 0, 20));
 				} else {
-					jfreechart.getXYPlot().getRenderer(8).setBaseSeriesVisible(false);
+					jfreechart.getXYPlot().getRenderer(8)
+							.setBaseSeriesVisible(false);
 					axis8.setTickLabelsVisible(false);
 					axis8.setVisible(false);
 				}
-			
+
 			}
 		});
 
@@ -791,7 +825,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					axis6.setVisible(true);
 					axis7.setVisible(true);
 					axis8.setVisible(true);
-					
+
 					chckbx[1].setSelected(true);
 					chckbx[2].setSelected(true);
 					chckbx[3].setSelected(true);
@@ -800,7 +834,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					chckbx[6].setSelected(true);
 					chckbx[7].setSelected(true);
 					chckbx[8].setSelected(true);
-			
+
 				} else {
 
 					jfreechart.getXYPlot().getRenderer(1)
@@ -846,7 +880,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					chckbx[6].setSelected(false);
 					chckbx[7].setSelected(false);
 					chckbx[8].setSelected(false);
-			
+
 				}
 			}
 		});
@@ -864,43 +898,44 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 	// Run method
 	public void run() {
-		while (true) 
-		{
+		while (true) {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
 			// Log file Log+date+.asc is created
-			if (activateCanLogging == true )
-			{
-	        	if ( flagStartReading )
-	            {
+			if (activateCanLogging == true) {
+				if (flagStartReading) {
 					if (!timeStartFlag) {
 						start = (double) (new Date()).getTime();
 						timeStartFlag = true;
 					}
 					current = (double) (new Date()).getTime();
 					currenttime_second = (current - start) / 1000;
-	        		oCanMsg = oVciJava.CanMessageReader(oCanMsgReader);
-	    			if ( oCanMsg != null )
-	    			{
-	            		canLine = oCanMsg.toString();
-	            		System.out.printf("recvd message %s\n", canLine);
-	            		//recvd message Timestamp: 13756081 Flags:      ID: 0x00000100 Data: 0xFF 0xEE 0xDD 0xCC 0xBB 0xAA 0x99 0x88
-	            		lineToFile = ("" + canLine);
+					oCanMsg = oVciJava.CanMessageReader(oCanMsgReader);
+					if (oCanMsg != null) {
+						canLine = oCanMsg.toString();
+						System.out.printf("recvd message %s\n", canLine);
+						// recvd message Timestamp: 13756081 Flags: ID:
+						// 0x00000100 Data: 0xFF 0xEE 0xDD 0xCC 0xBB 0xAA 0x99
+						// 0x88
+						lineToFile = ("" + canLine);
 
-	        			if (lineToFile != null ) {
-        					int byteCtrl = 0;
-        					String[] CanStringSplitted = lineToFile.split("\\s+");
-	        				lineToFile = null;
-        					if (CanStringSplitted[4].startsWith("I")) {
-        						byteCtrl = 5;
-        					} else {
-        						byteCtrl = 4;
-        					}
-        					String x_id = CanStringSplitted[byteCtrl].substring(7, 10);
-							// Read CAN ID from lineToFile as well as from JTextField
+						if (lineToFile != null) {
+							int byteCtrl = 0;
+							String[] CanStringSplitted = lineToFile
+									.split("\\s+");
+							lineToFile = null;
+							if (CanStringSplitted[4].startsWith("I")) {
+								byteCtrl = 5;
+							} else {
+								byteCtrl = 4;
+							}
+							String x_id = CanStringSplitted[byteCtrl]
+									.substring(7, 10);
+							// Read CAN ID from lineToFile as well as from
+							// JTextField
 							x = Integer.parseInt(x_id, 16);
 							idx0 = id_txt.getText();
 
@@ -915,144 +950,148 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 							} catch (Exception e) {
 							}
 
-        					df.applyPattern(pattern);
-        					int dataLength = CanStringSplitted.length - byteCtrl - 2;
-        					
-        					if (CanStringSplitted.length >= byteCtrl + 2) {
-        						writerLog.append("\r\n   " + df.format(currenttime_second) + " 1  "
-        								+ x_id + "             Rx   d " + dataLength);
-        					}
+							df.applyPattern(pattern);
+							int dataLength = CanStringSplitted.length
+									- byteCtrl - 2;
 
-        					if (CanStringSplitted.length >= byteCtrl + 3) {
-        						v1 = CanStringSplitted[byteCtrl + 2].substring(2, 4);
-        						writerLog.append(" " + v1);
-    							if (x == id) {
-	        						//value1 = Integer.parseInt(v1, 16);
-									value1 = (int) (Math.random()*256)*1000;
+							if (CanStringSplitted.length >= byteCtrl + 2) {
+								writerLog.append("\r\n   "
+										+ df.format(currenttime_second)
+										+ " 1  " + x_id
+										+ "             Rx   d " + dataLength);
+							}
+
+							if (CanStringSplitted.length >= byteCtrl + 3) {
+								v1 = CanStringSplitted[byteCtrl + 2].substring(
+										2, 4);
+								writerLog.append(" " + v1);
+								if (x == id) {
+									// value1 = Integer.parseInt(v1, 16);
+									value1 = (int) (Math.random() * 256) * 1000;
 									serie1.add(currenttime_second, value1);
-    							}
-        					}
+								}
+							}
 
-        					if (CanStringSplitted.length >= byteCtrl + 4) {
-        						v2 = CanStringSplitted[byteCtrl + 3].substring(2, 4);
-        						writerLog.append(" " + v2);
-    							if (x == id) {
-	        						//value2 = Integer.parseInt(v2, 16);
-									value2 = (int) (Math.random()*256);
+							if (CanStringSplitted.length >= byteCtrl + 4) {
+								v2 = CanStringSplitted[byteCtrl + 3].substring(
+										2, 4);
+								writerLog.append(" " + v2);
+								if (x == id) {
+									// value2 = Integer.parseInt(v2, 16);
+									value2 = (int) (Math.random() * 256);
 									serie2.add(currenttime_second, value2);
-    							}
-        					}
+								}
+							}
 
-        					if (CanStringSplitted.length >= byteCtrl + 5) {
-        						v3 = CanStringSplitted[byteCtrl + 4].substring(2, 4);
-        						writerLog.append(" " + v3);
-    							if (x == id) {
-									//value3 = Integer.parseInt(v3, 16);
-									value3 = (int) (Math.random()*256);
+							if (CanStringSplitted.length >= byteCtrl + 5) {
+								v3 = CanStringSplitted[byteCtrl + 4].substring(
+										2, 4);
+								writerLog.append(" " + v3);
+								if (x == id) {
+									// value3 = Integer.parseInt(v3, 16);
+									value3 = (int) (Math.random() * 256);
 									serie3.add(currenttime_second, value3);
-    							}
-        					}
+								}
+							}
 
-        					if (CanStringSplitted.length >= byteCtrl + 6) {
-        						v4 = CanStringSplitted[byteCtrl + 5].substring(2, 4);
-        						writerLog.append(" " + v4);
-    							if (x == id) {
-									//value4 = Integer.parseInt(v4, 16);
-									value4 = (int) (Math.random()*256);
+							if (CanStringSplitted.length >= byteCtrl + 6) {
+								v4 = CanStringSplitted[byteCtrl + 5].substring(
+										2, 4);
+								writerLog.append(" " + v4);
+								if (x == id) {
+									// value4 = Integer.parseInt(v4, 16);
+									value4 = (int) (Math.random() * 256);
 									serie4.add(currenttime_second, value4);
-    							}
-        					}
+								}
+							}
 
-        					if (CanStringSplitted.length >= byteCtrl + 7) {
-        						v5 = CanStringSplitted[byteCtrl + 6].substring(2, 4);
-        						writerLog.append(" " + v5);
-    							if (x == id) {
-									//value5 = Integer.parseInt(v5, 16);
-									value5 = (int) (Math.random()*256);
+							if (CanStringSplitted.length >= byteCtrl + 7) {
+								v5 = CanStringSplitted[byteCtrl + 6].substring(
+										2, 4);
+								writerLog.append(" " + v5);
+								if (x == id) {
+									// value5 = Integer.parseInt(v5, 16);
+									value5 = (int) (Math.random() * 256);
 									serie5.add(currenttime_second, value5);
-    							}
-        					}
+								}
+							}
 
-        					if (CanStringSplitted.length >= byteCtrl + 8) {
-        						v6 = CanStringSplitted[byteCtrl + 7].substring(2, 4);
-        						writerLog.append(" " + v6);
-    							if (x == id) {
-									//value6 = Integer.parseInt(v6, 16);
-									value6 = (int) (Math.random()*256);
+							if (CanStringSplitted.length >= byteCtrl + 8) {
+								v6 = CanStringSplitted[byteCtrl + 7].substring(
+										2, 4);
+								writerLog.append(" " + v6);
+								if (x == id) {
+									// value6 = Integer.parseInt(v6, 16);
+									value6 = (int) (Math.random() * 256);
 									serie6.add(currenttime_second, value6);
-    							}
-        					}
+								}
+							}
 
-        					if (CanStringSplitted.length >= byteCtrl + 9) {
-        						v7 = CanStringSplitted[byteCtrl + 8].substring(2, 4);
-        						writerLog.append(" " + v7);
-    							if (x == id) {
-									//value7 = Integer.parseInt(v7, 16);
-									value7 = (int) (Math.random()*256);
+							if (CanStringSplitted.length >= byteCtrl + 9) {
+								v7 = CanStringSplitted[byteCtrl + 8].substring(
+										2, 4);
+								writerLog.append(" " + v7);
+								if (x == id) {
+									// value7 = Integer.parseInt(v7, 16);
+									value7 = (int) (Math.random() * 256);
 									serie7.add(currenttime_second, value7);
-    							}
-        					}
+								}
+							}
 
-        					if (CanStringSplitted.length >= byteCtrl + 10) {
-        						v8 = CanStringSplitted[byteCtrl + 9].substring(2, 4);
-        						writerLog.append(" " + v8);
-    							if (x == id) {
-									//value8 = Integer.parseInt(v8, 16);
-									value8 = (int) (Math.random()*256);
+							if (CanStringSplitted.length >= byteCtrl + 10) {
+								v8 = CanStringSplitted[byteCtrl + 9].substring(
+										2, 4);
+								writerLog.append(" " + v8);
+								if (x == id) {
+									// value8 = Integer.parseInt(v8, 16);
+									value8 = (int) (Math.random() * 256);
 									serie8.add(currenttime_second, value8);
-    							}
-        					}
-	        			}	            		
-	    			}
-	    			else
-	    			{
-	    				serie0.add(currenttime_second, null);
-	    			}
-	            }
-			}
-			else if ( activateZigbeeLogging == true )
-			{
-	        	if ( flagStartReading )
-	            {
+								}
+							}
+						}
+					} else {
+						serie0.add(currenttime_second, null);
+					}
+				}
+			} else if (activateZigbeeLogging == true) {
+				if (flagStartReading) {
 					if (!timeStartFlag) {
 						start = (double) (new Date()).getTime();
 						timeStartFlag = true;
 					}
 					current = (double) (new Date()).getTime();
 					currenttime_second = (current - start) / 1000;
-					
+
 					int num = 0;
 					int length = 0;
 					oSerialJava.mutex.lock();
-					if ( single_byte_oscilloscope == true )
-					{
-		        		num = oSerialJava.getSerialData();
+					if (single_byte_oscilloscope == true) {
+						num = oSerialJava.getSerialData();
 						length = num;
+					} else {
+						display_string = oSerialJava.getSerialLine();
 					}
-					else
-					{
-		        		display_string = oSerialJava.getSerialLine();
-					}
-					if ( num != 0)
-	    			{
-        				System.out.printf("number of bytes read %d\n", num);
-	    				while ( num != 0 )
-	    				{
-		    				// the protocol will be executed from this point.
-	    					// store all the variables till a $ is received.
-	    					data_serialport[index_dollar] = oSerialJava.SerialByteReader()[length-num];
-		    				num--;
-		    				//System.out.printf("recvd message %d\n", data_serialport[index_dollar]);
-		    				if ( data_serialport[index_dollar] == '\n' )
-		    				{
-		    					System.out.println(Arrays.toString(data_serialport));
-			    				//System.out.printf("Trigger oscilloscope, $ at %d\n", (index_dollar+1));
-		    					df.applyPattern(pattern);
-								
-		    					//writerLog.append(" " + v1);
-								//value1 = Integer.parseInt(v1, 16);
-								//value1 = (int) (Math.random()*256);
-		    					value1 = data_serialport[0];
+					if (num != 0) {
+						System.out.printf("number of bytes read %d\n", num);
+						while (num != 0) {
+							// the protocol will be executed from this point.
+							// store all the variables till a $ is received.
+							data_serialport[index_dollar] = oSerialJava
+									.SerialByteReader()[length - num];
+							num--;
+							// System.out.printf("recvd message %d\n",
+							// data_serialport[index_dollar]);
+							if (data_serialport[index_dollar] == '\n') {
+								System.out.println(Arrays
+										.toString(data_serialport));
+								// System.out.printf("Trigger oscilloscope, $ at %d\n",
+								// (index_dollar+1));
+								df.applyPattern(pattern);
+
+								// writerLog.append(" " + v1);
+								// value1 = Integer.parseInt(v1, 16);
+								// value1 = (int) (Math.random()*256);
+								value1 = data_serialport[0];
 								serie1.add(currenttime_second, value1);
 								value2 = data_serialport[1];
 								serie2.add(currenttime_second, value2);
@@ -1068,67 +1107,90 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 								serie7.add(currenttime_second, value7);
 								value8 = data_serialport[7];
 								serie8.add(currenttime_second, value8);
+
+								// TODO
+								double[] dataArray = new double[9];
+								dataArray[0] = currenttime_second;
+								dataArray[1] = value1;
+								dataArray[2] = value2;
+								dataArray[3] = value3;
+								dataArray[4] = value4;
+								dataArray[5] = value5;
+								dataArray[6] = value6;
+								dataArray[7] = value7;
+								dataArray[8] = value8;
+
+								mm.pushDataArray(dataArray);
+
 								index_dollar = 0;
-								Arrays.fill(data_serialport, (byte)0);
-		    				}
-		    				else
-		    				{
-		    					index_dollar++;
-		    				}
-	    				}
-	    			}
-					else if ( display_string != null )
-					{
-		        		System.out.println(display_string);
-		        		String[] parts = new String[10];
-						parts = display_string.split("#");
-						for ( int i = 0; i < parts.length; i++)
-						{
-							//System.out.printf("counter = %d at %s", i, parts[i]);
-							//abraca#dsfsd#sdfdsfdsfsd#Run#MF:52;101;48#further
-							try
-							{
-								if ( i == 4 && parts.length == 6 )
-								{
-									String[] data_magnet = new String[6];
-									data_magnet = parts[i].split(";");
-//									System.out.println((data_magnet[0].split(":"))[1]);
-//									System.out.println(data_magnet[1]);
-//									System.out.println(data_magnet[2]);
-			    					value1 = Integer.parseInt((data_magnet[0].split(":"))[1]);
-									serie1.add(currenttime_second, value1);
-									value2 = Integer.parseInt(data_magnet[1]);
-									serie2.add(currenttime_second, value2);
-									value3 = Integer.parseInt(data_magnet[2]);
-									serie3.add(currenttime_second, value3);
-								}
-								else if ( i == 5 && parts.length == 7 )
-								{
-									String[] data_magnet = new String[6];
-									data_magnet = parts[i].split(";");
-	//									System.out.println((data_magnet[0].split(":"))[1]);
-	//									System.out.println(data_magnet[1]);
-	//									System.out.println(data_magnet[2]);
-			    					value1 = Integer.parseInt((data_magnet[0].split(":"))[1]);
-									serie1.add(currenttime_second, value1);
-									value2 = Integer.parseInt(data_magnet[1]);
-									serie2.add(currenttime_second, value2);
-									value3 = Integer.parseInt(data_magnet[2]);
-									serie3.add(currenttime_second, value3);
-								}
-							}
-							catch (Exception e)
-							{
-								
+								Arrays.fill(data_serialport, (byte) 0);
+							} else {
+								index_dollar++;
 							}
 						}
+					} else if (display_string != null) {
+						System.out.println(display_string);
+						String[] parts = new String[10];
+						parts = display_string.split("#");
+						for (int i = 0; i < parts.length; i++) {
+							// System.out.printf("counter = %d at %s", i,
+							// parts[i]);
+							// abraca#dsfsd#sdfdsfdsfsd#Run#MF:52;101;48#further
+							try {
+								if (i == 4 && parts.length == 6) {
+									String[] data_magnet = new String[6];
+									data_magnet = parts[i].split(";");
+									// System.out.println((data_magnet[0].split(":"))[1]);
+									// System.out.println(data_magnet[1]);
+									// System.out.println(data_magnet[2]);
+									value1 = Integer.parseInt((data_magnet[0]
+											.split(":"))[1]);
+									serie1.add(currenttime_second, value1);
+									value2 = Integer.parseInt(data_magnet[1]);
+									serie2.add(currenttime_second, value2);
+									value3 = Integer.parseInt(data_magnet[2]);
+									serie3.add(currenttime_second, value3);
+
+									// TODO
+									double[] dataArray = new double[9];
+									dataArray[0] = currenttime_second;
+									dataArray[1] = value1;
+									dataArray[2] = value2;
+									dataArray[3] = value3;
+
+									mm.pushDataArray(dataArray);
+								} else if (i == 5 && parts.length == 7) {
+									String[] data_magnet = new String[6];
+									data_magnet = parts[i].split(";");
+									// System.out.println((data_magnet[0].split(":"))[1]);
+									// System.out.println(data_magnet[1]);
+									// System.out.println(data_magnet[2]);
+									value1 = Integer.parseInt((data_magnet[0]
+											.split(":"))[1]);
+									serie1.add(currenttime_second, value1);
+									value2 = Integer.parseInt(data_magnet[1]);
+									serie2.add(currenttime_second, value2);
+									value3 = Integer.parseInt(data_magnet[2]);
+									serie3.add(currenttime_second, value3);
+
+									// TODO
+									double[] dataArray = new double[9];
+									dataArray[0] = currenttime_second;
+									dataArray[1] = value1;
+									dataArray[2] = value2;
+									dataArray[3] = value3;
+
+									mm.pushDataArray(dataArray);
+								}
+							} catch (Exception e) {
+
+							}
+						}
+					} else {
+						serie0.add(currenttime_second, null);
 					}
-	    			else
-	    			{
-	    				serie0.add(currenttime_second, null);
-	    			}
-	        		oSerialJava.mutex.unlock();
-	            }
+					oSerialJava.mutex.unlock();
+				}
 			}
 		}
 	}
@@ -1143,7 +1205,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		serie6.add(currenttime_second, null);
 		serie7.add(currenttime_second, null);
 		serie8.add(currenttime_second, null);
-		
+
 	}
 
 	// RunVci method
@@ -1154,43 +1216,41 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			protected Object doInBackground() throws Exception {
 				logFlag = false;
 				flagStatus = false;
-		    	
-				if ( activateCanLogging == true )
-				{
+
+				if (activateCanLogging == true) {
 					/* BT CAN */
 					oVciJava = new VciJava();
-			    	oBalObject = oVciJava.InitCanBlue();
-			    	oCanMsgReader = oVciJava.StartCan(oBalObject, (short)0);
-			    	if(oCanMsgReader != null)
-			    	{
-			    		flagStartReading = true;
-			    		if (!logFlag) {
+					oBalObject = oVciJava.InitCanBlue();
+					oCanMsgReader = oVciJava.StartCan(oBalObject, (short) 0);
+					if (oCanMsgReader != null) {
+						flagStartReading = true;
+						if (!logFlag) {
 							// Create the log file if not already created
 							Date date = new Date();
-							Log = new File("output/Log_" + formatter.format(date) + ".asc");
+							Log = new File("output/Log_"
+									+ formatter.format(date) + ".asc");
 							logFlag = true;
 							headerFlag = false;
 							// Add data to files
-							writerLog = new PrintWriter(new FileWriter(Log, true));
-							writerLog.append("date " + formatterHeader.format(date)
+							writerLog = new PrintWriter(new FileWriter(Log,
+									true));
+							writerLog.append("date "
+									+ formatterHeader.format(date)
 									+ "\r\nbase hex  timestamps absolute"
 									+ "\r\ninternal events logged");
-							//writerLog.close();				
+							// writerLog.close();
 							headerFlag = true;
 						}
-			    	}
-			    	else
-			    	{
-			    		flagStartReading = false;
-			    	}
+					} else {
+						flagStartReading = false;
+					}
 				}
 				/* Serial */
-				else if ( activateZigbeeLogging == true )
-				{
-			    	oSerialJava = new SerialJava();
-			    	flagStartReading = oSerialJava.oeffneSerialPort("COM6");
+				else if (activateZigbeeLogging == true) {
+					oSerialJava = new SerialJava();
+					flagStartReading = oSerialJava.oeffneSerialPort("COM6");
 				}
-		    	return null;
+				return null;
 			}
 		};
 		worker.execute();
@@ -1297,16 +1357,14 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 
 	// YesOption method
 	private void YesOption() {
-		
-		if ( activateCanLogging == true )
-		{
+
+		if (activateCanLogging == true) {
 			oVciJava.StopCan(oBalObject, oCanMsgReader);
 			oVciJava.ResetDeviceIndex();
 			activateCanLogging = false;
 			writerLog.close();
 		}
-		if ( activateZigbeeLogging == true )
-		{
+		if (activateZigbeeLogging == true) {
 			oSerialJava.schliesseSerialPort();
 			activateZigbeeLogging = false;
 		}
@@ -1354,5 +1412,63 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			}
 		}
 		return -1;
+	}
+
+	@Override
+	public void startReading() {
+		if (activateCanLogging || activateZigbeeLogging) {
+			runVci(null);
+		}
+		if (activateImportFile) {
+			flagLogFile = false;
+			// runLog(); Please see in scratch.
+		}
+
+		timeStartFlag = false;
+	}
+
+	@Override
+	public void stopReading() {
+		if (activateCanLogging == true) {
+			oVciJava.StopCan(oBalObject, oCanMsgReader);
+			oVciJava.ResetDeviceIndex();
+			activateCanLogging = false;
+			writerLog.close();
+		}
+		if (activateZigbeeLogging == true) {
+			oSerialJava.schliesseSerialPort();
+//			activateZigbeeLogging = false;
+		}
+		flagStartReading = false;
+		flagLogFile = true;
+		flagStatus = true;
+		timeStartFlag = false;
+	}
+
+	@Override
+	public void setReadBluetooth() {
+		SerialReader.activateZigbeeLogging = false;
+		SerialReader.activateImportFile = false;
+		SerialReader.activateCanLogging = true;
+	}
+
+	@Override
+	public void setReadZigbee() {
+		SerialReader.activateCanLogging = false;
+		SerialReader.activateImportFile = false;
+		SerialReader.activateZigbeeLogging = true;
+	}
+
+	@Override
+	public void setImportFile(File selectedLogFile) {
+		selLogFile = selectedLogFile;
+		SerialReader.activateZigbeeLogging = false;
+		SerialReader.activateCanLogging = false;
+		SerialReader.activateImportFile = true;
+	}
+
+	@Override
+	public void terminateReader() {
+		SerialReader.thread1.interrupt();
 	}
 }

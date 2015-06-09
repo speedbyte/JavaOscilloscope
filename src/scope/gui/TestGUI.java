@@ -7,22 +7,20 @@ import javax.swing.SwingUtilities;
 
 import org.jfree.ui.RefineryUtilities;
 
-import scope.gui.MMInterface;;
-
 public class TestGUI {
 
 	private static class Rand {
-		private long x = 0;
-		private long lastY = 100;
+		private double x = 0;
+		private double lastY = 100;
 		private int incdec = 1;
 
-		public long getYRand() {
+		public double getYRand() {
 //			 final double factor = (0.90 + 0.2 * Math.random());
 //			 lastY = lastY * factor;
-			 long randNum = (long) (200 * Math.random());
+			 double randNum = 200 * Math.random();
 			 return randNum;
 		}
-		public long getYWave() {
+		public double getYWave() {
 			if (lastY <= 0)
 				incdec = 1;
 			if (lastY >= 200)
@@ -30,8 +28,8 @@ public class TestGUI {
 			return lastY = lastY + incdec;
 		}
 
-		public long getX() {
-			x = (long) (x + 1);
+		public double getX() {
+			x = x + 0.02;
 			return x;
 		}
 	}
@@ -39,15 +37,9 @@ public class TestGUI {
 	public static void main(String[] args) {
 
 		// init mediator
-		final ModelMediator mm = new ModelMediator();
-
-		// init demo GUI
-//		final DynamicDataDemo demo = new DynamicDataDemo("Dynamic Data Demo");
-//		demo.setModel(mm);
+		final MMInterface mm = new ModelMediator();
 		
-		View XYSeriesChart = new View();
-		RefineryUtilities.centerFrameOnScreen(XYSeriesChart);
-		XYSeriesChart.setVisible(true);
+		ViewInterface XYSeriesChart = new View();
 		XYSeriesChart.initView(8);
 		XYSeriesChart.setModel(mm);
 		
@@ -60,7 +52,7 @@ public class TestGUI {
 		timerData.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				long[] data = { rand1.getX(),
+				double[] data = { rand1.getX(),
 						rand1.getYRand(),
 						rand1.getYWave(),
 						rand1.getYWave()+rand1.getYRand(),

@@ -62,6 +62,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
+import scope.graphic.SerialReaderInterface;
 import scope.gui.MMInterface;
 
 /**
@@ -88,8 +89,8 @@ public class DynamicDataDemo extends ApplicationFrame implements
 
 	@Override
 	public void notifyDataChange() {
-		LinkedList<long[]> dataSetArrayQueue = model.getData();
-		long[] dataSetArray;
+		LinkedList<double[]> dataSetArrayQueue = model.getData();
+		double[] dataSetArray;
 		while ((dataSetArray = dataSetArrayQueue.poll()) != null) {
 			for (int arrayIndex = 1, seriesIndex = 0; arrayIndex <= dataset.getSeriesCount();) {
 				System.out.println("serie" + seriesIndex + "	"
@@ -211,6 +212,12 @@ public class DynamicDataDemo extends ApplicationFrame implements
 
 	@Override
 	public void initView(int dataSetCount) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setReader(SerialReaderInterface reader) {
 		// TODO Auto-generated method stub
 		
 	}
