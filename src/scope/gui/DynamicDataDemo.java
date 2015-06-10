@@ -221,4 +221,10 @@ public class DynamicDataDemo extends ApplicationFrame implements
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public String getTextID() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

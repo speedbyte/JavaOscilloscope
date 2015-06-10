@@ -2,6 +2,9 @@ package scope.graphic;
 
 import java.io.File;
 
+import scope.gui.MMInterface;
+import scope.gui.ViewInterface;
+
 public interface SerialReaderInterface {
 	void startReading();
 	void stopReading();
@@ -11,4 +14,7 @@ public interface SerialReaderInterface {
 	void setImportFile(File selectedLogFile);
 	
 	void terminateReader();
+	
+	void setView(ViewInterface view);
+	void setModel(MMInterface model);
 }
