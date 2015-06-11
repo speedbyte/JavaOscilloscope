@@ -73,7 +73,7 @@ import scope.vci.VciJava;
 import scope.serial.SerialJava;
 
 /* SerialReader Class */
-public class SerialReader implements SerialReaderInterface, Runnable {
+public class DataReader implements DataReaderInterface, Runnable {
 
 	// Variables
 	static Thread thread1;
@@ -209,26 +209,25 @@ public class SerialReader implements SerialReaderInterface, Runnable {
 	static ViewInterface view;
 
 	// Main method
-	public static void main(String[] args) {
-		// TODO
-		SerialReader reader = new SerialReader();
-		/* will not be needed once gui removed from reader */
-//		RefineryUtilities.centerFrameOnScreen(reader);
-//		reader.setVisible(true);
-
-		// init mediator
-		MMInterface mm = new ModelMediator();
-
-		ViewInterface view = new View();
-		view.setReader(reader);
-		view.setModel(mm);
-		reader.setView(view);
-		reader.setModel(mm);
-//		view.initView(8);
-	}
+//	public static void main(String[] args) {
+//		// TODO
+//		DataReader reader = new DataReader();
+//		/* will not be needed once gui removed from reader */
+////		RefineryUtilities.centerFrameOnScreen(reader);
+////		reader.setVisible(true);
+//
+//		// init mediator
+//		MMInterface mm = new ModelMediator();
+//
+//		ViewInterface view = new View();
+//		view.setReader(reader);
+//		view.setModel(mm);
+//		reader.setView(view);
+//		reader.setModel(mm);
+//	}
 
 	// MainClass constructor, the chart is created
-	public SerialReader() {
+	public DataReader() {
 
 		thread1 = new Thread(this);
 		thread1.start();
@@ -1171,6 +1170,8 @@ public class SerialReader implements SerialReaderInterface, Runnable {
 											.split(":"))[1]);
 									value2 = Integer.parseInt(data_magnet[1]);
 									value3 = Integer.parseInt(data_magnet[2]);
+									value4 = Integer.parseInt(data_magnet[3]);
+									value5 = Integer.parseInt(data_magnet[4]);
 									
 //									serie1.add(currenttime_second, value1);
 //									serie2.add(currenttime_second, value2);
@@ -1182,6 +1183,8 @@ public class SerialReader implements SerialReaderInterface, Runnable {
 									dataArray[1] = value1;
 									dataArray[2] = value2;
 									dataArray[3] = value3;
+									dataArray[4] = value4;
+									dataArray[5] = value5;
 
 									mm.pushDataArray(dataArray);
 									
@@ -1475,38 +1478,38 @@ public class SerialReader implements SerialReaderInterface, Runnable {
 
 	@Override
 	public void setReadBluetooth() {
-		SerialReader.activateZigbeeLogging = false;
-		SerialReader.activateImportFile = false;
-		SerialReader.activateCanLogging = true;
+		DataReader.activateZigbeeLogging = false;
+		DataReader.activateImportFile = false;
+		DataReader.activateCanLogging = true;
 	}
 
 	@Override
 	public void setReadZigbee() {
-		SerialReader.activateCanLogging = false;
-		SerialReader.activateImportFile = false;
-		SerialReader.activateZigbeeLogging = true;
+		DataReader.activateCanLogging = false;
+		DataReader.activateImportFile = false;
+		DataReader.activateZigbeeLogging = true;
 	}
 
 	@Override
 	public void setImportFile(File selectedLogFile) {
 		selLogFile = selectedLogFile;
-		SerialReader.activateZigbeeLogging = false;
-		SerialReader.activateCanLogging = false;
-		SerialReader.activateImportFile = true;
+		DataReader.activateZigbeeLogging = false;
+		DataReader.activateCanLogging = false;
+		DataReader.activateImportFile = true;
 	}
 
 	@Override
 	public void terminateReader() {
-		SerialReader.thread1.interrupt();
+		DataReader.thread1.interrupt();
 	}
 
 	@Override
 	public void setView(ViewInterface view) {
-		SerialReader.view = view;		
+		DataReader.view = view;		
 	}
 
 	@Override
 	public void setModel(MMInterface model) {
-		SerialReader.mm = model;		
+		DataReader.mm = model;		
 	}
 }

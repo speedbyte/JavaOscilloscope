@@ -5,7 +5,7 @@ import java.io.File;
 import scope.gui.MMInterface;
 import scope.gui.ViewInterface;
 
-public interface SerialReaderInterface {
+public interface DataReaderInterface {
 	void startReading();
 	void stopReading();
 	

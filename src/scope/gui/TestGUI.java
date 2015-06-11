@@ -40,7 +40,7 @@ public class TestGUI {
 		final MMInterface mm = new ModelMediator();
 		
 		ViewInterface XYSeriesChart = new View();
-		XYSeriesChart.initView(8);
+		XYSeriesChart.initDatasetCapacity(8);
 		XYSeriesChart.setModel(mm);
 		
 

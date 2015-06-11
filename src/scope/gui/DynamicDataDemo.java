@@ -62,7 +62,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-import scope.graphic.SerialReaderInterface;
+import scope.graphic.DataReaderInterface;
 import scope.gui.MMInterface;
 
 /**
@@ -211,13 +211,13 @@ public class DynamicDataDemo extends ApplicationFrame implements
 	}
 
 	@Override
-	public void initView(int dataSetCount) {
+	public void initDatasetCapacity(int dataSetCount) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void setReader(SerialReaderInterface reader) {
+	public void setReader(DataReaderInterface reader) {
 		// TODO Auto-generated method stub
 		
 	}

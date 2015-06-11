@@ -1,11 +1,11 @@
 package scope.gui;
 
-import scope.graphic.SerialReaderInterface;
+import scope.graphic.DataReaderInterface;
 
 public interface ViewInterface {
 	void notifyDataChange();
-	void initView(int datasetCount);
+	void initDatasetCapacity(int datasetCount);
 	void setModel(MMInterface model);
-	void setReader(SerialReaderInterface reader);
+	void setReader(DataReaderInterface reader);
 	String getTextID();
 }
