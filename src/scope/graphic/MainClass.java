@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+//import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -122,12 +122,12 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	static NumberAxis axis9 = new NumberAxis("");
 
 	static ValueAxis valueaxis = null;
-	final static Charset ENCODING = StandardCharsets.UTF_8;
+	//final static Charset ENCODING = StandardCharsets.UTF_8;
 	String lineToFile = null;
 
-	SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd_HH-mm-ss");
+	SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 	SimpleDateFormat formatterHeader = new SimpleDateFormat(
-			"EEE MMM d hh:mm:ss a YYYY", Locale.ENGLISH);
+			"EEE MMM d hh:mm:ss a yyyy", Locale.ENGLISH);
 	PrintWriter writerLog = null;
 	File selLogFile;
 	File Log;
