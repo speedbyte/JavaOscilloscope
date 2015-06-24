@@ -8,7 +8,7 @@ import java.util.ArrayList;
 public class ModelMediator implements MMInterface {
 
 	private List<ViewInterface> observerList = new ArrayList<ViewInterface>();
-	private DataRepository<Double[]> repository = new DataRepository<Double[]>();
+	private DataRepository<double[]> repository = new DataRepository<double[]>();
 	
 
 	@Override

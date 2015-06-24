@@ -6,7 +6,7 @@ import java.util.TimerTask;
 public class RingbufferTest {
 
 	public static void main(String[] args) {
-		Ringbuffer<Double[]> buffer = new Ringbuffer<>(10);
+		Ringbuffer<Double[]> buffer = new Ringbuffer<Double[]>(10);
 		Double[] array = {(double) 1, (double) 2, (double) 3, (double) 4, (double) 5};
 //		buffer.addItem(new Double[] {(double) 1, 2, 3, 4, 5});
 		
