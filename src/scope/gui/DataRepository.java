@@ -5,7 +5,7 @@ import java.util.*;
 public class DataRepository<E> implements DataRepositoryInterface<E>{
 	int dataSetArrayLength = 0;
 	int dataSetCount = 0;
-	Ringbuffer<E> ringbuffer = new Ringbuffer<>(100);
+	Ringbuffer<E> ringbuffer = new Ringbuffer<E>(100);
 
 	@Override
 	public void addDataSetArray(E dataSetArray) {
@@ -15,7 +15,7 @@ public class DataRepository<E> implements DataRepositoryInterface<E>{
 
 	@Override
 	public LinkedList<E> getDataSetArrays() {
-		LinkedList<E> list = new LinkedList<>();
+		LinkedList<E> list = new LinkedList<E>();
 		E item;
 		while ((item = ringbuffer.getItem()) != null){
 //			System.out.println("read:	"+item);
