@@ -4,7 +4,7 @@ package scope.graphic;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.nio.charset.Charset;
+//import java.nio.charset.Charset;
 //import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -106,171 +106,7 @@ public class DataReader implements DataReaderInterface, Runnable {
 			}
 			// Log file Log+date+.asc is created
 			if (activateCanLogging == true) {
-				if (flagStartReading) {
-					if (!timeStartFlag) {
-						start = (double) (new Date()).getTime();
-						timeStartFlag = true;
-					}
-					current = (double) (new Date()).getTime();
-					currenttime_second = (current - start) / 1000;
-					oCanMsg = oVciJava.CanMessageReader(oCanMsgReader);
-					if (oCanMsg != null) {
-						canLine = oCanMsg.toString();
-						System.out.printf("recvd message %s\n", canLine);
-						// recvd message Timestamp: 13756081 Flags: ID:
-						// 0x00000100 Data: 0xFF 0xEE 0xDD 0xCC 0xBB 0xAA 0x99
-						// 0x88
-						lineToFile = ("" + canLine);
-
-						if (lineToFile != null) {
-							int byteCtrl = 0;
-							String[] CanStringSplitted = lineToFile
-									.split("\\s+");
-							lineToFile = null;
-							if (CanStringSplitted[4].startsWith("I")) {
-								byteCtrl = 5;
-							} else {
-								byteCtrl = 4;
-							}
-							String x_id = CanStringSplitted[byteCtrl]
-									.substring(7, 10);
-							// Read CAN ID from lineToFile as well as from
-							// JTextField
-							x = Integer.parseInt(x_id, 16);
-							
-							//TODO
-							idx0 = view.getTextID();
-
-							if (idx0.isEmpty()) {
-								idx0 = "0";
-								continue;
-							} else {
-							}
-
-							try {
-								id = Integer.parseInt(idx0, 16);
-							} catch (Exception e) {
-							}
-							
-							/* data array which will be pushed to ModelMediator */
-							double[] dataArray = new double[9];
-							dataArray[0] = currenttime_second;
-
-
-							df.applyPattern(pattern);
-							int dataLength = CanStringSplitted.length
-									- byteCtrl - 2;
-
-							if (CanStringSplitted.length >= byteCtrl + 2) {
-								writerLog.append("\r\n   "
-										+ df.format(currenttime_second)
-										+ " 1  " + x_id
-										+ "             Rx   d " + dataLength);
-							}
-
-							if (CanStringSplitted.length >= byteCtrl + 3) {
-								v1 = CanStringSplitted[byteCtrl + 2].substring(
-										2, 4);
-								writerLog.append(" " + v1);
-								if (x == id) {
-									// value1 = Integer.parseInt(v1, 16);
-									value1 = (int) (Math.random() * 256) * 1000;
-//									serie1.add(currenttime_second, value1);
-									dataArray[1] = value1;
-								}
-							}
-
-							if (CanStringSplitted.length >= byteCtrl + 4) {
-								v2 = CanStringSplitted[byteCtrl + 3].substring(
-										2, 4);
-								writerLog.append(" " + v2);
-								if (x == id) {
-									// value2 = Integer.parseInt(v2, 16);
-									value2 = (int) (Math.random() * 256);
-//									serie2.add(currenttime_second, value2);
-									dataArray[2] = value2;
-								}
-							}
-
-							if (CanStringSplitted.length >= byteCtrl + 5) {
-								v3 = CanStringSplitted[byteCtrl + 4].substring(
-										2, 4);
-								writerLog.append(" " + v3);
-								if (x == id) {
-									// value3 = Integer.parseInt(v3, 16);
-									value3 = (int) (Math.random() * 256);
-//									serie3.add(currenttime_second, value3);
-									dataArray[3] = value3;
-								}
-							}
-
-							if (CanStringSplitted.length >= byteCtrl + 6) {
-								v4 = CanStringSplitted[byteCtrl + 5].substring(
-										2, 4);
-								writerLog.append(" " + v4);
-								if (x == id) {
-									// value4 = Integer.parseInt(v4, 16);
-									value4 = (int) (Math.random() * 256);
-//									serie4.add(currenttime_second, value4);
-									dataArray[4] = value4;
-								}
-							}
-
-							if (CanStringSplitted.length >= byteCtrl + 7) {
-								v5 = CanStringSplitted[byteCtrl + 6].substring(
-										2, 4);
-								writerLog.append(" " + v5);
-								if (x == id) {
-									// value5 = Integer.parseInt(v5, 16);
-									value5 = (int) (Math.random() * 256);
-//									serie5.add(currenttime_second, value5);
-									dataArray[5] = value5;
-								}
-							}
-
-							if (CanStringSplitted.length >= byteCtrl + 8) {
-								v6 = CanStringSplitted[byteCtrl + 7].substring(
-										2, 4);
-								writerLog.append(" " + v6);
-								if (x == id) {
-									// value6 = Integer.parseInt(v6, 16);
-									value6 = (int) (Math.random() * 256);
-//									serie6.add(currenttime_second, value6);
-									dataArray[6] = value6;
-								}
-							}
-
-							if (CanStringSplitted.length >= byteCtrl + 9) {
-								v7 = CanStringSplitted[byteCtrl + 8].substring(
-										2, 4);
-								writerLog.append(" " + v7);
-								if (x == id) {
-									// value7 = Integer.parseInt(v7, 16);
-									value7 = (int) (Math.random() * 256);
-//									serie7.add(currenttime_second, value7);
-									dataArray[7] = value7;
-								}
-							}
-
-							if (CanStringSplitted.length >= byteCtrl + 10) {
-								v8 = CanStringSplitted[byteCtrl + 9].substring(
-										2, 4);
-								writerLog.append(" " + v8);
-								if (x == id) {
-									// value8 = Integer.parseInt(v8, 16);
-									value8 = (int) (Math.random() * 256);
-//									serie8.add(currenttime_second, value8);
-									dataArray[8] = value8;
-								}
-							}
-							
-							/* dataArray pushed to ModelMediator */
-							mm.pushDataArray(dataArray );
-						}
-//					} else {
-//						serie0.add(currenttime_second, null);
-					}
-				}
+				if (flagStartReading) {}
 			} else if (activateZigbeeLogging == true) {
 				if (flagStartReading) {
 					if (!timeStartFlag) {
@@ -289,13 +125,13 @@ public class DataReader implements DataReaderInterface, Runnable {
 					} else {
 						display_string = oSerialJava.getSerialLine();
 					}
-					if (num != 0) {
+					// this code is to develop the oscilloscope for single bytes
+					if (num != 0) { 
 						System.out.printf("number of bytes read %d\n", num);
 						while (num != 0) {
 							// the protocol will be executed from this point.
 							// store all the variables till a $ is received.
-							data_serialport[index_dollar] = oSerialJava
-									.SerialByteReader()[length - num];
+							data_serialport[index_dollar] = oSerialJava.SerialByteReader()[length - num];
 							num--;
 							// System.out.printf("recvd message %d\n",
 							// data_serialport[index_dollar]);
@@ -304,11 +140,9 @@ public class DataReader implements DataReaderInterface, Runnable {
 								// System.out.printf("Trigger oscilloscope, $ at %d\n",
 								// (index_dollar+1));
 								df.applyPattern(pattern);
-
 								// writerLog.append(" " + v1);
 								// value1 = Integer.parseInt(v1, 16);
 								// value1 = (int) (Math.random()*256);
-								
 								value1 = data_serialport[0];
 								value2 = data_serialport[1];
 								value3 = data_serialport[2];
@@ -317,16 +151,6 @@ public class DataReader implements DataReaderInterface, Runnable {
 								value6 = data_serialport[5];
 								value7 = data_serialport[6];
 								value8 = data_serialport[7];
-								
-//								serie1.add(currenttime_second, value1);
-//								serie2.add(currenttime_second, value2);
-//								serie3.add(currenttime_second, value3);
-//								serie4.add(currenttime_second, value4);
-//								serie5.add(currenttime_second, value5);
-//								serie6.add(currenttime_second, value6);
-//								serie7.add(currenttime_second, value7);
-//								serie8.add(currenttime_second, value8);
-
 								// TODO
 								double[] dataArray = new double[9];
 								dataArray[0] = currenttime_second;
@@ -338,9 +162,7 @@ public class DataReader implements DataReaderInterface, Runnable {
 								dataArray[6] = value6;
 								dataArray[7] = value7;
 								dataArray[8] = value8;
-
 								mm.pushDataArray(dataArray);
-
 								index_dollar = 0;
 								Arrays.fill(data_serialport, (byte) 0);
 							} else {
@@ -359,20 +181,12 @@ public class DataReader implements DataReaderInterface, Runnable {
 								if (i == 4 && parts.length == 6) {
 									String[] data_magnet = new String[6];
 									data_magnet = parts[i].split(";");
-									// System.out.println((data_magnet[0].split(":"))[1]);
-									// System.out.println(data_magnet[1]);
-									// System.out.println(data_magnet[2]);
 
-									value1 = Integer.parseInt((data_magnet[0]
-											.split(":"))[1]);
+									value1 = Integer.parseInt((data_magnet[0].split(":"))[1]);
 									value2 = Integer.parseInt(data_magnet[1]);
 									value3 = Integer.parseInt(data_magnet[2]);
 									value4 = Integer.parseInt(data_magnet[3]);
 									value5 = Integer.parseInt(data_magnet[4]);
-									
-//									serie1.add(currenttime_second, value1);
-//									serie2.add(currenttime_second, value2);
-//									serie3.add(currenttime_second, value3);
 
 									// TODO
 									double[] dataArray = new double[9];
@@ -385,33 +199,8 @@ public class DataReader implements DataReaderInterface, Runnable {
 
 									mm.pushDataArray(dataArray);
 									
-								} else if (i == 5 && parts.length == 7) {
-									String[] data_magnet = new String[6];
-									data_magnet = parts[i].split(";");
-									// System.out.println((data_magnet[0].split(":"))[1]);
-									// System.out.println(data_magnet[1]);
-									// System.out.println(data_magnet[2]);
-									
-									value1 = Integer.parseInt((data_magnet[0]
-											.split(":"))[1]);
-									value2 = Integer.parseInt(data_magnet[1]);
-									value3 = Integer.parseInt(data_magnet[2]);
-									
-//									serie1.add(currenttime_second, value1);
-//									serie2.add(currenttime_second, value2);
-//									serie3.add(currenttime_second, value3);
-
-									// TODO
-									double[] dataArray = new double[9];
-									dataArray[0] = currenttime_second;
-									dataArray[1] = value1;
-									dataArray[2] = value2;
-									dataArray[3] = value3;
-
-									mm.pushDataArray(dataArray);
-								}
+								} 
 							} catch (Exception e) {
-
 							}
 						}
 					} else {
@@ -423,20 +212,6 @@ public class DataReader implements DataReaderInterface, Runnable {
 			}
 		}
 	}
-
-//	public static void ReadFrameNull() {
-//
-//		serie1.add(currenttime_second, null);
-//		serie2.add(currenttime_second, null);
-//		serie3.add(currenttime_second, null);
-//		serie4.add(currenttime_second, null);
-//		serie5.add(currenttime_second, null);
-//		serie6.add(currenttime_second, null);
-//		serie7.add(currenttime_second, null);
-//		serie8.add(currenttime_second, null);
-//
-//	Test
-//	}
 
 	// RunVci method
 	public void runVci(String[] args) {
@@ -486,163 +261,6 @@ public class DataReader implements DataReaderInterface, Runnable {
 		worker.execute();
 	}
 
-//	// AxisConfiguration method
-//	public static void axisConfiguration() {
-//
-//		int axisCtrl = 1;
-//		while (axisCtrl <= 8) {
-//			if (axisCtrl == 1) {
-//				axis = axis1;
-//				renderer = renderer1;
-//				data = data1;
-//			}
-//			if (axisCtrl == 2) {
-//				axis = axis2;
-//				renderer = renderer2;
-//				data = data2;
-//			}
-//			if (axisCtrl == 3) {
-//				axis = axis3;
-//				renderer = renderer3;
-//				data = data3;
-//			}
-//			if (axisCtrl == 4) {
-//				axis = axis4;
-//				renderer = renderer4;
-//				data = data4;
-//			}
-//			if (axisCtrl == 5) {
-//				axis = axis5;
-//				renderer = renderer5;
-//				data = data5;
-//			}
-//			if (axisCtrl == 6) {
-//				axis = axis6;
-//				renderer = renderer6;
-//				data = data6;
-//			}
-//			if (axisCtrl == 7) {
-//				axis = axis7;
-//				renderer = renderer7;
-//				data = data7;
-//			}
-//			if (axisCtrl == 8) {
-//				axis = axis8;
-//				renderer = renderer8;
-//				data = data8;
-//			}
-//
-//			xyplot.setRangeAxis(axisCtrl, axis);
-//			axis.setTickLabelsVisible(false);
-//			axis.setVisible(false);
-//			xyplot.setDataset(axisCtrl, data);
-//			xyplot.mapDatasetToRangeAxis(axisCtrl, axisCtrl);
-//			renderer = new XYStepRenderer();
-//			xyplot.setRenderer(axisCtrl, renderer);
-//			jfreechart.getXYPlot().getRenderer(axisCtrl)
-//					.setBaseSeriesVisible(false);
-//			axis.setLabelPaint(jfreechart.getXYPlot().getRenderer(axisCtrl)
-//					.getItemPaint(0, 0));
-//			axis.setTickLabelPaint(jfreechart.getXYPlot().getRenderer(axisCtrl)
-//					.getItemPaint(0, 0));
-//			xyplot.setRangeAxis(axisCtrl, axis);
-//			axis.setRange(-5, 260);
-//			axisCtrl++;
-//		}
-//	}
-//
-//	// CloseMenu method
-//	private void closeMenu() {
-//
-//		JOptionPane optionPane = new JOptionPane("Do you really want to exit?",
-//				JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-//		JDialog dialog = optionPane.createDialog(null, "Manual Creation");
-//		dialog.setVisible(true);
-//
-//		int exitMenuItem = ((Integer) optionPane.getValue()).intValue();
-//		switch (exitMenuItem) {
-//		case JOptionPane.NO_OPTION:
-//			break;
-//		case JOptionPane.YES_OPTION:
-//			System.exit(0);
-//		}
-//	}
-//
-//	// StopMenu method
-//	private void stopMenu() {
-//
-//		JOptionPane optionPane = new JOptionPane("Do you really want to stop?",
-//				JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-//		JDialog dialog = optionPane.createDialog(null, "Manual Creation");
-//		dialog.setVisible(true);
-//
-//		int exitMenuItem = ((Integer) optionPane.getValue()).intValue();
-//		switch (exitMenuItem) {
-//		case JOptionPane.NO_OPTION:
-//			break;
-//		case JOptionPane.YES_OPTION:
-//			YesOption();
-//		}
-//	}
-//
-//	// YesOption method
-//	private void YesOption() {
-//
-//		if (activateCanLogging == true) {
-//			oVciJava.StopCan(oBalObject, oCanMsgReader);
-//			oVciJava.ResetDeviceIndex();
-//			activateCanLogging = false;
-//			writerLog.close();
-//		}
-//		if (activateZigbeeLogging == true) {
-//			oSerialJava.schliesseSerialPort();
-//			activateZigbeeLogging = false;
-//		}
-//		flagStartReading = false;
-//		flagLogFile = true;
-//		flagStatus = true;
-//		timeStartFlag = false;
-//		btnStop.setVisible(false);
-//		btnStop.setEnabled(false);
-//		btnStart.setVisible(true);
-//		btnStart.setEnabled(true);
-//		rdbtnBluetooth.setEnabled(true);
-//		rdbtnZigbee.setEnabled(true);
-//		rdbtnImportFile.setEnabled(true);
-//	}
-//
-//	// Clear method
-//	private void clear() {
-//		serie1.clear();
-//		serie2.clear();
-//		serie3.clear();
-//		serie4.clear();
-//		serie5.clear();
-//		serie6.clear();
-//		serie7.clear();
-//		serie8.clear();
-//
-//	}
-//
-//	// ActionPerformed method
-//	public void actionPerformed(ActionEvent e) {
-//		if (e.getActionCommand().equals("EXIT")) {
-//			thread1.interrupt();
-//			System.exit(0);
-//		}
-//	}
-//
-//	// GetMonthNum method
-//	public int getMonthNum(String month) {
-//		String[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
-//				"Aug", "Sep", "Oct", "Nov", "Dec" };
-//		for (int i = 0; i < months.length; i++) {
-//			if (month.equals(months[i]) == true) {
-//				return i + 1;
-//			}
-//		}
-//		return -1;
-//	}
 
 	@Override
 	public void startReading() {

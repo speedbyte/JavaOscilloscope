@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+//import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -224,7 +224,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				int latestCheckBoxIndex = checkBoxPanel.getComponentCount()-1;
 				
 				if (latestCheckBoxIndex >= 0) {
-					checkBoxPanel.getComponent(latestCheckBoxIndex).revalidate();
+					checkBoxPanel.getComponent(latestCheckBoxIndex).validate();
 					checkBoxPanel.remove(latestCheckBoxIndex);
 					
 					removeDataset();
