@@ -1,11 +1,6 @@
-:q!<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="scope/graphic/MainClass_old.java|scope/vci/VciJavaWrapper.java" kind="src" path="src"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Program Files/Java/jre7/lib"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry excluding="RXTXcomm.src/|scope/vci/VciJavaWrapper.java" kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="lib/VciJava.jar">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="c:/Windows/System32/"/>
@@ -20,5 +15,10 @@
 	</classpathentry>
 	<classpathentry exported="true" kind="lib" path="lib/mysql-connector-java-5.1.26-bin.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/mongo-java-driver-2.11.3.jar"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Program Files/Java/jre7/lib"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
