@@ -1,7 +1,7 @@
 package scope.graphic;
 
 import scope.gui.*;
-
+//import scope.graphic.*;
 
 public class TestOscilloscope {
 	
