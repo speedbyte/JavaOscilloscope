@@ -1,0 +1,5 @@
+
+
+c can_init 500
+c can_start
+m sd8 123 1 2 3 4 5 66 77 88

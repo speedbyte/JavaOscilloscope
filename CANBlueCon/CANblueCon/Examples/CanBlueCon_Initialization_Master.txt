@@ -1,0 +1,34 @@
+#print #########################################
+#print ## Demo: CANblue master initialization ##
+#print #########################################
+
+#print
+#print Showing CANblue Generic Version
+d version
+#delay 0.5
+
+#print
+#print Resetting device to factory default
+d settings_default
+
+#print
+#print Initializing CAN with 1000 kbaud
+c can_init 1000
+
+#print
+#print Setting AUTOSTART parameter to on, this is important for establishing a CANblue Bridge
+c autostart on
+
+#print
+#print Adding MAC address for establishing a CANblue Bridge
+#print Change the MAC address according to your slave device
+d mac_add 0012F30E2F7F
+
+#print
+#print Showing current configuration
+c config show
+#delay 0.5
+
+#print
+#print Saving the configuration
+c config save
