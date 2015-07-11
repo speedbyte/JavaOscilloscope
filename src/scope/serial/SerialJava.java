@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.util.Enumeration;
 import java.util.TooManyListenersException;
 
-import scope.mutex.Mutex;
+import scope.mutex.*;
 
 
 
@@ -42,7 +42,7 @@ public class SerialJava{
 
 	Boolean all_data_read = true;
 	
-	public Mutex mutex = null;
+	public Mutex serialMutex = null;
 	
 	int pointer = 0;
 			
@@ -55,7 +55,7 @@ public class SerialJava{
 	{
 		data_copied = new long[100];
 		data_array = new byte[100];
-		mutex = new Mutex();
+		serialMutex = new Mutex();
 		System.out.println("Konstruktor: EinfachSenden");
 	}
 	
@@ -80,10 +80,10 @@ public class SerialJava{
 	{
 		Boolean foundPort = false;
 		if (serialPortGeoeffnet != false) {
-			System.out.println("Serialport bereits geöffnet");
+			System.out.println("Serialport bereits geï¿½ffnet");
 			return false;
 		}
-		System.out.println("Öffne Serialport");
+		System.out.println("ï¿½ffne Serialport");
 		enumComm = CommPortIdentifier.getPortIdentifiers();
 		while(enumComm.hasMoreElements()) {
 			serialPortId = (CommPortIdentifier) enumComm.nextElement();
@@ -101,7 +101,7 @@ public class SerialJava{
 			System.out.println("Serialport gefunden: " + portName);
 		}
 		try {
-			serialPort = (SerialPort) serialPortId.open("Öffnen und Senden", 500);
+			serialPort = (SerialPort) serialPortId.open("ï¿½ffnen und Senden", 500);
 		} catch (PortInUseException e) {
 			System.out.println("Port belegt");
 		}
@@ -121,7 +121,7 @@ public class SerialJava{
 		try {
 			serialPort.addEventListener(new serialPortEventListener());
 		} catch (TooManyListenersException e) {
-			System.out.println("TooManyListenersException für Serialport");
+			System.out.println("TooManyListenersException fï¿½r Serialport");
 		}
 		serialPort.notifyOnDataAvailable(true);
 		try {
@@ -137,7 +137,7 @@ public class SerialJava{
 	public void schliesseSerialPort()
 	{
 		if ( serialPortGeoeffnet == true) {
-			System.out.println("Schließe Serialport");
+			System.out.println("Schlieï¿½e Serialport");
 			serialPort.close();
 			serialPortGeoeffnet = false;
 		} else {
@@ -188,7 +188,7 @@ public class SerialJava{
 		public void serialEvent(SerialPortEvent event) {
 			switch (event.getEventType()) {
 //			case SerialPortEvent.DATA_AVAILABLE:
-//				mutex.lock();
+//				serialMutex.lock();
 //				if ( all_data_read == true )
 //				{
 //					pointer = 0;
@@ -210,10 +210,10 @@ public class SerialJava{
 //					pointer++;
 //				}
 //				serialPortDatenVerfuegbar = true;				
-//				mutex.unlock();
+//				serialMutex.unlock();
 //				break;
 			case SerialPortEvent.DATA_AVAILABLE:
-				mutex.lock();
+				serialMutex.lock();
 				//current = (double) (new Date()).getTime();
 				//time_array[pointer] = current;
 				try {
@@ -230,7 +230,7 @@ public class SerialJava{
 					all_data_read = false;
 				}
 				serialPortDatenVerfuegbar = true;				
-				mutex.unlock();
+				serialMutex.unlock();
 				break;
 			case SerialPortEvent.BI:
 			case SerialPortEvent.CD:
@@ -248,7 +248,7 @@ public class SerialJava{
 
 
 /*
-How mutex helps
+How serialMutex helps
 new data coming in
 recvd data = 97
 number of bytes read 1

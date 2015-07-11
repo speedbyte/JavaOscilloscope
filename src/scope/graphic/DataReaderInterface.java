@@ -11,6 +11,7 @@ public interface DataReaderInterface {
 	
 	void setReadBluetooth();
 	void setReadZigbee();
+	void setReadUdp();
 	void setImportFile(File selectedLogFile);
 	
 	void terminateReader();

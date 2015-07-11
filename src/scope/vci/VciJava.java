@@ -24,7 +24,7 @@ public class VciJava
 	
     public VciJava()
     {
-        System.out.println("\nCAN Blue II Constructur\n");
+        System.out.println("CAN Blue II Constructur\n");
     }
   
     public IBalObject InitCanBlue()

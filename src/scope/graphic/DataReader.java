@@ -4,6 +4,7 @@ package scope.graphic;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.net.SocketTimeoutException;
 import java.nio.charset.Charset;
 //import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
@@ -22,6 +23,7 @@ import de.ixxat.vci3.bal.can.CanMessage;
 import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.gui.MMInterface;
 import scope.gui.ViewInterface;
+import scope.udp.UdpJava;
 import scope.vci.VciJava;
 import scope.serial.SerialJava;
 
@@ -38,10 +40,12 @@ public class DataReader implements DataReaderInterface, Runnable {
 	static String canLine = null;
 	public static Boolean single_byte_oscilloscope = false;
 	public static SerialJava oSerialJava = null;
+	public static UdpJava oUdpJava = null;
 	public static String display_string = null;
 
 	private static boolean activateCanLogging = false;
 	private static boolean activateZigbeeLogging = false;
+	private static boolean activateUdpLogging = false;
 	private static boolean activateImportFile = false;
 
 
@@ -282,7 +286,7 @@ public class DataReader implements DataReaderInterface, Runnable {
 
 					int num = 0;
 					int length = 0;
-					oSerialJava.mutex.lock();
+					oSerialJava.serialMutex.lock();
 					if (single_byte_oscilloscope == true) {
 						num = oSerialJava.getSerialData();
 						length = num;
@@ -418,8 +422,79 @@ public class DataReader implements DataReaderInterface, Runnable {
 //						serie0.add(currenttime_second, null);
 
 					}
-					oSerialJava.mutex.unlock();
+					oSerialJava.serialMutex.unlock();
 				}
+			}
+			else if ( activateUdpLogging == true ) {
+
+				if (flagStartReading) {
+					if (!timeStartFlag) {
+						start = (double) (new Date()).getTime();
+						timeStartFlag = true;
+					}
+					current = (double) (new Date()).getTime();
+					currenttime_second = (current - start) / 1000;
+
+					int num = 0;
+					int length = 0;
+					oUdpJava.udpMutex.lock();
+					try {
+						display_string = oUdpJava.receiveNonBlocking();
+		    		} catch (Exception e1) {
+		    			//System.out.println("following exception");
+		    			e1.printStackTrace();
+		    		}
+					if (display_string != null) {
+						System.out.println(display_string);
+						String[] parts = new String[10];
+						parts = display_string.split("#");
+						for (int i = 0; i < parts.length; i++) {
+							// System.out.printf("counter = %d at %s", i,
+							// parts[i]);
+							// abraca#dsfsd#sdfdsfdsfsd#Run#MF:52;101;48#further
+							try {
+								if (i == 4 && parts.length == 6) {
+									String[] data_magnet = new String[6];
+									data_magnet = parts[i].split(";");
+									// System.out.println((data_magnet[0].split(":"))[1]);
+									// System.out.println(data_magnet[1]);
+									// System.out.println(data_magnet[2]);
+
+									value1 = Integer.parseInt((data_magnet[0]
+											.split(":"))[1]);
+									value2 = Integer.parseInt(data_magnet[1]);
+									value3 = Integer.parseInt(data_magnet[2]);
+									//value4 = Integer.parseInt(data_magnet[3]);
+									//value5 = Integer.parseInt(data_magnet[4]);
+									
+//									serie1.add(currenttime_second, value1);
+//									serie2.add(currenttime_second, value2);
+//									serie3.add(currenttime_second, value3);
+
+									// TODO
+									double[] dataArray = new double[9];
+									dataArray[0] = currenttime_second;
+									dataArray[1] = value1;
+									dataArray[2] = value2;
+									dataArray[3] = value3;
+									//dataArray[4] = value4;
+									//dataArray[5] = value5;
+									System.out.println(value3);
+									mm.pushDataArray(dataArray);
+									
+								}
+							} catch (Exception e) {
+								e.printStackTrace();
+
+							}
+						}
+					} else {
+//						serie0.add(currenttime_second, null);
+
+					}
+					oUdpJava.udpMutex.unlock();
+				}
+							
 			}
 		}
 	}
@@ -480,173 +555,19 @@ public class DataReader implements DataReaderInterface, Runnable {
 					oSerialJava = new SerialJava();
 					flagStartReading = oSerialJava.oeffneSerialPort("COM6");
 				}
+				else if (activateUdpLogging == true) {
+					oUdpJava = new UdpJava();
+					flagStartReading = oUdpJava.startServer();
+				}
 				return null;
 			}
 		};
 		worker.execute();
 	}
 
-//	// AxisConfiguration method
-//	public static void axisConfiguration() {
-//
-//		int axisCtrl = 1;
-//		while (axisCtrl <= 8) {
-//			if (axisCtrl == 1) {
-//				axis = axis1;
-//				renderer = renderer1;
-//				data = data1;
-//			}
-//			if (axisCtrl == 2) {
-//				axis = axis2;
-//				renderer = renderer2;
-//				data = data2;
-//			}
-//			if (axisCtrl == 3) {
-//				axis = axis3;
-//				renderer = renderer3;
-//				data = data3;
-//			}
-//			if (axisCtrl == 4) {
-//				axis = axis4;
-//				renderer = renderer4;
-//				data = data4;
-//			}
-//			if (axisCtrl == 5) {
-//				axis = axis5;
-//				renderer = renderer5;
-//				data = data5;
-//			}
-//			if (axisCtrl == 6) {
-//				axis = axis6;
-//				renderer = renderer6;
-//				data = data6;
-//			}
-//			if (axisCtrl == 7) {
-//				axis = axis7;
-//				renderer = renderer7;
-//				data = data7;
-//			}
-//			if (axisCtrl == 8) {
-//				axis = axis8;
-//				renderer = renderer8;
-//				data = data8;
-//			}
-//
-//			xyplot.setRangeAxis(axisCtrl, axis);
-//			axis.setTickLabelsVisible(false);
-//			axis.setVisible(false);
-//			xyplot.setDataset(axisCtrl, data);
-//			xyplot.mapDatasetToRangeAxis(axisCtrl, axisCtrl);
-//			renderer = new XYStepRenderer();
-//			xyplot.setRenderer(axisCtrl, renderer);
-//			jfreechart.getXYPlot().getRenderer(axisCtrl)
-//					.setBaseSeriesVisible(false);
-//			axis.setLabelPaint(jfreechart.getXYPlot().getRenderer(axisCtrl)
-//					.getItemPaint(0, 0));
-//			axis.setTickLabelPaint(jfreechart.getXYPlot().getRenderer(axisCtrl)
-//					.getItemPaint(0, 0));
-//			xyplot.setRangeAxis(axisCtrl, axis);
-//			axis.setRange(-5, 260);
-//			axisCtrl++;
-//		}
-//	}
-//
-//	// CloseMenu method
-//	private void closeMenu() {
-//
-//		JOptionPane optionPane = new JOptionPane("Do you really want to exit?",
-//				JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-//		JDialog dialog = optionPane.createDialog(null, "Manual Creation");
-//		dialog.setVisible(true);
-//
-//		int exitMenuItem = ((Integer) optionPane.getValue()).intValue();
-//		switch (exitMenuItem) {
-//		case JOptionPane.NO_OPTION:
-//			break;
-//		case JOptionPane.YES_OPTION:
-//			System.exit(0);
-//		}
-//	}
-//
-//	// StopMenu method
-//	private void stopMenu() {
-//
-//		JOptionPane optionPane = new JOptionPane("Do you really want to stop?",
-//				JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
-//		JDialog dialog = optionPane.createDialog(null, "Manual Creation");
-//		dialog.setVisible(true);
-//
-//		int exitMenuItem = ((Integer) optionPane.getValue()).intValue();
-//		switch (exitMenuItem) {
-//		case JOptionPane.NO_OPTION:
-//			break;
-//		case JOptionPane.YES_OPTION:
-//			YesOption();
-//		}
-//	}
-//
-//	// YesOption method
-//	private void YesOption() {
-//
-//		if (activateCanLogging == true) {
-//			oVciJava.StopCan(oBalObject, oCanMsgReader);
-//			oVciJava.ResetDeviceIndex();
-//			activateCanLogging = false;
-//			writerLog.close();
-//		}
-//		if (activateZigbeeLogging == true) {
-//			oSerialJava.schliesseSerialPort();
-//			activateZigbeeLogging = false;
-//		}
-//		flagStartReading = false;
-//		flagLogFile = true;
-//		flagStatus = true;
-//		timeStartFlag = false;
-//		btnStop.setVisible(false);
-//		btnStop.setEnabled(false);
-//		btnStart.setVisible(true);
-//		btnStart.setEnabled(true);
-//		rdbtnBluetooth.setEnabled(true);
-//		rdbtnZigbee.setEnabled(true);
-//		rdbtnImportFile.setEnabled(true);
-//	}
-//
-//	// Clear method
-//	private void clear() {
-//		serie1.clear();
-//		serie2.clear();
-//		serie3.clear();
-//		serie4.clear();
-//		serie5.clear();
-//		serie6.clear();
-//		serie7.clear();
-//		serie8.clear();
-//
-//	}
-//
-//	// ActionPerformed method
-//	public void actionPerformed(ActionEvent e) {
-//		if (e.getActionCommand().equals("EXIT")) {
-//			thread1.interrupt();
-//			System.exit(0);
-//		}
-//	}
-//
-//	// GetMonthNum method
-//	public int getMonthNum(String month) {
-//		String[] months = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
-//				"Aug", "Sep", "Oct", "Nov", "Dec" };
-//		for (int i = 0; i < months.length; i++) {
-//			if (month.equals(months[i]) == true) {
-//				return i + 1;
-//			}
-//		}
-//		return -1;
-//	}
-
 	@Override
 	public void startReading() {
-		if (activateCanLogging || activateZigbeeLogging) {
+		if (activateCanLogging || activateZigbeeLogging || activateUdpLogging) {
 			runVci(null);
 		}
 		if (activateImportFile) {
@@ -669,6 +590,10 @@ public class DataReader implements DataReaderInterface, Runnable {
 			oSerialJava.schliesseSerialPort();
 //			activateZigbeeLogging = false;
 		}
+		if (activateUdpLogging == true) {
+			oUdpJava.disconnectPort();
+//			activateZigbeeLogging = false;
+		}
 		flagStartReading = false;
 		flagLogFile = true;
 		flagStatus = true;
@@ -678,6 +603,7 @@ public class DataReader implements DataReaderInterface, Runnable {
 	@Override
 	public void setReadBluetooth() {
 		DataReader.activateZigbeeLogging = false;
+		DataReader.activateUdpLogging = false;
 		DataReader.activateImportFile = false;
 		DataReader.activateCanLogging = true;
 	}
@@ -687,6 +613,15 @@ public class DataReader implements DataReaderInterface, Runnable {
 		DataReader.activateCanLogging = false;
 		DataReader.activateImportFile = false;
 		DataReader.activateZigbeeLogging = true;
+		DataReader.activateUdpLogging = false;
+	}
+
+	@Override
+	public void setReadUdp() {
+		DataReader.activateCanLogging = false;
+		DataReader.activateImportFile = false;
+		DataReader.activateUdpLogging = true;
+		DataReader.activateZigbeeLogging = false;
 	}
 
 	@Override
@@ -695,6 +630,7 @@ public class DataReader implements DataReaderInterface, Runnable {
 		DataReader.activateZigbeeLogging = false;
 		DataReader.activateCanLogging = false;
 		DataReader.activateImportFile = true;
+		DataReader.activateUdpLogging = false;
 	}
 
 	@Override

@@ -65,6 +65,7 @@ import de.ixxat.vci3.bal.IBalObject;
 import de.ixxat.vci3.bal.can.CanMessage;
 import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.data.ImportButton;
+import scope.udp.UdpJava;
 import scope.vci.VciJava;
 import scope.serial.SerialJava;
 
@@ -84,8 +85,11 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	public static SerialJava oSerialJava = null;
 	public static String display_string = null;
 	
+	public static UdpJava oUdpJava = null;
+	
 	private static boolean activateCanLogging = false;
 	private static boolean activateZigbeeLogging = false;
+	private static boolean activateUdpLogging = false;
 
 	static XYSeries serie0 = new XYSeries("");
 	static XYSeries serie1 = new XYSeries("Byte 1");
@@ -182,6 +186,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	private JTextField id_txt;
 	JRadioButton rdbtnBluetooth;
 	JRadioButton rdbtnZigbee;
+	JRadioButton rdbtnUdp;
 	JRadioButton rdbtnImportFile;
 
 	final JCheckBox[] chckbx = new JCheckBox[10];
@@ -312,6 +317,10 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					runVci(null);
 					activateZigbeeLogging = true;
 				}
+				if (rdbtnUdp.isSelected()) {
+					runVci(null);
+					activateUdpLogging = true;
+				}
 				if (rdbtnImportFile.isSelected()) {
 					flagLogFile = false;
 					//runLog(); Please see in scratch.
@@ -324,6 +333,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				btnStart.setVisible(false);
 				rdbtnBluetooth.setEnabled(false);
 				rdbtnZigbee.setEnabled(false);
+				rdbtnUdp.setEnabled(false);
 				rdbtnImportFile.setEnabled(false);
 			}
 
@@ -552,7 +562,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		rdbtnBluetooth.setBounds(496, 48, 109, 25);
 		buttonPanel.add(rdbtnBluetooth);
 		group.add(rdbtnBluetooth);
-		rdbtnBluetooth.setSelected(true);
+		rdbtnBluetooth.setSelected(false);
 
 		rdbtnZigbee = new JRadioButton("ZigBee");
 		rdbtnZigbee.setFont(new Font("Segoe UI", Font.PLAIN, 15));
@@ -563,11 +573,21 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		group.add(rdbtnZigbee);
 		rdbtnZigbee.setSelected(false);
 
+		rdbtnUdp = new JRadioButton("UDP");
+		rdbtnUdp.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		rdbtnUdp.setBackground(panelColor);
+		rdbtnUdp.setForeground(Color.LIGHT_GRAY);
+		rdbtnUdp.setBounds(496, 108, 109, 25);
+		buttonPanel.add(rdbtnUdp);
+		group.add(rdbtnUdp);
+		rdbtnUdp.setSelected(true);
+
+		
 		rdbtnImportFile = new JRadioButton("Import File");
 		rdbtnImportFile.setForeground(Color.LIGHT_GRAY);
 		rdbtnImportFile.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		rdbtnImportFile.setBackground(panelColor);
-		rdbtnImportFile.setBounds(496, 106, 109, 25);
+		rdbtnImportFile.setBounds(496, 138, 109, 25);
 		rdbtnImportFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooserLog = new JFileChooser("user.home");
@@ -1023,7 +1043,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 					
 					int num = 0;
 					int length = 0;
-					oSerialJava.mutex.lock();
+					oSerialJava.serialMutex.lock();
 					if ( single_byte_oscilloscope == true )
 					{
 		        		num = oSerialJava.getSerialData();
@@ -1127,9 +1147,136 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 	    			{
 	    				serie0.add(currenttime_second, null);
 	    			}
-	        		oSerialJava.mutex.unlock();
+	        		oSerialJava.serialMutex.unlock();
 	            }
 			}
+			else if ( activateUdpLogging == true )
+			{
+				if ( flagStartReading )
+	            {
+					if (!timeStartFlag) {
+						start = (double) (new Date()).getTime();
+						timeStartFlag = true;
+					}
+					current = (double) (new Date()).getTime();
+					currenttime_second = (current - start) / 1000;
+					
+					int num = 0;
+					int length = 0;
+					oUdpJava.udpMutex.lock();
+					try {
+						oUdpJava.receiveNonBlocking();
+					} catch (Exception e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					if ( single_byte_oscilloscope == true )
+					{
+		        		num = oSerialJava.getSerialData();
+						length = num;
+					}
+					else
+					{
+		        		display_string = oSerialJava.getSerialLine();
+					}
+					if ( num != 0)
+	    			{
+        				System.out.printf("number of bytes read %d\n", num);
+	    				while ( num != 0 )
+	    				{
+		    				// the protocol will be executed from this point.
+	    					// store all the variables till a $ is received.
+	    					data_serialport[index_dollar] = oSerialJava.SerialByteReader()[length-num];
+		    				num--;
+		    				//System.out.printf("recvd message %d\n", data_serialport[index_dollar]);
+		    				if ( data_serialport[index_dollar] == '\n' )
+		    				{
+		    					System.out.println(Arrays.toString(data_serialport));
+			    				//System.out.printf("Trigger oscilloscope, $ at %d\n", (index_dollar+1));
+		    					df.applyPattern(pattern);
+								
+		    					//writerLog.append(" " + v1);
+								//value1 = Integer.parseInt(v1, 16);
+								//value1 = (int) (Math.random()*256);
+		    					value1 = data_serialport[0];
+								serie1.add(currenttime_second, value1);
+								value2 = data_serialport[1];
+								serie2.add(currenttime_second, value2);
+								value3 = data_serialport[2];
+								serie3.add(currenttime_second, value3);
+								value4 = data_serialport[3];
+								serie4.add(currenttime_second, value4);
+								value5 = data_serialport[4];
+								serie5.add(currenttime_second, value5);
+								value6 = data_serialport[5];
+								serie6.add(currenttime_second, value6);
+								value7 = data_serialport[6];
+								serie7.add(currenttime_second, value7);
+								value8 = data_serialport[7];
+								serie8.add(currenttime_second, value8);
+								index_dollar = 0;
+								Arrays.fill(data_serialport, (byte)0);
+		    				}
+		    				else
+		    				{
+		    					index_dollar++;
+		    				}
+	    				}
+	    			}
+					else if ( display_string != null )
+					{
+		        		System.out.println(display_string);
+		        		String[] parts = new String[10];
+						parts = display_string.split("#");
+						for ( int i = 0; i < parts.length; i++)
+						{
+							//System.out.printf("counter = %d at %s", i, parts[i]);
+							//abraca#dsfsd#sdfdsfdsfsd#Run#MF:52;101;48#further
+							try
+							{
+								if ( i == 4 && parts.length == 6 )
+								{
+									String[] data_magnet = new String[6];
+									data_magnet = parts[i].split(";");
+//									System.out.println((data_magnet[0].split(":"))[1]);
+//									System.out.println(data_magnet[1]);
+//									System.out.println(data_magnet[2]);
+			    					value1 = Integer.parseInt((data_magnet[0].split(":"))[1]);
+									serie1.add(currenttime_second, value1);
+									value2 = Integer.parseInt(data_magnet[1]);
+									serie2.add(currenttime_second, value2);
+									value3 = Integer.parseInt(data_magnet[2]);
+									serie3.add(currenttime_second, value3);
+								}
+								else if ( i == 5 && parts.length == 7 )
+								{
+									String[] data_magnet = new String[6];
+									data_magnet = parts[i].split(";");
+	//									System.out.println((data_magnet[0].split(":"))[1]);
+	//									System.out.println(data_magnet[1]);
+	//									System.out.println(data_magnet[2]);
+			    					value1 = Integer.parseInt((data_magnet[0].split(":"))[1]);
+									serie1.add(currenttime_second, value1);
+									value2 = Integer.parseInt(data_magnet[1]);
+									serie2.add(currenttime_second, value2);
+									value3 = Integer.parseInt(data_magnet[2]);
+									serie3.add(currenttime_second, value3);
+								}
+							}
+							catch (Exception e)
+							{
+								
+							}
+						}
+					}
+	    			else
+	    			{
+	    				serie0.add(currenttime_second, null);
+	    			}
+	        		oSerialJava.serialMutex.unlock();
+	            }
+			}
+			
 		}
 	}
 
@@ -1189,6 +1336,12 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 				{
 			    	oSerialJava = new SerialJava();
 			    	flagStartReading = oSerialJava.oeffneSerialPort("COM6");
+				}
+				/* UDP */
+				else if ( activateUdpLogging == true )
+				{
+			    	oUdpJava = new UdpJava();
+			    	flagStartReading = oUdpJava.startServer();
 				}
 		    	return null;
 			}
@@ -1310,6 +1463,11 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 			oSerialJava.schliesseSerialPort();
 			activateZigbeeLogging = false;
 		}
+		if ( activateUdpLogging == true )
+		{
+			oUdpJava.disconnectPort();
+			activateUdpLogging = false;
+		}
 		flagStartReading = false;
 		flagLogFile = true;
 		flagStatus = true;
@@ -1320,6 +1478,7 @@ public class MainClass extends JFrame implements Runnable, ActionListener {
 		btnStart.setEnabled(true);
 		rdbtnBluetooth.setEnabled(true);
 		rdbtnZigbee.setEnabled(true);
+		rdbtnUdp.setEnabled(true);
 		rdbtnImportFile.setEnabled(true);
 	}
 

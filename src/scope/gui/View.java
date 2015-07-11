@@ -20,7 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+//import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -111,6 +111,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	private JTextField id_txt;
 	JRadioButton rdbtnBluetooth;
 	JRadioButton rdbtnZigbee;
+	JRadioButton rdbtnUdp;
 	JRadioButton rdbtnImportFile;
 	JButton btnAddDataset;
 	JButton btnRemoveDataset;
@@ -224,7 +225,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				int latestCheckBoxIndex = checkBoxPanel.getComponentCount()-1;
 				
 				if (latestCheckBoxIndex >= 0) {
-					checkBoxPanel.getComponent(latestCheckBoxIndex).revalidate();
+					checkBoxPanel.getComponent(latestCheckBoxIndex).validate();
 					checkBoxPanel.remove(latestCheckBoxIndex);
 					
 					removeDataset();
@@ -259,6 +260,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				btnStart.setVisible(false);
 				rdbtnBluetooth.setEnabled(false);
 				rdbtnZigbee.setEnabled(false);
+				rdbtnUdp.setEnabled(false);
 				rdbtnImportFile.setEnabled(false);
 				btnAddDataset.setEnabled(false);
 				btnRemoveDataset.setEnabled(false);
@@ -491,11 +493,25 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			}
 		});
 
+		rdbtnUdp = new JRadioButton("UDP");
+		rdbtnUdp.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+		rdbtnUdp.setBackground(panelColor);
+		rdbtnUdp.setForeground(Color.LIGHT_GRAY);
+		rdbtnUdp.setBounds(496, 108, 109, 25);
+		buttonPanel.add(rdbtnUdp);
+		group.add(rdbtnUdp);
+		rdbtnUdp.setSelected(true);
+		rdbtnUdp.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				reader.setReadUdp();
+			}
+		});
+		
 		rdbtnImportFile = new JRadioButton("Import File");
 		rdbtnImportFile.setForeground(Color.LIGHT_GRAY);
 		rdbtnImportFile.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		rdbtnImportFile.setBackground(panelColor);
-		rdbtnImportFile.setBounds(496, 106, 109, 25);
+		rdbtnImportFile.setBounds(496, 136, 109, 25);
 		rdbtnImportFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//TODO
@@ -712,7 +728,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		double[] dataArray;
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			View.serie0.add(dataArray[0], null);
-			for (int plotCtrIndex = 1; plotCtrIndex < dataArray.length; plotCtrIndex++) {
+			for (int plotCtrIndex = 1; plotCtrIndex < 3 /*dataArray.length*/; plotCtrIndex++) {
 				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex))
 						.getSeries(0).add(dataArray[0], dataArray[plotCtrIndex]);
 			}
