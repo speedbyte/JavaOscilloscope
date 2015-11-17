@@ -445,7 +445,7 @@ public class DataReader implements DataReaderInterface, Runnable {
 		    			e1.printStackTrace();
 		    		}
 					if (display_string != null) {
-						System.out.println(display_string);
+						//System.out.println(display_string);
 						String[] parts = new String[10];
 						parts = display_string.split("#");
 						for (int i = 0; i < parts.length; i++) {

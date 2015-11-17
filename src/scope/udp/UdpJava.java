@@ -1,6 +1,4 @@
 package scope.udp;
-
-
 import java.net.*;
 import scope.mutex.*;
 
@@ -20,7 +18,7 @@ public class UdpJava
             
         public Boolean startServer() throws Exception
 		{
-        	serverSocket = new DatagramSocket(9876);			
+        	serverSocket = new DatagramSocket(5000);			
 			//serverSocket.setSoTimeout(1000);
 	        return true;
 		}
@@ -32,7 +30,7 @@ public class UdpJava
     		try {
         		serverSocket.receive(receivePacket);
     	        sentence = new String( receivePacket.getData());
-    	        //System.out.println("RECEIVED: " + sentence);
+    	        System.out.print(receivePacket.getData()[0]);
     	        InetAddress IPAddress = receivePacket.getAddress();
     	        int port = receivePacket.getPort();
     	        String capitalizedSentence = sentence.toUpperCase();
@@ -40,7 +38,7 @@ public class UdpJava
     	        sendData = capitalizedSentence.getBytes();
     	        DatagramPacket sendPacket =
     	        	new DatagramPacket(sendData, sendData.length, IPAddress, port);
-    	        serverSocket.send(sendPacket);
+    	        //serverSocket.send(sendPacket);
     		} catch (SocketTimeoutException e1) {
     			System.out.println("nothing to do yet");
     			//e1.printStackTrace();
