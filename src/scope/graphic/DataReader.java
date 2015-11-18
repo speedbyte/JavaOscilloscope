@@ -42,6 +42,7 @@ public class DataReader implements DataReaderInterface, Runnable {
 	public static SerialJava oSerialJava = null;
 	public static UdpJava oUdpJava = null;
 	public static String display_string = null;
+	public static StringBuffer helikopterString = null;
 
 	private static boolean activateCanLogging = false;
 	private static boolean activateZigbeeLogging = false;
@@ -437,57 +438,31 @@ public class DataReader implements DataReaderInterface, Runnable {
 
 					int num = 0;
 					int length = 0;
+					double[] combinedDataDouble = {0.0, 0.0, 0.0};
 					oUdpJava.udpMutex.lock();
 					try {
-						display_string = oUdpJava.receiveNonBlocking();
+						combinedDataDouble = oUdpJava.receiveNonBlocking();
 		    		} catch (Exception e1) {
 		    			//System.out.println("following exception");
 		    			e1.printStackTrace();
 		    		}
-					if (display_string != null) {
-						//System.out.println(display_string);
-						String[] parts = new String[10];
-						parts = display_string.split("#");
-						for (int i = 0; i < parts.length; i++) {
-							// System.out.printf("counter = %d at %s", i,
-							// parts[i]);
-							// abraca#dsfsd#sdfdsfdsfsd#Run#MF:52;101;48#further
-							try {
-								if (i == 4 && parts.length == 6) {
-									String[] data_magnet = new String[6];
-									data_magnet = parts[i].split(";");
-									// System.out.println((data_magnet[0].split(":"))[1]);
-									// System.out.println(data_magnet[1]);
-									// System.out.println(data_magnet[2]);
-
-									value1 = Integer.parseInt((data_magnet[0]
-											.split(":"))[1]);
-									value2 = Integer.parseInt(data_magnet[1]);
-									value3 = Integer.parseInt(data_magnet[2]);
-									//value4 = Integer.parseInt(data_magnet[3]);
-									//value5 = Integer.parseInt(data_magnet[4]);
-									
-//									serie1.add(currenttime_second, value1);
-//									serie2.add(currenttime_second, value2);
-//									serie3.add(currenttime_second, value3);
-
-									// TODO
-									double[] dataArray = new double[9];
-									dataArray[0] = currenttime_second;
-									dataArray[1] = value1;
-									dataArray[2] = value2;
-									dataArray[3] = value3;
-									//dataArray[4] = value4;
-									//dataArray[5] = value5;
-									System.out.println(value3);
-									mm.pushDataArray(dataArray);
-									
+					if (combinedDataDouble[0] != 0) {
+						//System.out.println(helikopterString);
+						if (combinedDataDouble[0] != 0 ) {
+							try
+							{
+								double[] dataArray = new double[9];
+								dataArray[0] = currenttime_second;
+								dataArray[1] = combinedDataDouble[0];
+								dataArray[2] = combinedDataDouble[0];
+								dataArray[3] = combinedDataDouble[0];
+								System.out.println(value3);
+								mm.pushDataArray(dataArray);
+								} catch (Exception e) {
+									e.printStackTrace();
 								}
-							} catch (Exception e) {
-								e.printStackTrace();
-
 							}
-						}
+
 					} else {
 //						serie0.add(currenttime_second, null);
 
