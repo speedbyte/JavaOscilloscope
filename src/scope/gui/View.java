@@ -109,8 +109,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	final JButton btnStop = new JButton("STOP");
 	JSpinner spinner_2 = new JSpinner();
 	private JTextField id_txt;
-	JRadioButton rdbtnBluetooth;
-	JRadioButton rdbtnZigbee;
 	JRadioButton rdbtnUdp;
 	JRadioButton rdbtnImportFile;
 	JButton btnAddDataset;
@@ -258,8 +256,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				btnStop.setVisible(true);
 				btnStart.setEnabled(false);
 				btnStart.setVisible(false);
-				rdbtnBluetooth.setEnabled(false);
-				rdbtnZigbee.setEnabled(false);
 				rdbtnUdp.setEnabled(false);
 				rdbtnImportFile.setEnabled(false);
 				btnAddDataset.setEnabled(false);
@@ -465,39 +461,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		buttonPanel.add(label_1);
 		ButtonGroup group = new ButtonGroup();
 
-		rdbtnBluetooth = new JRadioButton("Bluetooth");
-		rdbtnBluetooth.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		rdbtnBluetooth.setForeground(Color.LIGHT_GRAY);
-		rdbtnBluetooth.setBackground(panelColor);
-		rdbtnBluetooth.setBounds(496, 48, 109, 25);
-		buttonPanel.add(rdbtnBluetooth);
-		group.add(rdbtnBluetooth);
-		rdbtnBluetooth.setSelected(false);
-		rdbtnBluetooth.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				reader.setReadBluetooth();;
-			}
-		});
-
-		rdbtnZigbee = new JRadioButton("ZigBee");
-		rdbtnZigbee.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		rdbtnZigbee.setBackground(panelColor);
-		rdbtnZigbee.setForeground(Color.LIGHT_GRAY);
-		rdbtnZigbee.setBounds(496, 78, 109, 25);
-		buttonPanel.add(rdbtnZigbee);
-		group.add(rdbtnZigbee);
-		rdbtnZigbee.setSelected(true);
-		rdbtnZigbee.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				reader.setReadZigbee();
-			}
-		});
 
 		rdbtnUdp = new JRadioButton("UDP");
 		rdbtnUdp.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		rdbtnUdp.setBackground(panelColor);
 		rdbtnUdp.setForeground(Color.LIGHT_GRAY);
-		rdbtnUdp.setBounds(496, 108, 109, 25);
+		rdbtnUdp.setBounds(496, 48, 109, 25);
 		buttonPanel.add(rdbtnUdp);
 		group.add(rdbtnUdp);
 		rdbtnUdp.setSelected(true);
@@ -511,7 +480,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		rdbtnImportFile.setForeground(Color.LIGHT_GRAY);
 		rdbtnImportFile.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		rdbtnImportFile.setBackground(panelColor);
-		rdbtnImportFile.setBounds(496, 136, 109, 25);
+		rdbtnImportFile.setBounds(496, 68, 109, 25);
 		rdbtnImportFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//TODO
@@ -600,13 +569,10 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	// YesOption method
 	private void YesOption() {
 		reader.stopReading();
-		
 		btnStop.setVisible(false);
 		btnStop.setEnabled(false);
 		btnStart.setVisible(true);
 		btnStart.setEnabled(true);
-		rdbtnBluetooth.setEnabled(true);
-		rdbtnZigbee.setEnabled(true);
 		rdbtnImportFile.setEnabled(true);
 		btnAddDataset.setEnabled(true);
 		btnRemoveDataset.setEnabled(true);
@@ -728,7 +694,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		double[] dataArray;
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			View.serie0.add(dataArray[0], null);
-			for (int plotCtrIndex = 1; plotCtrIndex < 3 /*dataArray.length*/; plotCtrIndex++) {
+			for (int plotCtrIndex = 1; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
 				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex))
 						.getSeries(0).add(dataArray[0], dataArray[plotCtrIndex]);
 			}
@@ -792,7 +758,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	@Override
 	public void setReader(DataReaderInterface reader) {
 		this.reader = reader;
-		this.reader.setReadZigbee();
+		this.reader.setReadUdp();
 	}
 
 

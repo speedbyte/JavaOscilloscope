@@ -9,8 +9,6 @@ public interface DataReaderInterface {
 	void startReading();
 	void stopReading();
 	
-	void setReadBluetooth();
-	void setReadZigbee();
 	void setReadUdp();
 	void setImportFile(File selectedLogFile);
 	
