@@ -52,13 +52,14 @@ public class TestGUI {
 		timerData.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				double[] data = { rand1.getX(),
+				double[] data = { 
+						rand1.getX(),
 						rand1.getYRand(),
 						rand1.getYWave(),
 						rand1.getYWave()+rand1.getYRand(),
 						rand1.getYRand()
 						};
-				System.out.println(data[0] + ", " + data[1]);
+				//System.out.println(data[0] + ", " + data[1]);
 				mm.pushDataArray(data);
 //				System.out.println("data array pushed");
 			}

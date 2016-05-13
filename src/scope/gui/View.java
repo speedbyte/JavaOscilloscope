@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
@@ -65,6 +66,7 @@ import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
+import org.omg.Messaging.SyncScopeHelper;
 
 import de.ixxat.vci3.bal.IBalObject;
 import de.ixxat.vci3.bal.can.CanMessage;
@@ -84,8 +86,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	private DataReaderInterface reader;
 	private static int lastPlotCtrIndex = 0;
 	private static int initDatasetCount = 0;
+	private static Properties properties = new Properties();
+	private Configuration config = new Configuration(properties);
 	
-
 	static XYSeries serie0 = new XYSeries("Dummy Serie");
 	static XYDataset data0 = new XYSeriesCollection(serie0);
 
@@ -110,12 +113,10 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	JSpinner spinner_2 = new JSpinner();
 	private JTextField id_txt;
 	JRadioButton rdbtnUdp;
-	JRadioButton rdbtnImportFile;
+	JButton btnImportFile;
 	JButton btnAddDataset;
 	JButton btnRemoveDataset;
-
-
-
+			
 	Color panelColor = new Color(50, 50, 50);
 
 	// View constructor, the chart is created
@@ -257,7 +258,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				btnStart.setEnabled(false);
 				btnStart.setVisible(false);
 				rdbtnUdp.setEnabled(false);
-				rdbtnImportFile.setEnabled(false);
+				btnImportFile.setEnabled(false);
 				btnAddDataset.setEnabled(false);
 				btnRemoveDataset.setEnabled(false);
 			}
@@ -402,7 +403,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		lblAmplitude2.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		lblAmplitude2.setBounds(247, 40, 70, 23);
 		buttonPanel.add(lblAmplitude2);
-
+		//Rename accordingly
 		JLabel lblGeneralControl = new JLabel("Configuration");
 		lblGeneralControl.setForeground(new Color(153, 204, 204));
 		lblGeneralControl.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -460,8 +461,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		label_1.setBounds(668, 40, 122, 100);
 		buttonPanel.add(label_1);
 		ButtonGroup group = new ButtonGroup();
-
-
+		
+		//Protocol type will be set from the config file
+		/*
 		rdbtnUdp = new JRadioButton("UDP");
 		rdbtnUdp.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		rdbtnUdp.setBackground(panelColor);
@@ -475,15 +477,16 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				reader.setReadUdp();
 			}
 		});
-		
-		rdbtnImportFile = new JRadioButton("Import File");
-		rdbtnImportFile.setForeground(Color.LIGHT_GRAY);
-		rdbtnImportFile.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		rdbtnImportFile.setBackground(panelColor);
-		rdbtnImportFile.setBounds(496, 68, 109, 25);
-		rdbtnImportFile.addActionListener(new ActionListener() {
+		*/
+		btnImportFile = new JButton("Import Config");
+		btnImportFile.setForeground(Color.BLACK);
+		btnImportFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		//btnImportFile.setBackground(Color.LIGHT_GRAY);
+		btnImportFile.setBounds(503, 44, 109, 25);
+		btnImportFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//TODO
+				//Dont Delete, set to another button
+				/*
 				JFileChooser chooserLog = new JFileChooser("user.home");
 				FileNameExtensionFilter filter = new FileNameExtensionFilter(
 						"Log Files", "txt", "text", "asc");
@@ -491,24 +494,64 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				chooserLog.showOpenDialog(null);
 				File selLogFile = chooserLog.getSelectedFile();
 				reader.setImportFile(selLogFile);
+				*/
+				
+				JFileChooser chooserLog = new JFileChooser();
+				/*
+				FileNameExtensionFilter filter = new FileNameExtensionFilter(
+						"properties", "cfg");
+				chooserLog.setFileFilter(filter);
+				*/
+				chooserLog.showOpenDialog(null);
+				File configFile = chooserLog.getSelectedFile();
+				Configuration.readFile(configFile, properties);
+				System.out.println("lastplot " + lastPlotCtrIndex);
+				for (int i = 0; i < lastPlotCtrIndex; i++) {
+					int latestCheckBoxIndex = checkBoxPanel.getComponentCount()-1;
+					System.out.println("latestcheck " + latestCheckBoxIndex);
+					checkBoxPanel.getComponent(latestCheckBoxIndex).validate();
+					checkBoxPanel.remove(latestCheckBoxIndex);
+					
+					removeDataset();
+				}
+								
+				for(int indx = 0; indx < Integer.parseInt(properties.getProperty("dataset")); indx++){
+					int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
+					
+					JCheckBox checkBox = createCheckBox(plotCtrIndex);
+					checkBoxPanel.add(checkBox);
+					checkBox.revalidate();
+					checkBox.repaint();
+					
+					addDataset();
+				};
+				
 			}
 		});
-		buttonPanel.add(rdbtnImportFile);
-		group.add(rdbtnImportFile);
-		rdbtnImportFile.setSelected(false);
+		buttonPanel.add(btnImportFile);
+		group.add(btnImportFile);
+		btnImportFile.setSelected(false);
 
-		JLabel lblProtocol = new JLabel("Protocol");
+		JLabel lblProtocol = new JLabel("Configuration");
 		lblProtocol.setForeground(new Color(153, 204, 204));
 		lblProtocol.setFont(new Font("Segoe UI", Font.BOLD, 18));
-		lblProtocol.setBounds(483, 10, 122, 25);
+		lblProtocol.setBounds(483, 10, 175, 25);
 		buttonPanel.add(lblProtocol);
-
+		
+		/*
 		JLabel lblUploadFile = new JLabel("");
 		lblUploadFile.setForeground(new Color(153, 204, 204));
 		lblUploadFile.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		lblUploadFile.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		lblUploadFile.setBounds(483, 40, 141, 100);
+		lblUploadFile.setBounds(483, 40, 141, 41);
 		buttonPanel.add(lblUploadFile);
+		*/
+		JLabel label_2 = new JLabel("");
+		label_2.setForeground(new Color(153, 204, 204));
+		label_2.setFont(new Font("Segoe UI", Font.BOLD, 18));
+		label_2.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		label_2.setBounds(483, 40, 141, 93);
+		buttonPanel.add(label_2);
 
 		pause.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -528,6 +571,19 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		
 		this.setVisible(true);
 		RefineryUtilities.centerFrameOnScreen(this);
+		//Test insertion of datasets, can be deleted anytime
+		
+		for(int indx = 0; indx < Integer.parseInt(properties.getProperty("dataset")); indx++){
+			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
+			
+			JCheckBox checkBox = createCheckBox(plotCtrIndex);
+			checkBoxPanel.add(checkBox);
+			checkBox.revalidate();
+			checkBox.repaint();
+			
+			addDataset();
+		};
+		
 	}
 	/* End of View constructor */
 
@@ -573,7 +629,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnStop.setEnabled(false);
 		btnStart.setVisible(true);
 		btnStart.setEnabled(true);
-		rdbtnImportFile.setEnabled(true);
+		btnImportFile.setEnabled(true);
 		btnAddDataset.setEnabled(true);
 		btnRemoveDataset.setEnabled(true);
 	}
@@ -627,10 +683,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		int plotCtrIndex = ++lastPlotCtrIndex;
 
 		/*
-		 * Creating one axis, dataset container, serie and renderer for one data
-		 * set to represent (e.g. speed)
+		 * Creating an axis, dataset container, serie and renderer for one data set
+		 * to represent (e.g. speed)
 		 */
-		if (plotCtrIndex >= View.xyplot.getDatasetCount()) {
+		//if (plotCtrIndex >= View.xyplot.getDatasetCount()) {
+			//Get from config file
 			String name = new String("Data " + String.valueOf(plotCtrIndex));
 	
 			XYStepRenderer xyRenderer = new XYStepRenderer();
@@ -666,7 +723,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			 * this data set is defined by the xyRenderer, dataset and numberAxis.
 			 */
 			((XYSeriesCollection) dataset).addSeries(serie);
-		}
+		//}
 		View.xyplot.getRangeAxis(plotCtrIndex).setTickLabelsVisible(true);
 		View.xyplot.getRangeAxis(plotCtrIndex).setVisible(true);
 	}
