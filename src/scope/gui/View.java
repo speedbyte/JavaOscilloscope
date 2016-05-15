@@ -114,6 +114,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	private JTextField id_txt;
 	JRadioButton rdbtnUdp;
 	JButton btnImportFile;
+	JButton btnImportLogFile;
 	JButton btnAddDataset;
 	JButton btnRemoveDataset;
 			
@@ -259,6 +260,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				btnStart.setVisible(false);
 				rdbtnUdp.setEnabled(false);
 				btnImportFile.setEnabled(false);
+				btnImportLogFile.setEnabled(false);
 				btnAddDataset.setEnabled(false);
 				btnRemoveDataset.setEnabled(false);
 			}
@@ -482,7 +484,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnImportFile.setForeground(Color.BLACK);
 		btnImportFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		//btnImportFile.setBackground(Color.LIGHT_GRAY);
-		btnImportFile.setBounds(503, 44, 109, 25);
+		btnImportFile.setBounds(503, 48, 109, 25);
 		btnImportFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//Dont Delete, set to another button
@@ -531,26 +533,37 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		buttonPanel.add(btnImportFile);
 		group.add(btnImportFile);
 		btnImportFile.setSelected(false);
-
+		
+		btnImportLogFile = new JButton("Import Logfile");
+		btnImportLogFile.setForeground(Color.BLACK);
+		btnImportLogFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		btnImportLogFile.setBounds(503, 79, 109, 25);
+		btnImportLogFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser chooserLog = new JFileChooser("user.home");
+				FileNameExtensionFilter filter = new FileNameExtensionFilter(
+						"Log Files", "txt", "text", "asc");
+				chooserLog.setFileFilter(filter);
+				chooserLog.showOpenDialog(null);
+				File selLogFile = chooserLog.getSelectedFile();
+				reader.setImportFile(selLogFile);	
+			}
+		});
+		buttonPanel.add(btnImportLogFile);
+		group.add(btnImportLogFile);
+		btnImportLogFile.setSelected(false);
+		
 		JLabel lblProtocol = new JLabel("Configuration");
 		lblProtocol.setForeground(new Color(153, 204, 204));
 		lblProtocol.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		lblProtocol.setBounds(483, 10, 175, 25);
 		buttonPanel.add(lblProtocol);
-		
-		/*
-		JLabel lblUploadFile = new JLabel("");
-		lblUploadFile.setForeground(new Color(153, 204, 204));
-		lblUploadFile.setFont(new Font("Segoe UI", Font.BOLD, 18));
-		lblUploadFile.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		lblUploadFile.setBounds(483, 40, 141, 41);
-		buttonPanel.add(lblUploadFile);
-		*/
+
 		JLabel label_2 = new JLabel("");
 		label_2.setForeground(new Color(153, 204, 204));
 		label_2.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		label_2.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		label_2.setBounds(483, 40, 141, 93);
+		label_2.setBounds(483, 40, 141, 100);
 		buttonPanel.add(label_2);
 
 		pause.addActionListener(new ActionListener() {
@@ -571,7 +584,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		
 		this.setVisible(true);
 		RefineryUtilities.centerFrameOnScreen(this);
-		//Test insertion of datasets, can be deleted anytime
+		//Test insertion of datasets, can be deleted at anytime
 		
 		for(int indx = 0; indx < Integer.parseInt(properties.getProperty("dataset")); indx++){
 			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
@@ -630,6 +643,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnStart.setVisible(true);
 		btnStart.setEnabled(true);
 		btnImportFile.setEnabled(true);
+		btnImportLogFile.setEnabled(true);
 		btnAddDataset.setEnabled(true);
 		btnRemoveDataset.setEnabled(true);
 	}
