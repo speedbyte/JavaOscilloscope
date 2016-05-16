@@ -18,7 +18,7 @@ public class Configuration {
 			fileInStream.close();
 			
 			String str = properties.getProperty("dataset");
-			System.out.println(str);
+			//System.out.println(str);
 			
 		} catch (IOException e) {
 			e.printStackTrace();

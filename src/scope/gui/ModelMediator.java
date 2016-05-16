@@ -34,7 +34,7 @@ public class ModelMediator implements MMInterface {
 		}
 	}
 	
-	//Rinbuffer test
+	//Ringbuffer test
 	@Override
 	public void pushDataArray(double[] data) {
 		repository.addDataSetArray(data);

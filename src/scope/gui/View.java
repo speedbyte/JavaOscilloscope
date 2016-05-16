@@ -212,7 +212,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				checkBoxPanel.add(checkBox);
 				checkBox.revalidate();
 				checkBox.repaint();
-				
+
 				addDataset();
 			}
 		});
@@ -227,7 +227,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				if (latestCheckBoxIndex >= 0) {
 					checkBoxPanel.getComponent(latestCheckBoxIndex).validate();
 					checkBoxPanel.remove(latestCheckBoxIndex);
-					
+					checkBoxPanel.revalidate();
+					checkBoxPanel.repaint();
 					removeDataset();
 				}
 			}
@@ -585,7 +586,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		this.setVisible(true);
 		RefineryUtilities.centerFrameOnScreen(this);
 		//Test insertion of datasets, can be deleted at anytime
-		
+		/*
 		for(int indx = 0; indx < Integer.parseInt(properties.getProperty("dataset")); indx++){
 			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
 			
@@ -596,7 +597,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			
 			addDataset();
 		};
-		
+		*/
+		//initDatasetCapacity(Integer.parseInt(properties.getProperty("dataset")));
 	}
 	/* End of View constructor */
 
@@ -669,7 +671,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		final JCheckBox checkBox = new JCheckBox("Data " + String.valueOf(plotCtrIndex));
 		checkBox.setForeground(Color.LIGHT_GRAY);
 		checkBox.setBackground(panelColor);
-		
+		//checkBox.setSelected(true);
 		checkBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -695,12 +697,13 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	
 	private void addDataset() {
 		int plotCtrIndex = ++lastPlotCtrIndex;
-
+				
 		/*
 		 * Creating an axis, dataset container, serie and renderer for one data set
 		 * to represent (e.g. speed)
 		 */
-		//if (plotCtrIndex >= View.xyplot.getDatasetCount()) {
+		
+		if (plotCtrIndex >= View.xyplot.getDatasetCount()) {
 			//Get from config file
 			String name = new String("Data " + String.valueOf(plotCtrIndex));
 	
@@ -737,7 +740,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			 * this data set is defined by the xyRenderer, dataset and numberAxis.
 			 */
 			((XYSeriesCollection) dataset).addSeries(serie);
-		//}
+		}
 		View.xyplot.getRangeAxis(plotCtrIndex).setTickLabelsVisible(true);
 		View.xyplot.getRangeAxis(plotCtrIndex).setVisible(true);
 	}
@@ -761,13 +764,13 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	
 	@Override
 	public void notifyDataChange() {
+		
 		LinkedList<double[]> dataArrayQueue = model.getData();
 		double[] dataArray;
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			View.serie0.add(dataArray[0], null);
-			for (int plotCtrIndex = 1; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
-				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex))
-						.getSeries(0).add(dataArray[0], dataArray[plotCtrIndex]);
+			for (int plotCtrIndex = 0; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
+				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0).add(dataArray[0], dataArray[plotCtrIndex+1]);
 			}
 		}
 	}
@@ -781,6 +784,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			 * Creating one axis, dataset container, serie and renderer for one
 			 * data set to represent (e.g. speed)
 			 */
+			
 			String name = new String("Data " + String.valueOf(plotCtrIndex));
 
 			XYStepRenderer xyRenderer = new XYStepRenderer();

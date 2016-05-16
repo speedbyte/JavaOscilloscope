@@ -53,9 +53,9 @@ public class TestGUI {
 			@Override
 			public void run() {
 				double[] data = { 
-						rand1.getX(),
-						rand1.getYRand(),
-						rand1.getYWave(),
+						rand1.getX(), //time index
+						rand1.getYRand(), //first random dataset
+						rand1.getYWave(), //second random dataset...
 						rand1.getYWave()+rand1.getYRand(),
 						rand1.getYRand()
 						};
