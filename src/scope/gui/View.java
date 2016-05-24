@@ -87,7 +87,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	private static int lastPlotCtrIndex = 0;
 	private static int initDatasetCount = 0;
 	private static Properties properties = new Properties();
-	private Configuration config = new Configuration(properties);
+	private Configuration initialConfig = new Configuration(/*properties*/);
 	
 	static XYSeries serie0 = new XYSeries("Dummy Serie");
 	static XYDataset data0 = new XYSeriesCollection(serie0);
@@ -587,7 +587,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		RefineryUtilities.centerFrameOnScreen(this);
 		//Test insertion of datasets, can be deleted at anytime
 		/*
-		for(int indx = 0; indx < Integer.parseInt(properties.getProperty("dataset")); indx++){
+		for(int indx = 0; indx < Integer.parseInt(initialConfig.initialProperties.getProperty("dataset")); indx++){
 			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
 			
 			JCheckBox checkBox = createCheckBox(plotCtrIndex);
@@ -598,7 +598,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			addDataset();
 		};
 		*/
-		//initDatasetCapacity(Integer.parseInt(properties.getProperty("dataset")));
+		
 	}
 	/* End of View constructor */
 
@@ -772,6 +772,10 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			for (int plotCtrIndex = 0; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
 				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0).add(dataArray[0], dataArray[plotCtrIndex+1]);
 			}
+			//Broke Code
+//			for (int plotCtrIndex = 1; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
+//				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex)).getSeries(0).add(dataArray[0], dataArray[plotCtrIndex]);
+//			}
 		}
 	}
 

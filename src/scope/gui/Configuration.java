@@ -7,17 +7,17 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Configuration {
-	//Properties properties = new Properties();
+	Properties initialProperties = new Properties();
 	
-	public Configuration(Properties properties){
+	public Configuration(/*Properties properties*/){
 
 		try {
 			
 			FileInputStream fileInStream = new FileInputStream("resources/config.properties"); //Standardkonfiguration
-			properties.load(fileInStream);
+			initialProperties.load(fileInStream);
 			fileInStream.close();
 			
-			String str = properties.getProperty("dataset");
+			String str = initialProperties.getProperty("dataset");
 			//System.out.println(str);
 			
 		} catch (IOException e) {
