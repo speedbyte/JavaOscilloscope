@@ -772,10 +772,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			for (int plotCtrIndex = 0; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
 				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0).add(dataArray[0], dataArray[plotCtrIndex+1]);
 			}
-			//Broke Code
-//			for (int plotCtrIndex = 1; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
-//				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex)).getSeries(0).add(dataArray[0], dataArray[plotCtrIndex]);
-//			}
+			
+			
 		}
 	}
 
