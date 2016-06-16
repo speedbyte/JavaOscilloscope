@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.26-bin.jar"/>
 	<classpathentry kind="lib" path="lib/RXTXcomm.jar"/>
 	<classpathentry kind="lib" path="lib/VciJava.jar"/>
+	<classpathentry kind="lib" path="lib/ini4j-0.5.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

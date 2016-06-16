@@ -62,7 +62,6 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 
-import scope.graphic.DataReaderInterface;
 import scope.gui.MMInterface;
 
 /**

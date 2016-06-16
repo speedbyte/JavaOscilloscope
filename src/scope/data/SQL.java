@@ -1,6 +1,5 @@
 package scope.data;
 
-
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,7 +7,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.swing.JTable;
- 
+
+import org.ini4j.Ini;
+
+import scope.gui.Configuration;
+import scope.gui.MMInterface;;
+
 public class SQL {
 	
 public static JTable table;
@@ -111,6 +115,16 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 		 }
 		 else {return 0;}
 	}
+	
+	public static void readTable(MMInterface model) throws SQLException {
+		try {
+			resultSet = statement.executeQuery("SELECT ACC_X, ACC_Y, ACC_Z FROM data");		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	public static boolean testConnection(){
 		boolean result = true;
 		try {
@@ -135,6 +149,35 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 		finally
 		{
 			System.out.print("database connection established\n");
+		}	
+		return result;
+	}
+	
+	public static boolean testConfigConnection(Configuration config){
+		boolean result = true;
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			System.out.print("no driver found");
+			e.printStackTrace();
+			result = false;
+		}
+		try {
+			Ini ini = config.getDefaultIni();
+			connection = DriverManager.getConnection("jdbc:mysql://"+ini.get("server", "host")+":"
+					+Integer.parseInt(ini.get("server", "port"))+"/"+ini.get("server", "database"),
+					ini.get("server", "user"), ini.get("server", "password"));
+			statement = connection.createStatement();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.out.print("no database found");
+			e.printStackTrace();
+			result = false;
+		}
+		finally
+		{
+			System.out.print("TestConfigConnection: database connection established\n");
 		}	
 		return result;
 	}

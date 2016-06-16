@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.sql.SQLException;
 //import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -72,10 +73,11 @@ import de.ixxat.vci3.bal.IBalObject;
 import de.ixxat.vci3.bal.can.CanMessage;
 import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.data.ImportButton;
+import scope.data.SQL;
 import scope.vci.VciJava;
 import scope.serial.SerialJava;
-import scope.graphic.PanningChartPanel;
-import scope.graphic.DataReaderInterface;
+//import scope.gui.PanningChartPanel;
+//import scope.gui.DataReaderInterface;
 
 //View Class
 @SuppressWarnings("serial")
@@ -86,8 +88,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	private DataReaderInterface reader;
 	private static int lastPlotCtrIndex = 0;
 	private static int initDatasetCount = 0;
-	private static Properties properties = new Properties();
-	private Configuration initialConfig = new Configuration(/*properties*/);
+	private Configuration config = new Configuration();
 	
 	static XYSeries serie0 = new XYSeries("Dummy Serie");
 	static XYDataset data0 = new XYSeriesCollection(serie0);
@@ -113,7 +114,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	JSpinner spinner_2 = new JSpinner();
 	private JTextField id_txt;
 	JRadioButton rdbtnUdp;
-	JButton btnImportFile;
+	JButton btnImportConfig;
 	JButton btnImportLogFile;
 	JButton btnAddDataset;
 	JButton btnRemoveDataset;
@@ -207,7 +208,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnAddDataset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
-				
 				JCheckBox checkBox = createCheckBox(plotCtrIndex);
 				checkBoxPanel.add(checkBox);
 				checkBox.revalidate();
@@ -260,7 +260,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				btnStart.setEnabled(false);
 				btnStart.setVisible(false);
 				rdbtnUdp.setEnabled(false);
-				btnImportFile.setEnabled(false);
+				btnImportConfig.setEnabled(false);
 				btnImportLogFile.setEnabled(false);
 				btnAddDataset.setEnabled(false);
 				btnRemoveDataset.setEnabled(false);
@@ -407,7 +407,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		lblAmplitude2.setBounds(247, 40, 70, 23);
 		buttonPanel.add(lblAmplitude2);
 		//Rename accordingly
-		JLabel lblGeneralControl = new JLabel("Configuration");
+		JLabel lblGeneralControl = new JLabel("Control");
 		lblGeneralControl.setForeground(new Color(153, 204, 204));
 		lblGeneralControl.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		lblGeneralControl.setBounds(668, 10, 122, 25);
@@ -481,12 +481,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			}
 		});
 		*/
-		btnImportFile = new JButton("Import Config");
-		btnImportFile.setForeground(Color.BLACK);
-		btnImportFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		//btnImportFile.setBackground(Color.LIGHT_GRAY);
-		btnImportFile.setBounds(503, 48, 109, 25);
-		btnImportFile.addActionListener(new ActionListener() {
+		btnImportConfig = new JButton("Import Config");
+		btnImportConfig.setForeground(Color.BLACK);
+		btnImportConfig.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		//btnImportConfig.setBackground(Color.LIGHT_GRAY);
+		btnImportConfig.setBounds(498, 46, 109, 25);
+		btnImportConfig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//Dont Delete, set to another button
 				/*
@@ -507,38 +507,41 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				*/
 				chooserLog.showOpenDialog(null);
 				File configFile = chooserLog.getSelectedFile();
-				Configuration.readFile(configFile, properties);
-				System.out.println("lastplot " + lastPlotCtrIndex);
-				for (int i = 0; i < lastPlotCtrIndex; i++) {
-					int latestCheckBoxIndex = checkBoxPanel.getComponentCount()-1;
-					System.out.println("latestcheck " + latestCheckBoxIndex);
-					checkBoxPanel.getComponent(latestCheckBoxIndex).validate();
-					checkBoxPanel.remove(latestCheckBoxIndex);
-					
-					removeDataset();
-				}
-								
-				for(int indx = 0; indx < Integer.parseInt(properties.getProperty("dataset")); indx++){
-					int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
-					
-					JCheckBox checkBox = createCheckBox(plotCtrIndex);
-					checkBoxPanel.add(checkBox);
-					checkBox.revalidate();
-					checkBox.repaint();
-					
-					addDataset();
-				};
+				config.loadFile(configFile);
+				applyConfig();
+//				for (int i = 0; i < lastPlotCtrIndex; i++) {
+//					int latestCheckBoxIndex = checkBoxPanel.getComponentCount()-1;
+//					System.out.println("lastcheckboxindex: " + latestCheckBoxIndex);
+//					if (latestCheckBoxIndex >= 0) {
+//						checkBoxPanel.getComponent(latestCheckBoxIndex).validate();
+//						checkBoxPanel.remove(latestCheckBoxIndex);
+//						checkBoxPanel.revalidate();
+//						checkBoxPanel.repaint();
+//						removeDataset();
+//					}
+//				}
+//				System.out.println("lastplot " + lastPlotCtrIndex);	
+//				for(int indx = 0; indx < config.getDatasets(); indx++){
+//					int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
+//					
+//					JCheckBox checkBox = createCheckBox(plotCtrIndex);
+//					checkBoxPanel.add(checkBox);
+//					checkBox.revalidate();
+//					checkBox.repaint();
+//					
+//					addDataset();
+//				};
 				
 			}
 		});
-		buttonPanel.add(btnImportFile);
-		group.add(btnImportFile);
-		btnImportFile.setSelected(false);
+		buttonPanel.add(btnImportConfig);
+		group.add(btnImportConfig);
+		btnImportConfig.setSelected(false);
 		
 		btnImportLogFile = new JButton("Import Logfile");
 		btnImportLogFile.setForeground(Color.BLACK);
 		btnImportLogFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		btnImportLogFile.setBounds(503, 79, 109, 25);
+		btnImportLogFile.setBounds(498, 79, 109, 25);
 		btnImportLogFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooserLog = new JFileChooser("user.home");
@@ -566,6 +569,26 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		label_2.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		label_2.setBounds(483, 40, 141, 100);
 		buttonPanel.add(label_2);
+		
+		JButton SQLStartButton = new JButton("Start");
+		SQLStartButton.setSelected(false);
+		SQLStartButton.setForeground(Color.BLACK);
+		SQLStartButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+		SQLStartButton.setBounds(498, 109, 109, 25);
+		SQLStartButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(SQL.testConfigConnection(config)){
+					try {
+						SQL.readTable(model);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+			}
+		});
+		buttonPanel.add(SQLStartButton);
 
 		pause.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -585,23 +608,13 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		
 		this.setVisible(true);
 		RefineryUtilities.centerFrameOnScreen(this);
-		//Test insertion of datasets, can be deleted at anytime
-		/*
-		for(int indx = 0; indx < Integer.parseInt(initialConfig.initialProperties.getProperty("dataset")); indx++){
-			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
-			
-			JCheckBox checkBox = createCheckBox(plotCtrIndex);
-			checkBoxPanel.add(checkBox);
-			checkBox.revalidate();
-			checkBox.repaint();
-			
-			addDataset();
-		};
-		*/
+		
+		applyConfig();
+		
 		
 	}
 	/* End of View constructor */
-
+	
 
 	// CloseMenu method
 	private void closeMenu() {
@@ -644,7 +657,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnStop.setEnabled(false);
 		btnStart.setVisible(true);
 		btnStart.setEnabled(true);
-		btnImportFile.setEnabled(true);
+		btnImportConfig.setEnabled(true);
 		btnImportLogFile.setEnabled(true);
 		btnAddDataset.setEnabled(true);
 		btnRemoveDataset.setEnabled(true);
@@ -704,9 +717,10 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		 */
 		
 		if (plotCtrIndex >= View.xyplot.getDatasetCount()) {
-			//Get from config file
-			String name = new String("Data " + String.valueOf(plotCtrIndex));
-	
+
+			//String name = new String("Data " + String.valueOf(plotCtrIndex));
+			String name = new String(config.defaultIni.get("data" + plotCtrIndex, "label"));
+			
 			XYStepRenderer xyRenderer = new XYStepRenderer();
 			NumberAxis numberAxis = new NumberAxis(name);
 			XYDataset dataset = new XYSeriesCollection();
@@ -762,6 +776,33 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		}
 	}
 	
+
+	public void applyConfig() {
+		for (int i = 0; i < checkBoxPanel.getComponentCount()+1; i++) {
+			int latestCheckBoxIndex = checkBoxPanel.getComponentCount()-1;
+			System.out.println("lastcheckboxindex: " + latestCheckBoxIndex);
+			if (latestCheckBoxIndex >= 0) {
+				checkBoxPanel.getComponent(latestCheckBoxIndex).validate();
+				checkBoxPanel.remove(latestCheckBoxIndex);
+				checkBoxPanel.revalidate();
+				checkBoxPanel.repaint();
+				removeDataset();
+			}
+		}
+			
+		for(int indx = 0; indx < config.getDatasets(); indx++){
+			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
+			System.out.println("Add Data: " + plotCtrIndex);
+			JCheckBox checkBox = createCheckBox(plotCtrIndex);
+			checkBoxPanel.add(checkBox);
+			checkBox.revalidate();
+			checkBox.repaint();
+	
+			addDataset();
+		}
+	
+	}
+	
 	@Override
 	public void notifyDataChange() {
 		
@@ -770,7 +811,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			View.serie0.add(dataArray[0], null);
 			for (int plotCtrIndex = 0; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
+				try{
 				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0).add(dataArray[0], dataArray[plotCtrIndex+1]);
+				} catch (ArrayIndexOutOfBoundsException e){
+					System.out.println("Out of Bounds");
+				}
 			}
 			
 			

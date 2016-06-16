@@ -1,4 +1,4 @@
-package scope.graphic;
+package scope.gui;
 
 
 import java.awt.Point;

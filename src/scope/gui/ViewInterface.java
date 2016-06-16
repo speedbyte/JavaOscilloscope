@@ -1,6 +1,6 @@
 package scope.gui;
 
-import scope.graphic.DataReaderInterface;
+//import scope.graphic.DataReaderInterface;
 
 public interface ViewInterface {
 	void notifyDataChange();
