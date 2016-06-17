@@ -63,6 +63,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYDotRenderer;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.chart.renderer.xy.XYStepRenderer;
+import org.jfree.data.Range;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -89,6 +90,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	private static int lastPlotCtrIndex = 0;
 	private static int initDatasetCount = 0;
 	private Configuration config = new Configuration();
+	private boolean[] checkboxSelected = new boolean[24];
+	private static int selectedCheckboxes = 0;
+	private static int lastSelectedCheckboxes = 0;
 	
 	static XYSeries serie0 = new XYSeries("Dummy Serie");
 	static XYDataset data0 = new XYSeriesCollection(serie0);
@@ -130,7 +134,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				closeMenu();
 			}
 		});
-
+		
 		setMinimumSize(new Dimension(900, 600));
 		setPreferredSize(new Dimension(900, 600));
 
@@ -347,8 +351,10 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		auto.setFont(new Font("Segoe UI", Font.PLAIN, 12));
 		auto.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				lastSelectedAxis.setAutoRange(true);
-				lastSelectedAxis.setAutoRange(false);
+//				lastSelectedAxis.setAutoRange(true);
+//				lastSelectedAxis.setAutoRange(false);
+				adjustRange();
+//				applyConfig();
 			}
 		});
 		buttonPanel.add(auto);
@@ -484,8 +490,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnImportConfig = new JButton("Import Config");
 		btnImportConfig.setForeground(Color.BLACK);
 		btnImportConfig.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		//btnImportConfig.setBackground(Color.LIGHT_GRAY);
-		btnImportConfig.setBounds(498, 46, 109, 25);
+		btnImportConfig.setBounds(496, 46, 114, 25);
 		btnImportConfig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//Dont Delete, set to another button
@@ -502,36 +507,13 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				JFileChooser chooserLog = new JFileChooser();
 				/*
 				FileNameExtensionFilter filter = new FileNameExtensionFilter(
-						"properties", "cfg");
+						"properties", "ini");
 				chooserLog.setFileFilter(filter);
 				*/
 				chooserLog.showOpenDialog(null);
 				File configFile = chooserLog.getSelectedFile();
 				config.loadFile(configFile);
 				applyConfig();
-//				for (int i = 0; i < lastPlotCtrIndex; i++) {
-//					int latestCheckBoxIndex = checkBoxPanel.getComponentCount()-1;
-//					System.out.println("lastcheckboxindex: " + latestCheckBoxIndex);
-//					if (latestCheckBoxIndex >= 0) {
-//						checkBoxPanel.getComponent(latestCheckBoxIndex).validate();
-//						checkBoxPanel.remove(latestCheckBoxIndex);
-//						checkBoxPanel.revalidate();
-//						checkBoxPanel.repaint();
-//						removeDataset();
-//					}
-//				}
-//				System.out.println("lastplot " + lastPlotCtrIndex);	
-//				for(int indx = 0; indx < config.getDatasets(); indx++){
-//					int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
-//					
-//					JCheckBox checkBox = createCheckBox(plotCtrIndex);
-//					checkBoxPanel.add(checkBox);
-//					checkBox.revalidate();
-//					checkBox.repaint();
-//					
-//					addDataset();
-//				};
-				
 			}
 		});
 		buttonPanel.add(btnImportConfig);
@@ -541,7 +523,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnImportLogFile = new JButton("Import Logfile");
 		btnImportLogFile.setForeground(Color.BLACK);
 		btnImportLogFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		btnImportLogFile.setBounds(498, 79, 109, 25);
+		btnImportLogFile.setBounds(496, 79, 114, 25);
 		btnImportLogFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser chooserLog = new JFileChooser("user.home");
@@ -570,11 +552,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		label_2.setBounds(483, 40, 141, 100);
 		buttonPanel.add(label_2);
 		
-		JButton SQLStartButton = new JButton("Start");
+		JButton SQLStartButton = new JButton("Read Database");
 		SQLStartButton.setSelected(false);
 		SQLStartButton.setForeground(Color.BLACK);
 		SQLStartButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		SQLStartButton.setBounds(498, 109, 109, 25);
+		SQLStartButton.setBounds(496, 109, 114, 25);
 		SQLStartButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				if(SQL.testConfigConnection(config)){
@@ -681,7 +663,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	}
 	
 	private JCheckBox createCheckBox(final int plotCtrIndex) {
-		final JCheckBox checkBox = new JCheckBox("Data " + String.valueOf(plotCtrIndex));
+		final JCheckBox checkBox = new JCheckBox(config.getShortLabel(plotCtrIndex));
 		checkBox.setForeground(Color.LIGHT_GRAY);
 		checkBox.setBackground(panelColor);
 		//checkBox.setSelected(true);
@@ -699,9 +681,14 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 					}
 					
 					checkBox.setBackground(new Color(0, 0, 20));
-					
+					checkboxSelected[plotCtrIndex] = true;
+					selectedCheckboxes++;
+					adjustRange();
 				} else {
 					View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(false);
+					checkboxSelected[plotCtrIndex] = false;
+					selectedCheckboxes--;
+					adjustRange();
 				}
 			}
 		});		
@@ -719,7 +706,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		if (plotCtrIndex >= View.xyplot.getDatasetCount()) {
 
 			//String name = new String("Data " + String.valueOf(plotCtrIndex));
-			String name = new String(config.defaultIni.get("data" + plotCtrIndex, "label"));
+			String name = new String(config.getLabel(plotCtrIndex));
 			
 			XYStepRenderer xyRenderer = new XYStepRenderer();
 			NumberAxis numberAxis = new NumberAxis(name);
@@ -771,36 +758,111 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(false);
 
 			((XYSeriesCollection)View.xyplot.getDataset(plotCtrIndex)).getSeries(0).clear();
-
+			
 			lastPlotCtrIndex--;
 		}
 	}
 	
 
 	public void applyConfig() {
-		for (int i = 0; i < checkBoxPanel.getComponentCount()+1; i++) {
-			int latestCheckBoxIndex = checkBoxPanel.getComponentCount()-1;
-			System.out.println("lastcheckboxindex: " + latestCheckBoxIndex);
-			if (latestCheckBoxIndex >= 0) {
-				checkBoxPanel.getComponent(latestCheckBoxIndex).validate();
-				checkBoxPanel.remove(latestCheckBoxIndex);
+		for (int i = 0; i < checkBoxPanel.getComponentCount()+2; i++) {
+//			Works, but something is still wrong
+//			System.out.println("Componentcount: " + checkBoxPanel.getComponentCount());
+			int latestCheckBoxIndex = checkBoxPanel.getComponentCount();
+//			System.out.println("lastcheckboxindex: " + latestCheckBoxIndex);
+			if (latestCheckBoxIndex > 0) {
+				checkBoxPanel.getComponent(latestCheckBoxIndex-1).validate();
+				checkBoxPanel.remove(latestCheckBoxIndex-1);
 				checkBoxPanel.revalidate();
 				checkBoxPanel.repaint();
 				removeDataset();
 			}
 		}
 			
-		for(int indx = 0; indx < config.getDatasets(); indx++){
+		for(int index = 0; index < config.getDatasets(); index++){
 			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
-			System.out.println("Add Data: " + plotCtrIndex);
 			JCheckBox checkBox = createCheckBox(plotCtrIndex);
 			checkBoxPanel.add(checkBox);
+			checkBox.setSelected(true);
+			
+			checkboxSelected[plotCtrIndex] = true;
+			selectedCheckboxes++;
+
+			addDataset();
+			
+			View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(true);
+			lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
+			int maxCompIndex = checkBoxPanel.getComponentCount()-1;
+			for (int i = 0; i <= maxCompIndex; i++) {
+				checkBoxPanel.getComponent(i).setBackground(panelColor);
+			}
+			checkBox.setBackground(new Color(0, 0, 20));
 			checkBox.revalidate();
 			checkBox.repaint();
-	
-			addDataset();
+			
+			Range range = new Range(config.getLowerRange(index),config.getUpperRange(index));
+			View.xyplot.getRangeAxis(plotCtrIndex).setRange(Range.scale(range, config.getDatasets()));
+			
+			double panfactor = 0;
+			if(index != 0){
+				panfactor = -index/(double)config.getDatasets();
+			}
+			View.xyplot.getRangeAxis(plotCtrIndex).pan(panfactor);
 		}
+	}
 	
+	public void adjustRange() {
+		for (int i = 0; i < checkBoxPanel.getComponentCount()+2; i++) {
+			int latestCheckBoxIndex = checkBoxPanel.getComponentCount();
+			if (latestCheckBoxIndex > 0) {
+				checkBoxPanel.getComponent(latestCheckBoxIndex-1).validate();
+				checkBoxPanel.remove(latestCheckBoxIndex-1);
+				checkBoxPanel.revalidate();
+				checkBoxPanel.repaint();
+				removeDataset();
+			}
+		}
+		boolean[] selCheckboxes = new boolean[24];
+		int selboxes = 0;
+		int j = 0;
+		for(int index = 0; index < config.getDatasets(); index++){
+			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
+			JCheckBox checkBox = createCheckBox(plotCtrIndex);
+			checkBoxPanel.add(checkBox);
+			selCheckboxes[plotCtrIndex] = false;
+			addDataset();
+			
+			if(checkboxSelected[plotCtrIndex]){
+
+				selCheckboxes[plotCtrIndex] = true;
+				selboxes++;
+				System.out.println("Selected Plots: " + plotCtrIndex);
+				View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(true);
+				lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
+				int maxCompIndex = checkBoxPanel.getComponentCount()-1;
+				for (int i = 0; i <= maxCompIndex; i++) {
+					checkBoxPanel.getComponent(i).setBackground(panelColor);
+				}
+				checkBox.setBackground(new Color(0, 0, 20));
+				checkBox.setSelected(true);
+
+				Range range = new Range(config.getLowerRange(index),config.getUpperRange(index));
+				View.xyplot.getRangeAxis(plotCtrIndex).setRange(Range.scale(range, selectedCheckboxes));
+				
+				double panfactor = 0;
+				if(j != 0){
+					panfactor = -j/(double)selectedCheckboxes;
+				}
+				System.out.println("panfactor: " + panfactor);
+				View.xyplot.getRangeAxis(plotCtrIndex).pan(panfactor);
+				j++;
+			}
+				checkBox.revalidate();
+				checkBox.repaint();
+			
+		}
+		selectedCheckboxes = selboxes;
+		checkboxSelected = selCheckboxes;
 	}
 	
 	@Override
@@ -812,7 +874,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			View.serie0.add(dataArray[0], null);
 			for (int plotCtrIndex = 0; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
 				try{
-				((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0).add(dataArray[0], dataArray[plotCtrIndex+1]);
+					XYSeries xys = ((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0);
+					xys.add(dataArray[0], dataArray[plotCtrIndex+1]);
 				} catch (ArrayIndexOutOfBoundsException e){
 					System.out.println("Out of Bounds");
 				}

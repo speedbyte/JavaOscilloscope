@@ -39,6 +39,22 @@ public class Configuration {
 		return Integer.parseInt(general.get("datasets"));
 	}
 	
+	public int getLowerRange(int index){
+		return Integer.parseInt(defaultIni.get("data" + (index+1), "lowerRange"));
+	}
+
+	public int getUpperRange(int index){
+		return Integer.parseInt(defaultIni.get("data" + (index+1), "upperRange"));
+	}
+	
+	public String getLabel(int index){
+		return defaultIni.get("data" + index, "label");
+	}
+
+	public String getShortLabel(int index){
+		return defaultIni.get("data" + index, "shortlabel");
+	}
+	
 	public boolean loadFile(File file){
 		try {
 			defaultIni.load(new FileReader(file));

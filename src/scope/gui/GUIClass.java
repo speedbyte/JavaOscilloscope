@@ -21,7 +21,7 @@ public class GUIClass {
 		public double getYRand() {
 //			 final double factor = (0.90 + 0.2 * Math.random());
 //			 lastY = lastY * factor;
-			 double randNum = 200 * Math.random();
+			 double randNum = 150 * Math.random();
 			 return randNum;
 		}
 		public double getYWave() {
@@ -64,6 +64,7 @@ public class GUIClass {
 			public void run() {
 				double[] data;
 				try {
+			
 					double[] data1 = {rand1.getX()};
 					data = data1;
 					
@@ -81,6 +82,7 @@ public class GUIClass {
 						System.out.println("ACC_X: " + SQL.resultSet.getDouble("ACC_X") + " ACC_Y: " + SQL.resultSet.getDouble("ACC_Y") + " ACC_Z: " + SQL.resultSet.getDouble("ACC_Z"));
 					}
 					
+					//double[] data = {rand1.getX(), rand1.getYWave(), rand1.getYRand(), rand1.getYWave()+rand1.getYRand()};
 					mm.pushDataArray(data);
 				} catch (Exception e) {
 					e.printStackTrace();
