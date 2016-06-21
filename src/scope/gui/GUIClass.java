@@ -68,18 +68,23 @@ public class GUIClass {
 					double[] data1 = {rand1.getX()};
 					data = data1;
 					
-					if(SQL.resultSet == null){
-						System.out.println("Rs is null");
-					}
+//					if(SQL.resultSet == null){
+//						System.out.println("Rs is null");
+//					}
 					
 					if(SQL.resultSet != null && SQL.resultSet.next()){
 						double[] data2 = {
 								SQL.resultSet.getDouble("ACC_X"),
 								SQL.resultSet.getDouble("ACC_Y"),
-								SQL.resultSet.getDouble("ACC_Z")
+								SQL.resultSet.getDouble("ACC_Z"),
+								SQL.resultSet.getDouble("MAG_X"),
+								SQL.resultSet.getDouble("MAG_Y"),
+								SQL.resultSet.getDouble("MAG_Z"),
+								SQL.resultSet.getDouble("G_YAW"),
+								SQL.resultSet.getDouble("G_PITCH"),
 						};
 						data = concat(data1, data2);
-						System.out.println("ACC_X: " + SQL.resultSet.getDouble("ACC_X") + " ACC_Y: " + SQL.resultSet.getDouble("ACC_Y") + " ACC_Z: " + SQL.resultSet.getDouble("ACC_Z"));
+						//System.out.println("ACC_X: " + SQL.resultSet.getDouble("ACC_X") + " ACC_Y: " + SQL.resultSet.getDouble("ACC_Y") + " ACC_Z: " + SQL.resultSet.getDouble("ACC_Z"));
 					}
 					
 					//double[] data = {rand1.getX(), rand1.getYWave(), rand1.getYRand(), rand1.getYWave()+rand1.getYRand()};

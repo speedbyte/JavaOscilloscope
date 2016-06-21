@@ -118,7 +118,7 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 	
 	public static void readTable(MMInterface model) throws SQLException {
 		try {
-			resultSet = statement.executeQuery("SELECT ACC_X, ACC_Y, ACC_Z FROM data");		
+			resultSet = statement.executeQuery("SELECT ACC_X, ACC_Y, ACC_Z, MAG_X, MAG_Y, MAG_Z, G_YAW, G_PITCH FROM data");		
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

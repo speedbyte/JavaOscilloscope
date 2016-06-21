@@ -769,13 +769,14 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 //			Works, but something is still wrong
 //			System.out.println("Componentcount: " + checkBoxPanel.getComponentCount());
 			int latestCheckBoxIndex = checkBoxPanel.getComponentCount();
-//			System.out.println("lastcheckboxindex: " + latestCheckBoxIndex);
+			System.out.println("lastcheckboxindex: " + latestCheckBoxIndex);
 			if (latestCheckBoxIndex > 0) {
 				checkBoxPanel.getComponent(latestCheckBoxIndex-1).validate();
 				checkBoxPanel.remove(latestCheckBoxIndex-1);
 				checkBoxPanel.revalidate();
 				checkBoxPanel.repaint();
 				removeDataset();
+				System.out.println("Removed Checkbox with number: " + latestCheckBoxIndex);
 			}
 		}
 			
@@ -799,71 +800,104 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			checkBox.setBackground(new Color(0, 0, 20));
 			checkBox.revalidate();
 			checkBox.repaint();
+			int numberOfDatasets = config.getDatasets();
 			
-			Range range = new Range(config.getLowerRange(index),config.getUpperRange(index));
-			View.xyplot.getRangeAxis(plotCtrIndex).setRange(Range.scale(range, config.getDatasets()));
+			int lowerR = config.getLowerRange(index);
+			int upperR = config.getUpperRange(index);
 			
-			double panfactor = 0;
-			if(index != 0){
-				panfactor = -index/(double)config.getDatasets();
+			for (int i = 1; i < numberOfDatasets+1; i++) {
+				if(plotCtrIndex < i){
+					lowerR -= Math.abs(config.getLowerRange(plotCtrIndex-1))+Math.abs(config.getUpperRange(plotCtrIndex-1));
+				}
+				if(plotCtrIndex > i){
+					upperR += Math.abs(config.getLowerRange(plotCtrIndex-1))+Math.abs(config.getUpperRange(plotCtrIndex-1));
+				}
 			}
-			View.xyplot.getRangeAxis(plotCtrIndex).pan(panfactor);
+			
+			Range range = new Range(lowerR, upperR);
+			View.xyplot.getRangeAxis(plotCtrIndex).setRange(range);
+
 		}
 	}
 	
 	public void adjustRange() {
-		for (int i = 0; i < checkBoxPanel.getComponentCount()+2; i++) {
-			int latestCheckBoxIndex = checkBoxPanel.getComponentCount();
-			if (latestCheckBoxIndex > 0) {
-				checkBoxPanel.getComponent(latestCheckBoxIndex-1).validate();
-				checkBoxPanel.remove(latestCheckBoxIndex-1);
-				checkBoxPanel.revalidate();
-				checkBoxPanel.repaint();
-				removeDataset();
-			}
-		}
-		boolean[] selCheckboxes = new boolean[24];
-		int selboxes = 0;
-		int j = 0;
 		for(int index = 0; index < config.getDatasets(); index++){
-			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
-			JCheckBox checkBox = createCheckBox(plotCtrIndex);
-			checkBoxPanel.add(checkBox);
-			selCheckboxes[plotCtrIndex] = false;
-			addDataset();
-			
+			int plotCtrIndex = index+1;			
 			if(checkboxSelected[plotCtrIndex]){
-
-				selCheckboxes[plotCtrIndex] = true;
-				selboxes++;
-				System.out.println("Selected Plots: " + plotCtrIndex);
-				View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(true);
+				int numberOfDatasets = config.getDatasets();
+				int lowerR = config.getLowerRange(index);
+				int upperR = config.getUpperRange(index);
 				lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
-				int maxCompIndex = checkBoxPanel.getComponentCount()-1;
-				for (int i = 0; i <= maxCompIndex; i++) {
-					checkBoxPanel.getComponent(i).setBackground(panelColor);
-				}
-				checkBox.setBackground(new Color(0, 0, 20));
-				checkBox.setSelected(true);
-
-				Range range = new Range(config.getLowerRange(index),config.getUpperRange(index));
-				View.xyplot.getRangeAxis(plotCtrIndex).setRange(Range.scale(range, selectedCheckboxes));
 				
-				double panfactor = 0;
-				if(j != 0){
-					panfactor = -j/(double)selectedCheckboxes;
+				//Expand range only where checkboxes are selected
+				for (int i = 1; i < numberOfDatasets+1; i++) {
+					if(plotCtrIndex < i && checkboxSelected[i]){
+						lowerR -= Math.abs(config.getLowerRange(plotCtrIndex-1))+Math.abs(config.getUpperRange(plotCtrIndex-1));
+					}
+					if(plotCtrIndex > i && checkboxSelected[i]){
+						upperR += Math.abs(config.getLowerRange(plotCtrIndex-1))+Math.abs(config.getUpperRange(plotCtrIndex-1));
+					}
 				}
-				System.out.println("panfactor: " + panfactor);
-				View.xyplot.getRangeAxis(plotCtrIndex).pan(panfactor);
-				j++;
+				
+				Range range = new Range(lowerR, upperR);
+				View.xyplot.getRangeAxis(plotCtrIndex).setRange(range);
 			}
-				checkBox.revalidate();
-				checkBox.repaint();
-			
 		}
-		selectedCheckboxes = selboxes;
-		checkboxSelected = selCheckboxes;
 	}
+	
+//	public void adjustRange2() {
+//		for (int i = 0; i < checkBoxPanel.getComponentCount()+2; i++) {
+//			int latestCheckBoxIndex = checkBoxPanel.getComponentCount();
+//			if (latestCheckBoxIndex > 0) {
+//				checkBoxPanel.getComponent(latestCheckBoxIndex-1).validate();
+//				checkBoxPanel.remove(latestCheckBoxIndex-1);
+//				checkBoxPanel.revalidate();
+//				checkBoxPanel.repaint();
+//				removeDataset();
+//			}
+//		}
+//		boolean[] selCheckboxes = new boolean[24];
+//		int selboxes = 0;
+//		int j = 0;
+//		for(int index = 0; index < config.getDatasets(); index++){
+//			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
+//			JCheckBox checkBox = createCheckBox(plotCtrIndex);
+//			checkBoxPanel.add(checkBox);
+//			selCheckboxes[plotCtrIndex] = false;
+//			addDataset();
+//			
+//			if(checkboxSelected[plotCtrIndex]){
+//
+//				selCheckboxes[plotCtrIndex] = true;
+//				selboxes++;
+//				//System.out.println("Selected Plots: " + plotCtrIndex);
+//				View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(true);
+//				lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
+//				int maxCompIndex = checkBoxPanel.getComponentCount()-1;
+//				for (int i = 0; i <= maxCompIndex; i++) {
+//					checkBoxPanel.getComponent(i).setBackground(panelColor);
+//				}
+//				checkBox.setBackground(new Color(0, 0, 20));
+//				checkBox.setSelected(true);
+//
+//				Range range = new Range(config.getLowerRange(index),config.getUpperRange(index));
+//				View.xyplot.getRangeAxis(plotCtrIndex).setRange(Range.scale(range, selectedCheckboxes));
+//				
+//				double panfactor = 0;
+//				if(j != 0){
+//					panfactor = -j/(double)selectedCheckboxes;
+//				}
+//				System.out.println("panfactor: " + panfactor);
+//				View.xyplot.getRangeAxis(plotCtrIndex).pan(panfactor);
+//				j++;
+//			}
+//				checkBox.revalidate();
+//				checkBox.repaint();
+//			
+//		}
+//		selectedCheckboxes = selboxes;
+//		checkboxSelected = selCheckboxes;
+//	}
 	
 	@Override
 	public void notifyDataChange() {
@@ -877,7 +911,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 					XYSeries xys = ((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0);
 					xys.add(dataArray[0], dataArray[plotCtrIndex+1]);
 				} catch (ArrayIndexOutOfBoundsException e){
-					System.out.println("Out of Bounds");
+//					System.out.println("Out of Bounds");
+				} catch (NullPointerException e){
+					System.out.println("Nullpointer in notifyDataChange");					
 				}
 			}
 			
