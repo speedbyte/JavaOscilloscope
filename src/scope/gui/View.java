@@ -21,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 //import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -56,6 +57,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
@@ -64,6 +66,7 @@ import org.jfree.chart.renderer.xy.XYDotRenderer;
 import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.chart.renderer.xy.XYStepRenderer;
 import org.jfree.data.Range;
+import org.jfree.data.time.Millisecond;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -86,7 +89,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 
 	// Variables
 	private MMInterface model;
-	private DataReaderInterface reader;
 	private static int lastPlotCtrIndex = 0;
 	private static int initDatasetCount = 0;
 	private Configuration config = new Configuration();
@@ -156,7 +158,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		valueaxis.setLabelPaint(Color.black);
 		valueaxis.setTickLabelPaint(Color.LIGHT_GRAY);
 		valueaxis.setFixedAutoRange(interval);
-
+//		DateAxis axis = (DateAxis) xyplot.getDomainAxis();
+//		axis.setDateFormatOverride(new SimpleDateFormat("dd-MMM-yyyy HH:mm"));
+		
 		// Axis0 is created as main axis of JFreeChart but is not used
 		final NumberAxis axis0 = (NumberAxis) xyplot.getRangeAxis();
 		jfreechart.getXYPlot().getRenderer(0).setBaseSeriesVisible(true);
@@ -166,6 +170,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				.getItemPaint(0, 0));
 		axis0.setVisible(false);
 		axis0.setRange(0, 10);
+		
 
 		/* dummy data set to advance domain/x-axis if no data is received */
 		xyplot.setDataset(0, data0);
@@ -251,32 +256,29 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		panel_1.add(buttonPanel);
 
 		btnStart.setBackground(Color.GREEN);
-		btnStart.setBounds(687, 79, 92, 20);
+		btnStart.setBounds(443, 49, 92, 20);
 		btnStart.setForeground(Color.BLACK);
 		btnStart.setVisible(true);
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				clearAllSeries();
-				reader.startReading();
-				
-				btnStop.setEnabled(true);
-				btnStop.setVisible(true);
-				btnStart.setEnabled(false);
-				btnStart.setVisible(false);
-				rdbtnUdp.setEnabled(false);
-				btnImportConfig.setEnabled(false);
-				btnImportLogFile.setEnabled(false);
-				btnAddDataset.setEnabled(false);
-				btnRemoveDataset.setEnabled(false);
+				if(SQL.testConfigConnection(config)){
+					try {
+						SQL.readTable("2016-07-01 16:42:30:20");
+						SQL.readFlag = true;
+					} catch (SQLException e2) {
+						e2.printStackTrace();
+					}
+				}
+
 			}
 
 		});
 		buttonPanel.add(btnStart);
 
-		btnStop.setEnabled(false);
+		btnStop.setEnabled(true);
 		btnStop.setForeground(Color.BLACK);
 		btnStop.setBackground(Color.RED);
-		btnStop.setBounds(687, 79, 92, 20);
+		btnStop.setBounds(443, 110, 92, 20);
 		btnStop.setVisible(false);
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -412,37 +414,18 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		lblAmplitude2.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		lblAmplitude2.setBounds(247, 40, 70, 23);
 		buttonPanel.add(lblAmplitude2);
-		//Rename accordingly
-		JLabel lblGeneralControl = new JLabel("Control");
-		lblGeneralControl.setForeground(new Color(153, 204, 204));
-		lblGeneralControl.setFont(new Font("Segoe UI", Font.BOLD, 18));
-		lblGeneralControl.setBounds(668, 10, 122, 25);
-		buttonPanel.add(lblGeneralControl);
 
 		JLabel label = new JLabel("");
 		label.setForeground(new Color(153, 204, 204));
 		label.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		label.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		label.setBounds(20, 40, 423, 100);
+		label.setBounds(20, 40, 529, 100);
 		buttonPanel.add(label);
-
-		id_txt = new JTextField();
-		id_txt.setColumns(3);
-		id_txt.setToolTipText("ID");
-		id_txt.setText("100");
-		id_txt.setBounds(725, 49, 54, 20);
-		buttonPanel.add(id_txt);
-
-		JLabel lblId = new JLabel("ID :");
-		lblId.setForeground(Color.WHITE);
-		lblId.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		lblId.setBounds(687, 48, 30, 20);
-		buttonPanel.add(lblId);
 
 		JButton btnClr = new JButton("Clear");
 		btnClr.setForeground(Color.BLACK);
 		btnClr.setBackground(Color.LIGHT_GRAY);
-		btnClr.setBounds(687, 110, 92, 20);
+		btnClr.setBounds(443, 79, 92, 20);
 		btnClr.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JOptionPane optionPane = new JOptionPane(
@@ -463,34 +446,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		});
 		buttonPanel.add(btnClr);
 
-		JLabel label_1 = new JLabel("");
-		label_1.setForeground(new Color(153, 204, 204));
-		label_1.setFont(new Font("Segoe UI", Font.BOLD, 18));
-		label_1.setBorder(new LineBorder(Color.BLACK, 1, true));
-		label_1.setBounds(668, 40, 122, 100);
-		buttonPanel.add(label_1);
 		ButtonGroup group = new ButtonGroup();
-		
-		//Protocol type will be set from the config file
-		/*
-		rdbtnUdp = new JRadioButton("UDP");
-		rdbtnUdp.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-		rdbtnUdp.setBackground(panelColor);
-		rdbtnUdp.setForeground(Color.LIGHT_GRAY);
-		rdbtnUdp.setBounds(496, 48, 109, 25);
-		buttonPanel.add(rdbtnUdp);
-		group.add(rdbtnUdp);
-		rdbtnUdp.setSelected(true);
-		rdbtnUdp.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				reader.setReadUdp();
-			}
-		});
-		*/
 		btnImportConfig = new JButton("Import Config");
 		btnImportConfig.setForeground(Color.BLACK);
 		btnImportConfig.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		btnImportConfig.setBounds(496, 46, 114, 25);
+		btnImportConfig.setBounds(591, 48, 114, 25);
 		btnImportConfig.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//Dont Delete, set to another button
@@ -520,57 +480,37 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		group.add(btnImportConfig);
 		btnImportConfig.setSelected(false);
 		
-		btnImportLogFile = new JButton("Import Logfile");
-		btnImportLogFile.setForeground(Color.BLACK);
-		btnImportLogFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		btnImportLogFile.setBounds(496, 79, 114, 25);
-		btnImportLogFile.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooserLog = new JFileChooser("user.home");
-				FileNameExtensionFilter filter = new FileNameExtensionFilter(
-						"Log Files", "txt", "text", "asc");
-				chooserLog.setFileFilter(filter);
-				chooserLog.showOpenDialog(null);
-				File selLogFile = chooserLog.getSelectedFile();
-				reader.setImportFile(selLogFile);	
-			}
-		});
-		buttonPanel.add(btnImportLogFile);
-		group.add(btnImportLogFile);
-		btnImportLogFile.setSelected(false);
+//		btnImportLogFile = new JButton("Import Logfile");
+//		btnImportLogFile.setForeground(Color.BLACK);
+//		btnImportLogFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+//		btnImportLogFile.setBounds(591, 81, 114, 25);
+//		btnImportLogFile.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent arg0) {
+//				JFileChooser chooserLog = new JFileChooser("user.home");
+//				FileNameExtensionFilter filter = new FileNameExtensionFilter(
+//						"Log Files", "txt", "text", "asc");
+//				chooserLog.setFileFilter(filter);
+//				chooserLog.showOpenDialog(null);
+//				File selLogFile = chooserLog.getSelectedFile();
+//				reader.setImportFile(selLogFile);	
+//			}
+//		});
+//		buttonPanel.add(btnImportLogFile);
+//		group.add(btnImportLogFile);
+//		btnImportLogFile.setSelected(false);
 		
 		JLabel lblProtocol = new JLabel("Configuration");
 		lblProtocol.setForeground(new Color(153, 204, 204));
 		lblProtocol.setFont(new Font("Segoe UI", Font.BOLD, 18));
-		lblProtocol.setBounds(483, 10, 175, 25);
+		lblProtocol.setBounds(581, 10, 141, 25);
 		buttonPanel.add(lblProtocol);
 
 		JLabel label_2 = new JLabel("");
 		label_2.setForeground(new Color(153, 204, 204));
 		label_2.setFont(new Font("Segoe UI", Font.BOLD, 18));
 		label_2.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
-		label_2.setBounds(483, 40, 141, 100);
+		label_2.setBounds(581, 40, 133, 100);
 		buttonPanel.add(label_2);
-		
-		JButton SQLStartButton = new JButton("Read Database");
-		SQLStartButton.setSelected(false);
-		SQLStartButton.setForeground(Color.BLACK);
-		SQLStartButton.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-		SQLStartButton.setBounds(496, 109, 114, 25);
-		SQLStartButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				if(SQL.testConfigConnection(config)){
-					try {
-						SQL.readTable(model);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-				
-			}
-		});
-		buttonPanel.add(SQLStartButton);
 
 		pause.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -634,7 +574,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 
 	// YesOption method
 	private void YesOption() {
-		reader.stopReading();
 		btnStop.setVisible(false);
 		btnStop.setEnabled(false);
 		btnStart.setVisible(true);
@@ -648,7 +587,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	// ActionPerformed method
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("EXIT")) {
-			reader.terminateReader();
 			System.exit(0);
 		}
 	}
@@ -674,7 +612,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 					View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(true);
 					/* TODO description */
 					lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
-					
+					lastSelectedAxis.setVisible(true);
 					int maxCompIndex = checkBoxPanel.getComponentCount()-1;
 					for (int index = 0; index <= maxCompIndex; index++) {
 						checkBoxPanel.getComponent(index).setBackground(panelColor);
@@ -686,6 +624,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 					adjustRange();
 				} else {
 					View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(false);
+					lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
+					lastSelectedAxis.setVisible(false);
 					checkboxSelected[plotCtrIndex] = false;
 					selectedCheckboxes--;
 					adjustRange();
@@ -845,78 +785,27 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		}
 	}
 	
-//	public void adjustRange2() {
-//		for (int i = 0; i < checkBoxPanel.getComponentCount()+2; i++) {
-//			int latestCheckBoxIndex = checkBoxPanel.getComponentCount();
-//			if (latestCheckBoxIndex > 0) {
-//				checkBoxPanel.getComponent(latestCheckBoxIndex-1).validate();
-//				checkBoxPanel.remove(latestCheckBoxIndex-1);
-//				checkBoxPanel.revalidate();
-//				checkBoxPanel.repaint();
-//				removeDataset();
-//			}
-//		}
-//		boolean[] selCheckboxes = new boolean[24];
-//		int selboxes = 0;
-//		int j = 0;
-//		for(int index = 0; index < config.getDatasets(); index++){
-//			int plotCtrIndex = checkBoxPanel.getComponentCount()+1;
-//			JCheckBox checkBox = createCheckBox(plotCtrIndex);
-//			checkBoxPanel.add(checkBox);
-//			selCheckboxes[plotCtrIndex] = false;
-//			addDataset();
-//			
-//			if(checkboxSelected[plotCtrIndex]){
-//
-//				selCheckboxes[plotCtrIndex] = true;
-//				selboxes++;
-//				//System.out.println("Selected Plots: " + plotCtrIndex);
-//				View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(true);
-//				lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
-//				int maxCompIndex = checkBoxPanel.getComponentCount()-1;
-//				for (int i = 0; i <= maxCompIndex; i++) {
-//					checkBoxPanel.getComponent(i).setBackground(panelColor);
-//				}
-//				checkBox.setBackground(new Color(0, 0, 20));
-//				checkBox.setSelected(true);
-//
-//				Range range = new Range(config.getLowerRange(index),config.getUpperRange(index));
-//				View.xyplot.getRangeAxis(plotCtrIndex).setRange(Range.scale(range, selectedCheckboxes));
-//				
-//				double panfactor = 0;
-//				if(j != 0){
-//					panfactor = -j/(double)selectedCheckboxes;
-//				}
-//				System.out.println("panfactor: " + panfactor);
-//				View.xyplot.getRangeAxis(plotCtrIndex).pan(panfactor);
-//				j++;
-//			}
-//				checkBox.revalidate();
-//				checkBox.repaint();
-//			
-//		}
-//		selectedCheckboxes = selboxes;
-//		checkboxSelected = selCheckboxes;
-//	}
-	
 	@Override
 	public void notifyDataChange() {
 		
 		LinkedList<double[]> dataArrayQueue = model.getData();
 		double[] dataArray;
 		while ((dataArray = dataArrayQueue.poll()) != null) {
-			View.serie0.add(dataArray[0], null);
+			Timestamp ts = new Timestamp((long) dataArray[0]);
+			View.serie0.add(ts.getTime(), null);
+			//View.serie0.add(dataArray[0], null);
 			for (int plotCtrIndex = 0; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
 				try{
 					XYSeries xys = ((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0);
 					xys.add(dataArray[0], dataArray[plotCtrIndex+1]);
 				} catch (ArrayIndexOutOfBoundsException e){
 //					System.out.println("Out of Bounds");
+//					e.printStackTrace();
 				} catch (NullPointerException e){
-					System.out.println("Nullpointer in notifyDataChange");					
+					System.out.println("Nullpointer in notifyDataChange");
+					e.printStackTrace();
 				}
 			}
-			
 			
 		}
 	}
@@ -973,13 +862,6 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	public void setModel(MMInterface model) {
 		this.model = model;
 		this.model.registerObserver(this);
-	}
-
-
-	@Override
-	public void setReader(DataReaderInterface reader) {
-		this.reader = reader;
-		this.reader.setReadUdp();
 	}
 
 

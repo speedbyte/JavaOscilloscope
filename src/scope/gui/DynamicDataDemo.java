@@ -216,12 +216,6 @@ public class DynamicDataDemo extends ApplicationFrame implements
 	}
 
 	@Override
-	public void setReader(DataReaderInterface reader) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public String getTextID() {
 		// TODO Auto-generated method stub
 		return null;

@@ -1,6 +1,8 @@
 package scope.gui;
 
 import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.LinkedList;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -62,18 +64,25 @@ public class GUIClass {
 		timerData.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				double[] data;
+				double[] data = {0};
+				String timestamp = "-1";
+				//String timestamp = "2016-07-01 16:42:30:20";
 				try {
 			
-					double[] data1 = {rand1.getX()};
-					data = data1;
+					//data1 = {rand1.getX()};
+					//data = data1;
 					
 //					if(SQL.resultSet == null){
 //						System.out.println("Rs is null");
 //					}
 					
 					if(SQL.resultSet != null && SQL.resultSet.next()){
+						Timestamp ts = SQL.resultSet.getTimestamp("PITIME");
+//						System.out.println("Timestamp: " + ts);
+						timestamp = Long.toString(ts.getTime());
 						double[] data2 = {
+								//rand1.getX(),
+								(double) ts.getTime(),
 								SQL.resultSet.getDouble("ACC_X"),
 								SQL.resultSet.getDouble("ACC_Y"),
 								SQL.resultSet.getDouble("ACC_Z"),
@@ -83,8 +92,12 @@ public class GUIClass {
 								SQL.resultSet.getDouble("G_YAW"),
 								SQL.resultSet.getDouble("G_PITCH"),
 						};
-						data = concat(data1, data2);
-						//System.out.println("ACC_X: " + SQL.resultSet.getDouble("ACC_X") + " ACC_Y: " + SQL.resultSet.getDouble("ACC_Y") + " ACC_Z: " + SQL.resultSet.getDouble("ACC_Z"));
+						data = data2;
+					} else if (SQL.readFlag){
+						SQL.resultSet.previous();
+						timestamp = SQL.resultSet.getTimestamp("PITIME").toString();
+						SQL.resultSet.next();
+						SQL.readTable(timestamp);
 					}
 					
 					//double[] data = {rand1.getX(), rand1.getYWave(), rand1.getYRand(), rand1.getYWave()+rand1.getYRand()};

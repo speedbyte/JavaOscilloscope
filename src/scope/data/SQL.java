@@ -19,6 +19,7 @@ public static JTable table;
 public static Statement statement;
 public static ResultSet resultSet;
 protected static Connection connection = null;
+public static boolean readFlag = false;
 
 public static void main() {
 		try {
@@ -116,9 +117,16 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 		 else {return 0;}
 	}
 	
-	public static void readTable(MMInterface model) throws SQLException {
+	public static void readTable(String timestamp) throws SQLException {
 		try {
-			resultSet = statement.executeQuery("SELECT ACC_X, ACC_Y, ACC_Z, MAG_X, MAG_Y, MAG_Z, G_YAW, G_PITCH FROM data");		
+			if(timestamp.equals("-1")){
+				resultSet = statement.executeQuery("SELECT * FROM data limit 200");
+			} else {
+				resultSet = statement.executeQuery("SELECT * FROM data WHERE PITIME >= '" + timestamp +"' limit 200");
+				if(resultSet == null){
+					readFlag = false;
+				}
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
