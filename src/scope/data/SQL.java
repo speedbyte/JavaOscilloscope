@@ -5,10 +5,13 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 
 import javax.swing.JTable;
 
 import org.ini4j.Ini;
+
+import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 import scope.gui.Configuration;
 import scope.gui.MMInterface;;
@@ -20,6 +23,7 @@ public static Statement statement;
 public static ResultSet resultSet;
 protected static Connection connection = null;
 public static boolean readFlag = false;
+public static String dbtable;
 
 public static void main() {
 		try {
@@ -117,16 +121,31 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 		 else {return 0;}
 	}
 	
-	public static void readTable(String timestamp) throws SQLException {
+	public static void readTable(Timestamp timestamp) throws SQLException {
 		try {
-			if(timestamp.equals("-1")){
-				resultSet = statement.executeQuery("SELECT * FROM data limit 200");
+//			System.out.println("Reading tablewith: " + timestamp.getTime() + " dateformat: "+ timestamp.toString());
+			if(timestamp.getTime() == -1){
+				resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " ORDER BY PITIME ASC limit 500");
+//				SQL.resultSet.previous();
+//				sqltimestamp = SQL.resultSet.getTimestamp("PITIME").getTime();
+//				SQL.resultSet.next();
 			} else {
-				resultSet = statement.executeQuery("SELECT * FROM data WHERE PITIME >= '" + timestamp +"' limit 200");
+				//timestamp += (long) 500;
+				resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " WHERE PITIME >= '" + timestamp.toString() +"' ORDER BY PITIME ASC limit 500");
+//				System.out.println("Größe: " + resultSet.getFetchSize());
 				if(resultSet == null){
 					readFlag = false;
 				}
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public static void read() throws SQLException {
+		try {
+			resultSet = statement.executeQuery("SELECT * FROM data");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -161,7 +180,7 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 		return result;
 	}
 	
-	public static boolean testConfigConnection(Configuration config){
+	public static boolean createConfigConnection(Configuration config){
 		boolean result = true;
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
@@ -176,6 +195,7 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 			connection = DriverManager.getConnection("jdbc:mysql://"+ini.get("server", "host")+":"
 					+Integer.parseInt(ini.get("server", "port"))+"/"+ini.get("server", "database"),
 					ini.get("server", "user"), ini.get("server", "password"));
+			dbtable = ini.get("server", "table");
 			statement = connection.createStatement();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -183,10 +203,6 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 			e.printStackTrace();
 			result = false;
 		}
-		finally
-		{
-			System.out.print("TestConfigConnection: database connection established\n");
-		}	
 		return result;
 	}
 }

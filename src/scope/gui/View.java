@@ -138,8 +138,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		});
 		
 		setMinimumSize(new Dimension(900, 600));
-		setPreferredSize(new Dimension(900, 600));
-
+		//setPreferredSize(new Dimension(1920, 1080));
+		setSize(new Dimension(Integer.parseInt(config.getDefaultIni().get("general", "dimensionX")), Integer.parseInt(config.getDefaultIni().get("general", "dimensionY"))));
+		
 		jfreechart = ChartFactory.createXYStepChart(null, null, null, null,
 				PlotOrientation.VERTICAL, false, false, false);
 		jfreechart.setBackgroundPaint(panelColor);
@@ -261,9 +262,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnStart.setVisible(true);
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(SQL.testConfigConnection(config)){
+				if(SQL.createConfigConnection(config)){
 					try {
-						SQL.readTable("2016-07-01 16:42:30:20");
+						SQL.readTable(new Timestamp(-1));
 						SQL.readFlag = true;
 					} catch (SQLException e2) {
 						e2.printStackTrace();
@@ -705,6 +706,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	
 
 	public void applyConfig() {
+		
+		setSize(new Dimension(Integer.parseInt(config.getDefaultIni().get("general", "dimensionX")), Integer.parseInt(config.getDefaultIni().get("general", "dimensionY"))));
+		
 		for (int i = 0; i < checkBoxPanel.getComponentCount()+2; i++) {
 //			Works, but something is still wrong
 //			System.out.println("Componentcount: " + checkBoxPanel.getComponentCount());

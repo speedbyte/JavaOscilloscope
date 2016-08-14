@@ -1,5 +1,6 @@
 package scope.gui;
 
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.util.LinkedList;
@@ -65,7 +66,7 @@ public class GUIClass {
 			@Override
 			public void run() {
 				double[] data = {0};
-				String timestamp = "-1";
+				Timestamp timestamp = new Timestamp(-1);
 				//String timestamp = "2016-07-01 16:42:30:20";
 				try {
 			
@@ -78,8 +79,8 @@ public class GUIClass {
 					
 					if(SQL.resultSet != null && SQL.resultSet.next()){
 						Timestamp ts = SQL.resultSet.getTimestamp("PITIME");
-//						System.out.println("Timestamp: " + ts);
-						timestamp = Long.toString(ts.getTime());
+						//System.out.println("Timestamp: " + ts.getTime());
+						timestamp = ts;
 						double[] data2 = {
 								//rand1.getX(),
 								(double) ts.getTime(),
@@ -89,15 +90,25 @@ public class GUIClass {
 								SQL.resultSet.getDouble("MAG_X"),
 								SQL.resultSet.getDouble("MAG_Y"),
 								SQL.resultSet.getDouble("MAG_Z"),
+								SQL.resultSet.getDouble("G_ROLL"),
 								SQL.resultSet.getDouble("G_YAW"),
 								SQL.resultSet.getDouble("G_PITCH"),
+								SQL.resultSet.getDouble("TEMP"),
+								SQL.resultSet.getDouble("PRESS"),
+								SQL.resultSet.getDouble("M1"),
+								SQL.resultSet.getDouble("M2"),
+								SQL.resultSet.getDouble("M3"),
+								SQL.resultSet.getDouble("M4"),
 						};
 						data = data2;
 					} else if (SQL.readFlag){
 						SQL.resultSet.previous();
-						timestamp = SQL.resultSet.getTimestamp("PITIME").toString();
+						timestamp = SQL.resultSet.getTimestamp("PITIME");
 						SQL.resultSet.next();
 						SQL.readTable(timestamp);
+						
+						//System.out.println(timestamp);
+						//System.out.println("Größe: " + SQL.resultSet.getFetchSize());
 					}
 					
 					//double[] data = {rand1.getX(), rand1.getYWave(), rand1.getYRand(), rand1.getYWave()+rand1.getYRand()};
