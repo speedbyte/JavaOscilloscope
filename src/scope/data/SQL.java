@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.JTable;
 
@@ -23,7 +24,13 @@ public static Statement statement;
 public static ResultSet resultSet;
 protected static Connection connection = null;
 public static boolean readFlag = false;
+public static boolean resultFlag = true;
 public static String dbtable;
+public static SQLQuerier sqlquerier;
+public static Configuration config;
+public static int readIndex = 0;
+public static int limit = 500;
+
 
 public static void main() {
 		try {
@@ -125,13 +132,13 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 		try {
 //			System.out.println("Reading tablewith: " + timestamp.getTime() + " dateformat: "+ timestamp.toString());
 			if(timestamp.getTime() == -1){
-				resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " ORDER BY PITIME ASC limit 500");
+				resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " ORDER BY PITIME ASC limit " + limit);
 //				SQL.resultSet.previous();
 //				sqltimestamp = SQL.resultSet.getTimestamp("PITIME").getTime();
 //				SQL.resultSet.next();
 			} else {
 				//timestamp += (long) 500;
-				resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " WHERE PITIME >= '" + timestamp.toString() +"' ORDER BY PITIME ASC limit 500");
+				resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " WHERE PITIME >= '" + timestamp.toString() +"' ORDER BY PITIME ASC limit " + limit);
 //				System.out.println("Größe: " + resultSet.getFetchSize());
 				if(resultSet == null){
 					readFlag = false;
@@ -142,6 +149,44 @@ public static int checkDatetimeExists(String date, String time) throws SQLExcept
 		}
 		
 	}
+	
+//	public static void increaseReadIndex(Timestamp timestmp){
+//		readIndex++;
+//		if(readIndex > limit/2){
+//			readFromTimestamp(timestmp);
+//		}
+//	}
+//	
+//	public static void readFromTimestamp(Timestamp timestmp){
+//		sqlquerier.setTimestamp(timestmp);
+//		sqlquerier = new SQLQuerier(timestmp, config);
+//		sqlquerier.execute();
+//		try {
+//			resultSet = sqlquerier.get();
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ExecutionException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
+//	
+//	public static void initializeDatabaseConnection(Timestamp timestamp, Configuration config){
+//		SQL.config = config;
+//		sqlquerier = new SQLQuerier(timestamp, config);
+//		sqlquerier.execute();
+//		try {
+//			resultSet = sqlquerier.get();
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ExecutionException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//	}
 	
 	public static void read() throws SQLException {
 		try {

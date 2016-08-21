@@ -15,7 +15,8 @@ public class Configuration {
 	
 	public Configuration(){
 		//Ini ini = new Ini();
-		File file = new File("resources/defconfig.ini");
+		//File file = new File("resources/defconfig.ini");
+		File file = new File("resources/config_2.ini");
         try {
 			defaultIni.load(new FileReader(file));
 		} catch (InvalidFileFormatException e) {

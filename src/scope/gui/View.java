@@ -10,30 +10,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.nio.charset.Charset;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-//import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.LinkedList;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.Stack;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -50,38 +29,22 @@ import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.SwingWorker;
 import javax.swing.border.LineBorder;
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.DateAxis;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.XYDotRenderer;
-import org.jfree.chart.renderer.xy.XYSplineRenderer;
 import org.jfree.chart.renderer.xy.XYStepRenderer;
 import org.jfree.data.Range;
-import org.jfree.data.time.Millisecond;
 import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RefineryUtilities;
-import org.omg.Messaging.SyncScopeHelper;
-
-import de.ixxat.vci3.bal.IBalObject;
-import de.ixxat.vci3.bal.can.CanMessage;
-import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.data.ImportButton;
-import scope.data.SQL;
-import scope.vci.VciJava;
-import scope.serial.SerialJava;
-//import scope.gui.PanningChartPanel;
-//import scope.gui.DataReaderInterface;
+import scope.data.SQLController;
 
 //View Class
 @SuppressWarnings("serial")
@@ -106,7 +69,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	static XYPlot xyplot;
 	static JFreeChart jfreechart = null;
 
-	double interval = 60;
+	double interval = 6000;
+	double maxinterval;
+	double mininterval;
 	int frequency = 1;
 	double time = 1;
 
@@ -262,15 +227,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnStart.setVisible(true);
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(SQL.createConfigConnection(config)){
-					try {
-						SQL.readTable(new Timestamp(-1));
-						SQL.readFlag = true;
-					} catch (SQLException e2) {
-						e2.printStackTrace();
-					}
-				}
-
+				SQLController.initializeDatabaseConnection(new Timestamp(-1),config);
 			}
 
 		});
@@ -389,7 +346,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btn3P.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				interval = interval * 2;
-				valueaxis.setFixedAutoRange(interval);
+				if(interval < maxinterval)
+					valueaxis.setFixedAutoRange(interval);
+				else{
+					interval = maxinterval;
+					valueaxis.setFixedAutoRange(interval);
+				}
 				time = time * 2;
 			}
 		});
@@ -404,7 +366,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btn3M.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				interval = interval / 2;
-				valueaxis.setFixedAutoRange(interval);
+				if(interval > mininterval)
+					valueaxis.setFixedAutoRange(interval);
+				else{
+					interval = mininterval;
+					valueaxis.setFixedAutoRange(interval);
+				}
 				time = time / 2;
 			}
 		});
@@ -708,6 +675,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	public void applyConfig() {
 		
 		setSize(new Dimension(Integer.parseInt(config.getDefaultIni().get("general", "dimensionX")), Integer.parseInt(config.getDefaultIni().get("general", "dimensionY"))));
+		maxinterval = Integer.parseInt(config.getDefaultIni().get("general", "maxinterval"));
+		mininterval = Integer.parseInt(config.getDefaultIni().get("general", "mininterval"));
 		
 		for (int i = 0; i < checkBoxPanel.getComponentCount()+2; i++) {
 //			Works, but something is still wrong
@@ -794,6 +763,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		
 		LinkedList<double[]> dataArrayQueue = model.getData();
 		double[] dataArray;
+		try {
+			Thread.sleep(20);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			Timestamp ts = new Timestamp((long) dataArray[0]);
 			View.serie0.add(ts.getTime(), null);
