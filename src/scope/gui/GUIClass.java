@@ -25,7 +25,6 @@ public class GUIClass {
 			            	
 			            	double[] data = {0};
 			            	ArrayList<double[]> dataList = null;
-								
 							
 							switch(SQLController.resultFlag){
 							
@@ -38,12 +37,6 @@ public class GUIClass {
 							
 							}
 							
-//							if(SQLController.resultFlag){
-//								resultSet = SQLController.resultSetOne;
-//							}
-//							else{
-//								resultSet = SQLController.resultSetTwo;
-//							}
 							try {
 								
 								if(dataList != null && SQLController.listIndex < dataList.size()){
@@ -54,7 +47,7 @@ public class GUIClass {
 									
 								}  else {
 									SQLController.listIndex = 0;
-
+									SQLController.increaseReadIndex();
 									switch(SQLController.resultFlag){
 										case 1:
 											SQLController.dataListOne = null;

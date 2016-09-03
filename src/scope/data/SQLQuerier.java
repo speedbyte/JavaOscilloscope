@@ -27,6 +27,7 @@ public class SQLQuerier implements Runnable{
 
 	@Override
 	public void run() {
+		SQLController.hasActiveThread = true;
 		Ini ini = config.getDefaultIni();
 		Connection connection;
 		ResultSet resultSet = null;
@@ -41,10 +42,13 @@ public class SQLQuerier implements Runnable{
 		
 		
 			int limit = SQLController.limit;
-			if(timestamp.getTime() == -1){
-				resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " ORDER BY PITIME ASC limit " + limit);
-			} else {
-				resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " WHERE PITIME >= '" + timestamp.toString() +"' ORDER BY PITIME ASC limit " + limit);
+			while(resultSet == null){
+				System.out.println("Frage an");
+				if(timestamp.getTime() == -1){
+					resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " ORDER BY PITIME ASC limit " + limit);
+				} else {
+					resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " WHERE PITIME >= '" + timestamp.toString() +"' ORDER BY PITIME ASC limit " + limit);
+				}
 			}
 				if(resultSet != null && resultSet.next()){
 					
@@ -79,9 +83,10 @@ public class SQLQuerier implements Runnable{
 					dataList.add(data);
 					}
 					dataListProperty.setList(dataList);
+					resultSet = null;
 					
 				}
-				
+				SQLController.hasActiveThread = false;
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

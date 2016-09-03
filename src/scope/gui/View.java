@@ -12,6 +12,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.LinkedList;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -55,7 +56,8 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	private static int lastPlotCtrIndex = 0;
 	private static int initDatasetCount = 0;
 	private Configuration config = new Configuration();
-	private boolean[] checkboxSelected = new boolean[24];
+	private boolean[] checkboxSelected = new boolean[16];
+	private boolean[] selectedDatasets = new boolean[16];
 	private static int selectedCheckboxes = 0;
 	private static int lastSelectedCheckboxes = 0;
 	
@@ -581,6 +583,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 					/* TODO description */
 					lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
 					lastSelectedAxis.setVisible(true);
+					
 					int maxCompIndex = checkBoxPanel.getComponentCount()-1;
 					for (int index = 0; index <= maxCompIndex; index++) {
 						checkBoxPanel.getComponent(index).setBackground(panelColor);
@@ -620,7 +623,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			NumberAxis numberAxis = new NumberAxis(name);
 			XYDataset dataset = new XYSeriesCollection();
 			XYSeries serie = new XYSeries(name);
-	
+			
 			/* Configuring xyRenderer */
 			xyRenderer.setBaseSeriesVisible(false);
 			/* Associate xyRenderer with the corresponding plot control index */
@@ -677,20 +680,15 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		setSize(new Dimension(Integer.parseInt(config.getDefaultIni().get("general", "dimensionX")), Integer.parseInt(config.getDefaultIni().get("general", "dimensionY"))));
 		maxinterval = Integer.parseInt(config.getDefaultIni().get("general", "maxinterval"));
 		mininterval = Integer.parseInt(config.getDefaultIni().get("general", "mininterval"));
+		Arrays.fill(selectedDatasets, false);
 		
-		for (int i = 0; i < checkBoxPanel.getComponentCount()+2; i++) {
-//			Works, but something is still wrong
-//			System.out.println("Componentcount: " + checkBoxPanel.getComponentCount());
-			int latestCheckBoxIndex = checkBoxPanel.getComponentCount();
-			System.out.println("lastcheckboxindex: " + latestCheckBoxIndex);
-			if (latestCheckBoxIndex > 0) {
-				checkBoxPanel.getComponent(latestCheckBoxIndex-1).validate();
-				checkBoxPanel.remove(latestCheckBoxIndex-1);
+		for (int i = checkBoxPanel.getComponentCount(); i > 0; i--) {
+				checkBoxPanel.getComponent(i-1).validate();
+				checkBoxPanel.remove(i-1);
 				checkBoxPanel.revalidate();
 				checkBoxPanel.repaint();
+				
 				removeDataset();
-				System.out.println("Removed Checkbox with number: " + latestCheckBoxIndex);
-			}
 		}
 			
 		for(int index = 0; index < config.getDatasets(); index++){
@@ -706,6 +704,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			
 			View.xyplot.getRenderer(plotCtrIndex).setBaseSeriesVisible(true);
 			lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
+			lastSelectedAxis.setLabel(config.getLabel(plotCtrIndex));
 			int maxCompIndex = checkBoxPanel.getComponentCount()-1;
 			for (int i = 0; i <= maxCompIndex; i++) {
 				checkBoxPanel.getComponent(i).setBackground(panelColor);
@@ -717,7 +716,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			
 			int lowerR = config.getLowerRange(index);
 			int upperR = config.getUpperRange(index);
-			
+			selectedDatasets[Integer.parseInt(config.getDefaultIni().get("data" + (index+1), "datanumber"))] = true;
 			for (int i = 1; i < numberOfDatasets+1; i++) {
 				if(plotCtrIndex < i){
 					lowerR -= Math.abs(config.getLowerRange(plotCtrIndex-1))+Math.abs(config.getUpperRange(plotCtrIndex-1));
@@ -773,18 +772,41 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 			Timestamp ts = new Timestamp((long) dataArray[0]);
 			View.serie0.add(ts.getTime(), null);
 			//View.serie0.add(dataArray[0], null);
-			for (int plotCtrIndex = 0; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
-				try{
-					XYSeries xys = ((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0);
-					xys.add(dataArray[0], dataArray[plotCtrIndex+1]);
-				} catch (ArrayIndexOutOfBoundsException e){
-//					System.out.println("Out of Bounds");
-//					e.printStackTrace();
-				} catch (NullPointerException e){
-					System.out.println("Nullpointer in notifyDataChange");
-					e.printStackTrace();
+//			System.out.print("Selected Boxes: ");
+			int dataSeriesIndex = 0;
+			for (int plotCtrIndex = 0; plotCtrIndex < dataArray.length; plotCtrIndex++) {
+				if(selectedDatasets[plotCtrIndex]){
+//					System.out.print(plotCtrIndex + " ");
+					try{
+						XYSeries xys = ((XYSeriesCollection) View.xyplot.getDataset(dataSeriesIndex+1)).getSeries(0);
+						xys.add(dataArray[0], dataArray[plotCtrIndex]);
+						dataSeriesIndex++;
+					} catch (ArrayIndexOutOfBoundsException e){
+						System.out.println("Out of Bounds");
+	//					e.printStackTrace();
+					} catch (NullPointerException e){
+						System.out.println("Nullpointer in notifyDataChange");
+						e.printStackTrace();
+					}
 				}
+				
 			}
+//			System.out.println("");
+//			System.out.print("Ausgabe: ");
+//			for (int plotCtrIndex = 0; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
+//				try{
+//					System.out.print(plotCtrIndex + " ");
+//					XYSeries xys = ((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0);
+//					xys.add(dataArray[0], dataArray[plotCtrIndex+1]);
+//				} catch (ArrayIndexOutOfBoundsException e){
+////					System.out.println("Out of Bounds");
+////					e.printStackTrace();
+//				} catch (NullPointerException e){
+//					System.out.println("Nullpointer in notifyDataChange");
+//					e.printStackTrace();
+//				}
+//			}
+//			System.out.println(" ");
 			
 		}
 	}

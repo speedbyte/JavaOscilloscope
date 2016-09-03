@@ -21,11 +21,12 @@ public class SQLController {
 	public static int listIndex = 0;
 	private static ArrayListProperty dataListProperty;
 	private static boolean doFirstTime = true;
+	public static boolean hasActiveThread = false;
 	
 	
 	public static void increaseReadIndex(){
 		readIndex++;
-		if(readIndex == limit/5)
+		if(readIndex == limit/5 && !hasActiveThread)
 			readFromTimestamp(new Timestamp(lastRowTimestamp.getTime()));
 					
 		if (readIndex > limit)
@@ -34,6 +35,7 @@ public class SQLController {
 	}
 	
 	public static void readFromTimestamp(Timestamp timestmp){
+		
 		dataListProperty = new ArrayListProperty();
 		Thread sqlthread = new Thread(new SQLQuerier(timestmp, config, dataListProperty));
 		sqlthread.setDaemon(false);
@@ -61,6 +63,7 @@ public class SQLController {
 		}});
 		
 		doOnce = true;
+		
 	}
 
 	
