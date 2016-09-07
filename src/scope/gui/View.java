@@ -1,6 +1,5 @@
 package scope.gui;
 
-// Imports
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -47,7 +46,9 @@ import org.jfree.ui.RefineryUtilities;
 import scope.data.ImportButton;
 import scope.data.SQLController;
 
-//View Class
+/**
+ * Implements the ViewInterface. Contains and specifies all GUI elements.
+ */
 @SuppressWarnings("serial")
 public class View extends JFrame implements ViewInterface, ActionListener {
 
@@ -239,7 +240,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnStop.setForeground(Color.BLACK);
 		btnStop.setBackground(Color.RED);
 		btnStop.setBounds(443, 110, 92, 20);
-		btnStop.setVisible(false);
+		btnStop.setVisible(true);
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				stopMenu();
@@ -449,26 +450,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		buttonPanel.add(btnImportConfig);
 		group.add(btnImportConfig);
 		btnImportConfig.setSelected(false);
-		
-//		btnImportLogFile = new JButton("Import Logfile");
-//		btnImportLogFile.setForeground(Color.BLACK);
-//		btnImportLogFile.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-//		btnImportLogFile.setBounds(591, 81, 114, 25);
-//		btnImportLogFile.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent arg0) {
-//				JFileChooser chooserLog = new JFileChooser("user.home");
-//				FileNameExtensionFilter filter = new FileNameExtensionFilter(
-//						"Log Files", "txt", "text", "asc");
-//				chooserLog.setFileFilter(filter);
-//				chooserLog.showOpenDialog(null);
-//				File selLogFile = chooserLog.getSelectedFile();
-//				reader.setImportFile(selLogFile);	
-//			}
-//		});
-//		buttonPanel.add(btnImportLogFile);
-//		group.add(btnImportLogFile);
-//		btnImportLogFile.setSelected(false);
-		
+
 		JLabel lblProtocol = new JLabel("Configuration");
 		lblProtocol.setForeground(new Color(153, 204, 204));
 		lblProtocol.setFont(new Font("Segoe UI", Font.BOLD, 18));
@@ -508,7 +490,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	/* End of View constructor */
 	
 
-	// CloseMenu method
+	/**
+	 * Creates a dialog asking if the application should be terminated. Returns on "No" and terminates on "Yes". 
+	 */
 	private void closeMenu() {
 
 		JOptionPane optionPane = new JOptionPane("Do you really want to exit?",
@@ -525,7 +509,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		}
 	}
 
-	// StopMenu method
+	/**
+	 * Creates a dialog asking if the displaying should be stopped. Returns on "No" and calls {@link YesOption} method on "Yes".
+	 */
 	private void stopMenu() {
 
 		JOptionPane optionPane = new JOptionPane("Do you really want to stop?",
@@ -542,7 +528,9 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		}
 	}
 
-	// YesOption method
+	/**
+	 * Sets buttons visibility. Is called from {@link stopMenu}. 
+	 */
 	private void YesOption() {
 		btnStop.setVisible(false);
 		btnStop.setEnabled(false);
@@ -554,14 +542,18 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		btnRemoveDataset.setEnabled(true);
 	}
 
-	// ActionPerformed method
+	/**
+	 * Mandatory implemented Method for ActionListener
+	 */
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("EXIT")) {
 			System.exit(0);
 		}
 	}
 		
-	/* Clear all Data stored in Series */
+	/**
+	 * Clears all data stored in the series
+	 */
 	private void clearAllSeries() {
 		int datasetCount = View.xyplot.getDatasetCount();
 		for (int plotCtrIndex = 0; plotCtrIndex < datasetCount; plotCtrIndex++) {
@@ -570,6 +562,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		}
 	}
 	
+	/**
+	 * Creates a new checkbox and implements methods for selection and un-selection
+	 * @param plotCtrIndex the index of the new checkbox
+	 * @return the JCheckBox
+	 */
 	private JCheckBox createCheckBox(final int plotCtrIndex) {
 		final JCheckBox checkBox = new JCheckBox(config.getShortLabel(plotCtrIndex));
 		checkBox.setForeground(Color.LIGHT_GRAY);
@@ -606,13 +603,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		return checkBox;		
 	}
 	
+	/**
+	 * Creates an axis, dataset container, serie and renderer to represent a given data set
+	 */
 	private void addDataset() {
 		int plotCtrIndex = ++lastPlotCtrIndex;
-				
-		/*
-		 * Creating an axis, dataset container, serie and renderer for one data set
-		 * to represent (e.g. speed)
-		 */
 		
 		if (plotCtrIndex >= View.xyplot.getDatasetCount()) {
 
@@ -657,10 +652,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		View.xyplot.getRangeAxis(plotCtrIndex).setVisible(true);
 	}
 	
+	/**
+	 * Removes the axis, dataset container, serie and renderer of one data set
+	 */
 	private void removeDataset() {
-		/*
-		 * REmoving axis, dataset container, serie and renderer of one data set
-		 */
+		
 		int plotCtrIndex = lastPlotCtrIndex;	
 		
 		if (plotCtrIndex > 0) {
@@ -674,7 +670,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		}
 	}
 	
-
+	/**
+	 * Applies the currently loaded config file. It removes all previously existing checkboxes and axes 
+	 * and adds all those from the config file.
+	 */
+	
 	public void applyConfig() {
 		
 		setSize(new Dimension(Integer.parseInt(config.getDefaultIni().get("general", "dimensionX")), Integer.parseInt(config.getDefaultIni().get("general", "dimensionY"))));
@@ -732,6 +732,10 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		}
 	}
 	
+	/**
+	 * Adjusts the range when the checkbox selection of the application changes. For each dataset a new Range is created which is expanded by the absolute
+	 * range of any other selected dataset excluding itself.
+	 */
 	public void adjustRange() {
 		for(int index = 0; index < config.getDatasets(); index++){
 			int plotCtrIndex = index+1;			
@@ -740,8 +744,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 				int lowerR = config.getLowerRange(index);
 				int upperR = config.getUpperRange(index);
 				lastSelectedAxis = (NumberAxis) View.xyplot.getRangeAxis(plotCtrIndex);
-				
-				//Expand range only where checkboxes are selected
+								
 				for (int i = 1; i < numberOfDatasets+1; i++) {
 					if(plotCtrIndex < i && checkboxSelected[i]){
 						lowerR -= Math.abs(config.getLowerRange(plotCtrIndex-1))+Math.abs(config.getUpperRange(plotCtrIndex-1));
@@ -757,6 +760,11 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		}
 	}
 	
+	/**
+	 * Takes the data from the data queue and displays it. This method displays the corresponding dataset depending on the selected ones form the
+	 * config file. E.g. there are always 16 datasets, but a config file might only want to display datasets 10, 12 and 13. 
+	 * This method provides a filter for that.  
+	 */
 	@Override
 	public void notifyDataChange() {
 		
@@ -771,46 +779,30 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			Timestamp ts = new Timestamp((long) dataArray[0]);
 			View.serie0.add(ts.getTime(), null);
-			//View.serie0.add(dataArray[0], null);
-//			System.out.print("Selected Boxes: ");
 			int dataSeriesIndex = 0;
 			for (int plotCtrIndex = 0; plotCtrIndex < dataArray.length; plotCtrIndex++) {
 				if(selectedDatasets[plotCtrIndex]){
-//					System.out.print(plotCtrIndex + " ");
+
 					try{
 						XYSeries xys = ((XYSeriesCollection) View.xyplot.getDataset(dataSeriesIndex+1)).getSeries(0);
 						xys.add(dataArray[0], dataArray[plotCtrIndex]);
 						dataSeriesIndex++;
 					} catch (ArrayIndexOutOfBoundsException e){
-						System.out.println("Out of Bounds");
-	//					e.printStackTrace();
+//						System.out.println("Out of Bounds");
+//						e.printStackTrace();
 					} catch (NullPointerException e){
 						System.out.println("Nullpointer in notifyDataChange");
 						e.printStackTrace();
 					}
-				}
-				
+				}				
 			}
-//			System.out.println("");
-//			System.out.print("Ausgabe: ");
-//			for (int plotCtrIndex = 0; plotCtrIndex < lastPlotCtrIndex /*dataArray.length*/; plotCtrIndex++) {
-//				try{
-//					System.out.print(plotCtrIndex + " ");
-//					XYSeries xys = ((XYSeriesCollection) View.xyplot.getDataset(plotCtrIndex+1)).getSeries(0);
-//					xys.add(dataArray[0], dataArray[plotCtrIndex+1]);
-//				} catch (ArrayIndexOutOfBoundsException e){
-////					System.out.println("Out of Bounds");
-////					e.printStackTrace();
-//				} catch (NullPointerException e){
-//					System.out.println("Nullpointer in notifyDataChange");
-//					e.printStackTrace();
-//				}
-//			}
-//			System.out.println(" ");
-			
 		}
 	}
-
+	
+	/**
+	 * Initializes a dataset capacity
+	 * @param arrayDataCount the number of datasets
+	 */
 	@Override
 	public void initDatasetCapacity(int arrayDataCount) {
 		this.initDatasetCount = arrayDataCount;
@@ -858,16 +850,25 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		}
 	}
 
-
+	/**
+	 * Sets the {@link ModelMediator}
+	 * @param model the ModelMediator
+	 */
 	@Override
 	public void setModel(MMInterface model) {
 		this.model = model;
 		this.model.registerObserver(this);
 	}
 
-
+	/**
+	 * @return the text ID
+	 */
 	@Override
 	public String getTextID() {
 		return id_txt.getText();
+	}
+	
+	public int getComponentCount(){
+		return checkBoxPanel.getComponentCount();
 	}
 }

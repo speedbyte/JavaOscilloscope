@@ -2,6 +2,10 @@ package scope.gui;
 
 import java.util.*;
 
+/**
+ * Holds the data, manages input, buffering and output
+ * @param <E> data type of the items
+ */
 public class Ringbuffer<E> extends AbstractList<E> implements Iterator<E>, RandomAccess {
 	private int bufferLength = 0;
 	private int capacity = 0;

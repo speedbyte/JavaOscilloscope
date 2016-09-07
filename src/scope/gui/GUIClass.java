@@ -3,15 +3,26 @@ package scope.gui;
 import java.util.ArrayList;
 import scope.data.SQLController;
 
+/**
+ * This class initializes the application and provides the link between database querying and displaying data
+ * @author Philipp Gackstatter
+ * @version 1.0
+ */
+
 public class GUIClass {
 
+	/**
+	 * Starts the main class for this project. 
+	 * @param args command line arguments
+	 */
+	
 	public static void main(String[] args) {
 
 		// init mediator
 		final MMInterface mm = new ModelMediator();
 		
 		ViewInterface XYSeriesChart = new View();
-		//Prevents NumberAxis to show on initial startup using config file
+		//Prevents NumberAxis to show on initial startup, this is unwanted when using a config file
 		//XYSeriesChart.initDatasetCapacity(8);
 		XYSeriesChart.setModel(mm);
 		
@@ -26,7 +37,7 @@ public class GUIClass {
 			            	double[] data = {0};
 			            	ArrayList<double[]> dataList = null;
 							
-							switch(SQLController.resultFlag){
+							switch(SQLController.dataListIndex){
 							
 								case 1:
 									dataList = SQLController.dataListOne;
@@ -48,14 +59,14 @@ public class GUIClass {
 								}  else {
 									SQLController.listIndex = 0;
 									SQLController.increaseReadIndex();
-									switch(SQLController.resultFlag){
+									switch(SQLController.dataListIndex){
 										case 1:
 											SQLController.dataListOne = null;
-											SQLController.resultFlag = 2;
+											SQLController.dataListIndex = 2;
 											break;
 										case 2:
 											SQLController.dataListTwo = null;
-											SQLController.resultFlag = 1;
+											SQLController.dataListIndex = 1;
 											break;							
 									}
 									

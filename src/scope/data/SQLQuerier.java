@@ -12,6 +12,11 @@ import org.ini4j.Ini;
 
 import scope.gui.Configuration;
 
+/**
+ * Contacts a database and reads data from it.
+ * @author Philipp
+ *
+ */
 public class SQLQuerier implements Runnable{
 	
 	private Timestamp timestamp;
@@ -24,9 +29,14 @@ public class SQLQuerier implements Runnable{
 		this.dataListProperty = dataListProperty;
 	
 	}
-
+	
+	/**
+	 * Creates a connection to a config-file specified database and executs SQL queries to read data. The returned resultSet is processed into a double array
+	 * which is further processed by {@link scope.gui.GUIClass}
+	 */
 	@Override
 	public void run() {
+		//In case the query goes on for a while, no more threads are created when set to true.
 		SQLController.hasActiveThread = true;
 		Ini ini = config.getDefaultIni();
 		Connection connection;
@@ -42,6 +52,7 @@ public class SQLQuerier implements Runnable{
 		
 		
 			int limit = SQLController.limit;
+			//Execute query until a result is returned. This way, live-inserted data can also be read.
 			while(resultSet == null){
 				System.out.println("Frage an");
 				if(timestamp.getTime() == -1){
@@ -52,11 +63,12 @@ public class SQLQuerier implements Runnable{
 			}
 				if(resultSet != null && resultSet.next()){
 					
-					if(SQLController.doOnce){
+					//Save the timestamp from the last row of the current ResultSet, such that the next query can go on from there
+					if(SQLController.getNewTimestampFlag){
 						resultSet.afterLast();
 						resultSet.previous();
-						SQLController.lastRowTimestamp = resultSet.getTimestamp("PITIME");
-						SQLController.doOnce = false;
+						SQLController.lastResultsetTimestamp = resultSet.getTimestamp("PITIME");
+						SQLController.getNewTimestampFlag = false;
 						resultSet.beforeFirst();
 					}
 					

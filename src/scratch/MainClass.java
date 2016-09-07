@@ -65,6 +65,7 @@ import de.ixxat.vci3.bal.IBalObject;
 import de.ixxat.vci3.bal.can.CanMessage;
 import de.ixxat.vci3.bal.can.ICanMessageReader;
 import scope.data.ImportButton;
+import scope.gui.PanningChartPanel;
 import scope.udp.UdpJava;
 import scope.vci.VciJava;
 import scope.serial.SerialJava;

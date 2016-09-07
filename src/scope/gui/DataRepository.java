@@ -2,23 +2,31 @@ package scope.gui;
 
 import java.util.*;
 
+/**
+ * Manages the {@link Ringbuffer}
+ * @param <E> data type of the item
+ */
 public class DataRepository<E> implements DataRepositoryInterface<E>{
 	int dataSetArrayLength = 0;
 	int dataSetCount = 0;
 	Ringbuffer<E> ringbuffer = new Ringbuffer<E>(100);
 
+	/**
+	 * Adds an item to the {@link Ringbuffer}
+	 */
 	@Override
 	public void addDataSetArray(E dataSetArray) {
-//		System.out.println("write:	"+dataSetArray);
 		ringbuffer.addItem(dataSetArray);
 	}
 
+	/**
+	 * @return List of items in the {@link Ringbuffer}
+	 */
 	@Override
 	public LinkedList<E> getDataSetArrays() {
 		LinkedList<E> list = new LinkedList<E>();
 		E item;
 		while ((item = ringbuffer.getItem()) != null){
-//			System.out.println("read:	"+item);
 			list.add(item);
 		}
 		return list;

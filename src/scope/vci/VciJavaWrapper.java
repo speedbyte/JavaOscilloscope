@@ -21,9 +21,7 @@ public class VciJavaWrapper
 {
 
   /**
-   * Main entry point
-   * 
-   * @param args command line arguments
+   * Main entry point. Takes command line arguments args
    */
   public void VciJavaWrapperInitialise()
   {

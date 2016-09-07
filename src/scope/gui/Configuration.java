@@ -10,11 +10,15 @@ import java.util.Properties;
 import org.ini4j.Ini;
 import org.ini4j.InvalidFileFormatException;
 
+/**
+ * Manages reading ini config files and extracting information from them
+ * @author Philipp
+ */
+
 public class Configuration {
 	Ini defaultIni = new Ini();
 	
 	public Configuration(){
-		//Ini ini = new Ini();
 		//File file = new File("resources/defconfig.ini");
 		File file = new File("resources/config_2.ini");
         try {
@@ -31,7 +35,7 @@ public class Configuration {
 		}
 	}
 	
-	/*
+	/**
 	 * @return the defaultIni
 	 */
 	
@@ -39,7 +43,7 @@ public class Configuration {
 		return defaultIni;
 	}
 	
-	/*
+	/**
 	 * @return the number of datasets in the currently loaded ini
 	 */
 	public int getDatasets(){
@@ -47,7 +51,7 @@ public class Configuration {
 		return Integer.parseInt(general.get("datasets"));
 	}
 	
-	/*
+	/**
 	 * @param index the number of the dataset - 1
 	 * @return the lower Range of the currently loaded ini
 	 */
@@ -55,7 +59,7 @@ public class Configuration {
 		return Integer.parseInt(defaultIni.get("data" + (index+1), "lowerRange"));
 	}
 	
-	/*
+	/**
 	 * @param index the number of the dataset - 1
 	 * @return the upper Range of the currently loaded ini
 	 */
@@ -63,7 +67,7 @@ public class Configuration {
 		return Integer.parseInt(defaultIni.get("data" + (index+1), "upperRange"));
 	}
 	
-	/*
+	/**
 	 * @param index the number of the dataset
 	 * @return the (long) name of this dataset 
 	 */
@@ -71,7 +75,7 @@ public class Configuration {
 		return defaultIni.get("data" + index, "label");
 	}
 	
-	/*
+	/**
 	 * @param index the number of the dataset
 	 * @return the short name of this dataset 
 	 */
@@ -79,7 +83,7 @@ public class Configuration {
 		return defaultIni.get("data" + index, "shortlabel");
 	}
 	
-	/*
+	/**
 	 * Loads the passed file and overwrites the currently loaded ini file
 	 * @param file The new ini file
 	 * @return true on success 
