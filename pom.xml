@@ -29,20 +29,64 @@
   		<groupId>junit</groupId>
   		<artifactId>junit</artifactId>
   		<version>4.12</version>
-  		<scope>test</scope>
+  		<scope>compile</scope>
   	</dependency>
-  	 </dependencies>
-  	<!--<dependency>
-	    <groupId>org.ini4j</groupId>
-	    <artifactId>ini4j</artifactId>
-	    <version>0.5.4</version>
-	    <scope>runtime</scope>
-	</dependency>
- 
+    <dependency>
+        <groupId>org.ini4j</groupId>
+        <artifactId>ini4j</artifactId>
+        <version>0.5.4</version>
+        <scope>compile</scope>        
+    </dependency>
+    <dependency>
+        <groupId>jfree</groupId>
+        <artifactId>jfreechart</artifactId>
+        <version>1.0.13</version>
+        <scope>compile</scope>
+    </dependency>
+	<!-- https://mvnrepository.com/artifact/jfree/jcommon -->
+	<dependency>
+	    <groupId>jfree</groupId>
+	    <artifactId>jcommon</artifactId>
+        <version>1.0.16</version>	    
+	    <scope>compile</scope>
+	</dependency>    
+<!-- https://mvnrepository.com/artifact/com.jamierf/rxtx -->
+<dependency>
+    <groupId>com.jamierf</groupId>
+    <artifactId>rxtx</artifactId>
+    <version>1.2</version>
+    <scope>compile</scope>
+</dependency>	
+<dependency>
+    <groupId>VciJava</groupId>
+    <artifactId>VciJava</artifactId>
+    <version>1.0</version>
+    <scope>compile</scope>
+</dependency>   
+<dependency>
+    <groupId>mongo</groupId>
+    <artifactId>java-driver</artifactId>
+    <version>2.11.3</version>
+    <scope>compile</scope>
+</dependency>   
+<dependency>
+    <groupId>mongo</groupId>
+    <artifactId>java-driver</artifactId>
+    <version>2.11.3</version>
+    <scope>compile</scope>
+</dependency>   
+<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>5.1.38</version>
+    <scope>compile</scope>    
+</dependency>
+  </dependencies>
   <repositories>
     <repository>
         <id>project</id>
         <url>file:///${basedir}/src/repo</url>
     </repository>
-</repositories>-->
+  </repositories>
 </project>
