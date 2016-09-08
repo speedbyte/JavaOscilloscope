@@ -12,7 +12,7 @@ public class DataRepository<E> implements DataRepositoryInterface<E>{
 	Ringbuffer<E> ringbuffer = new Ringbuffer<E>(100);
 
 	/**
-	 * Adds an item to the {@link Ringbuffer}
+	 * Adds an array of items to the {@link Ringbuffer}
 	 */
 	@Override
 	public void addDataSetArray(E dataSetArray) {
