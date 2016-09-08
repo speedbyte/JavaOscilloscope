@@ -6,6 +6,6 @@ build_docker_maven:
    - mvn --version
    - mvn compile
 #   - mvn exec:java -Dmain.Class="scope.gui.GUIClass"
-   - mvn test
+   - mvn test -X
   tags:
    - docker
