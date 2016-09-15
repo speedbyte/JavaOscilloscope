@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="public" author="true" classpath="lib/mongo-java-driver-2.11.3.jar;lib/mysql-connector-java-5.1.26-bin.jar;lib/jcommon-1.0.17.jar;lib/ini4j-0.5.4.jar;lib/VciJava.jar;lib/jfreechart-1.0.14.jar;lib/RXTXcomm.jar" destdir="doc" doctitle="SensorOscilloscopeDoc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="scope.data,scope.vci,scope.mutex,scope.udp,scope.serial,scope.test,scope.gui" source="1.7" sourcepath="src" splitindex="true" stylesheetfile="C:\Users\Philipp\Documents\SensorOscilloscope-Java\doc\stylesheet2.css" use="true" version="true"/>
+    </target>
+</project>

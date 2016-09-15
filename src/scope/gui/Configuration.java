@@ -20,7 +20,7 @@ public class Configuration {
 	
 	public Configuration(){
 		//File file = new File("resources/defconfig.ini");
-		File file = new File("resources/config_2.ini");
+		File file = new File("resources/config_5.ini");
         try {
 			defaultIni.load(new FileReader(file));
 		} catch (InvalidFileFormatException e) {

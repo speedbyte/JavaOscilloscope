@@ -61,6 +61,7 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 	private boolean[] selectedDatasets = new boolean[16];
 	private static int selectedCheckboxes = 0;
 	private static int lastSelectedCheckboxes = 0;
+	private static long lastTimestamp = 0;
 	
 	static XYSeries serie0 = new XYSeries("Dummy Serie");
 	static XYDataset data0 = new XYSeriesCollection(serie0);
@@ -770,14 +771,12 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 		
 		LinkedList<double[]> dataArrayQueue = model.getData();
 		double[] dataArray;
-		try {
-			Thread.sleep(20);
-		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		
 		while ((dataArray = dataArrayQueue.poll()) != null) {
 			Timestamp ts = new Timestamp((long) dataArray[0]);
+			long delay = ts.getTime() - lastTimestamp;
+			//System.out.println(delay);
+			lastTimestamp = ts.getTime();
 			View.serie0.add(ts.getTime(), null);
 			int dataSeriesIndex = 0;
 			for (int plotCtrIndex = 0; plotCtrIndex < dataArray.length; plotCtrIndex++) {
@@ -795,6 +794,16 @@ public class View extends JFrame implements ViewInterface, ActionListener {
 						e.printStackTrace();
 					}
 				}				
+			}
+			try {
+				if(delay < 150 && delay > 20){
+					Thread.sleep(delay-20);
+				} else {
+					Thread.sleep(55);
+				}
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 		}
 	}

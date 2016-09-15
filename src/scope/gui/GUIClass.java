@@ -45,6 +45,9 @@ public class GUIClass {
 								case 2:
 									dataList = SQLController.dataListTwo;
 									break;
+								case 3:
+									dataList = SQLController.dataListThree;
+									break;
 							
 							}
 							
@@ -53,12 +56,14 @@ public class GUIClass {
 								if(dataList != null && SQLController.listIndex < dataList.size()){
 									
 									data = dataList.get(SQLController.listIndex);
-									SQLController.increaseReadIndex();
+									//SQLController.increaseReadIndex();
+									if(SQLController.readIndex++ == dataList.size()/2){
+										SQLController.readFromTimestamp(SQLController.lastResultsetTimestamp);
+									}
 									SQLController.listIndex++;
 									
-								}  else {
+								}  else if (SQLController.dataListOne != null || SQLController.dataListTwo != null || SQLController.dataListThree != null){
 									SQLController.listIndex = 0;
-									SQLController.increaseReadIndex();
 									switch(SQLController.dataListIndex){
 										case 1:
 											SQLController.dataListOne = null;
@@ -66,12 +71,21 @@ public class GUIClass {
 											break;
 										case 2:
 											SQLController.dataListTwo = null;
+											SQLController.dataListIndex = 3;
+											break;	
+										case 3:
+											SQLController.dataListThree = null;
 											SQLController.dataListIndex = 1;
-											break;							
+											break;
 									}
+//									System.out.println("Switched to " + SQLController.dataListIndex);
+									SQLController.readIndex = 0;
+								} else {
+									//SQLController.increaseReadIndex();
 									
 								}
 								
+								//data[0] = SQLController.time++;
 								mm.pushDataArray(data);
 							} catch (Exception e) {
 								e.printStackTrace();
