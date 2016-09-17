@@ -19,7 +19,7 @@ public class ModelMediator implements MMInterface {
 	private DataRepository<double[]> repository = new DataRepository<double[]>();
 	
 	/**
-	 * Adds an observer to the {@link observerList}
+	 * Adds an observer to the observerList
 	 */
 	@Override
 	public void registerObserver(ViewInterface observer) {
@@ -27,7 +27,7 @@ public class ModelMediator implements MMInterface {
 	}
 
 	/**
-	 * Removes an observer from the {@link observerList}
+	 * Removes an observer from the observerList
 	 */
 	@Override
 	public void removeObserver(ViewInterface observer) {

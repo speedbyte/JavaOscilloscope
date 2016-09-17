@@ -4,7 +4,9 @@ import java.awt.Dimension;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
-
+/**
+ * Initializes the plotter frame
+ */
 public class XYPlotter implements Runnable {
 	public void run() {
 		JFrame frame = new JFrame("My JFrame Example");

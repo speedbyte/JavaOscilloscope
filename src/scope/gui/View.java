@@ -52,15 +52,37 @@ import scope.data.SQLController;
 @SuppressWarnings("serial")
 public class View extends JFrame implements ViewInterface, ActionListener {
 
-	// Variables
+	/**
+	 * The Model Mediator of this View instance, which handles observing of the {@link DataRepository}
+	 */
 	private MMInterface model;
+	/**
+	 * Contains the index of the last used plot control element
+	 */
 	private static int lastPlotCtrIndex = 0;
+	/**
+	 * Used to initialize a number of Datasets on startup
+	 */
 	private static int initDatasetCount = 0;
+	/**
+	 * The config file containing dimensions of the application, number of datasets, dataset information, etc.
+	 */
 	private Configuration config = new Configuration();
+	/**
+	 * Boolean array to differentiate between selected and unselected checkboxes for adjusting the range in adjustRange()
+	 */
 	private boolean[] checkboxSelected = new boolean[16];
+	/**
+	 * Boolean array to differentiate between selected and unselected datasets to display the right ones in notifyDataChange
+	 */
 	private boolean[] selectedDatasets = new boolean[16];
+	/**
+	 * The number of selected checkboxes
+	 */
 	private static int selectedCheckboxes = 0;
-	private static int lastSelectedCheckboxes = 0;
+	/**
+	 * Stores the PITIME of the former displayed dataset to calculate the delay between its successor in notifyDataChange
+	 */
 	private static long lastTimestamp = 0;
 	
 	static XYSeries serie0 = new XYSeries("Dummy Serie");

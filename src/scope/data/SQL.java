@@ -16,7 +16,9 @@ import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 
 import scope.gui.Configuration;
 import scope.gui.MMInterface;;
-
+/**
+ * Implements a number of methods to communicate with a SQL database
+ */
 public class SQL {
 	
 public static JTable table;

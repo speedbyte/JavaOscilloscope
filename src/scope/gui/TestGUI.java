@@ -7,8 +7,13 @@ import javax.swing.SwingUtilities;
 
 import org.jfree.ui.RefineryUtilities;
 
+/**
+ * A class for testing the GUI application
+ */
 public class TestGUI {
-
+	/**
+	 * A class for generating random data
+	 */
 	private static class Rand {
 		private double x = 0;
 		private double lastY = 100;

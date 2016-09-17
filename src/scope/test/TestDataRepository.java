@@ -6,27 +6,28 @@ import scope.data.SQLController;
 import scope.gui.*;
 
 import org.junit.Test;
-
+/**
+ * Test for the {@link DataRepository} class
+ * @author Philipp
+ *
+ */
 public class TestDataRepository {
 
-// Runs on a local machine
-//	@Test
-//	public void testConfig() {
-//		View view = new View();
-//		int value1 = view.getComponentCount();
-//		view.applyConfig();
-//		int value2 = view.getComponentCount();
-//		System.out.println("Ergebnis: " + value1 + " " + value2);
-//		assertSame(value1, value2);
-//	}
-	
+	/**
+	 * Inserts 6 values into a {@link scope.gui.DataRepository}, extracts them and compares both arrays
+	 */
 	@Test
 	public void testIndex() {
 		DataRepository<Integer> dr = new DataRepository<Integer>();
-		int value1 = 10;
-		dr.addDataSetArray(value1);
-		int value2 = dr.getDataSetArrays().get(0);
-		assertSame(value1, value2);
+		int[] values = {1, 2, 2, 15, 16, 17};
+		for (int i = 0; i < values.length; i++) {
+			dr.addDataSetArray(values[i]);
+		}
+		int[] extractedValues = new int[6];
+		for (int i = 0; i < values.length; i++) {
+			extractedValues[i] = dr.getDataSetArrays().get(i); 
+		}
+		assertSame(values, extractedValues);
 	}
 
 }

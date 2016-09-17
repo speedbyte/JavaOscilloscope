@@ -21,12 +21,24 @@ import scope.gui.Configuration;
  */
 public class SQLQuerier implements Runnable{
 	
-	private TimestampProperty timestampProperty;
+	/**
+	 * Contains the timestamp which is used in the sql query
+	 */
+	private DataProperty<Timestamp> timestampProperty;
+	/**
+	 * Config containing any sql related information to contact the database
+	 */
 	private Configuration config;
-	private ArrayListProperty dataListProperty;
-	private BooleanProperty booleanProperty;
+	/**
+	 * Property to push new data to the calling thread
+	 */
+	private DataProperty<ArrayList<double[]>> dataListProperty;
+	/**
+	 * Controls the execution of the query
+	 */
+	private DataProperty<Boolean> booleanProperty;
 	
-	public SQLQuerier(TimestampProperty timestampProperty, Configuration config, ArrayListProperty dataListProperty, BooleanProperty booleanProperty){
+	public SQLQuerier(DataProperty<Timestamp> timestampProperty, Configuration config, DataProperty<ArrayList<double[]>> dataListProperty, DataProperty<Boolean> booleanProperty){
 		this.timestampProperty = timestampProperty;
 		this.config = config;
 		this.dataListProperty = dataListProperty;
@@ -53,14 +65,14 @@ public class SQLQuerier implements Runnable{
 	
 	/**
 	 * Creates a connection to a config-file specified database and executs SQL queries to read data. The returned resultSet is processed into a double array
-	 * which is further processed by {@link scope.gui.GUIClass}
+	 * which is further processed by {@link scope.data.SQLController}
 	 */
 	@Override
 	public void run() {
 		
 		while(true){
 			
-			if(booleanProperty.getBoolean()){
+			if(booleanProperty.getData()){
 				//In case the query goes on for a while, no more threads are created when set to true.
 				SQLController.hasActiveThread = true;
 				Ini ini = config.getDefaultIni();
@@ -83,7 +95,7 @@ public class SQLQuerier implements Runnable{
 						//if(timestamp.getTime() == -1){
 							//resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " ORDER BY PITIME ASC limit " + limit);
 						//} else {
-							resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " WHERE PITIME >= '" + timestampProperty.getTimestamp().toString() +"' ORDER BY PITIME ASC limit " + limit);
+							resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " WHERE PITIME >= '" + timestampProperty.getData().toString() +"' ORDER BY PITIME ASC limit " + limit);
 						//}
 //					}
 						if(resultSet != null && resultSet.next()){
@@ -120,7 +132,7 @@ public class SQLQuerier implements Runnable{
 							
 							dataList.add(data);
 							}
-							dataListProperty.setList(dataList);
+							dataListProperty.setData(dataList);
 							resultSet = null;
 							
 						}
@@ -129,10 +141,10 @@ public class SQLQuerier implements Runnable{
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-				booleanProperty.setBoolean(false);
+				booleanProperty.setData(false);
 			}
 			try {
-				Thread.sleep(500);
+				Thread.sleep(10);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

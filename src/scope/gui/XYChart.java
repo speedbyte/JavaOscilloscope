@@ -21,15 +21,33 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 
-
+/**
+ * Initializes the jfree chart to paint data on
+ */
 public class XYChart {
+	/**
+	 * Color of the chart panel
+	 */
 	private static final Paint panelColor = new Color(50, 50, 50);
-
+	/**
+	 * number of XYCharts
+	 */
 	private static int xyChartCount = 0;
+	/**
+	 * list of XYPlots
+	 */
 	private static List<PlotObj> xyPlotCollection = new ArrayList<PlotObj>();
+	/**
+	 * JFreechart object to initialize the chart
+	 */
 	private static JFreeChart jfreechart = null;
+	/**
+	 * 
+	 */
 	private static XYPlot xyPlot = null;
-
+	/**
+	 * The length of the axis range
+	 */
 	private static double interval = 60;
 	 
 	
@@ -60,30 +78,24 @@ public class XYChart {
 		XYChart.jfreechart.getXYPlot().getRangeAxis(0).setVisible(false);
 		
 		XYChart.xyPlot = XYChart.jfreechart.getXYPlot();
-		
-		/* mainAxis is created to draw the coordinate axis of JFreeChart
-		   but is not used to display data */
-//		final NumberAxis mainAxis =
-//				(NumberAxis) XYChart.jfreechart.getXYPlot().getRangeAxis();
-//		jfreechart.getXYPlot().getRenderer().setBaseSeriesVisible(true);
-//		mainAxis.setVisible(true);
-//		mainAxis.setLabelPaint(jfreechart.getXYPlot().getRenderer()
-//				.getItemPaint(0, 0));
-//		mainAxis.setLabel("Main Axis");
-//		mainAxis.setTickLabelPaint(jfreechart.getXYPlot().getRenderer()
-//				.getItemPaint(0, 0));
-//		mainAxis.setRange(0, 10);
-		
 		xyChartCount++;
 		
 		System.out.println("XYChart Constructor: JFreeChart set up.");
 		System.out.println("xyChartCount: "+xyChartCount);
 	}
 	
+	/**
+	 * Returns the jfreechart object
+	 * @return the jfreechart
+	 */
 	public static JFreeChart getJFreeChart(){
 		return XYChart.jfreechart;		
 	}
 	
+	/**
+	 * Creates a new XYPlot 
+	 * @param plotName name of the plot
+	 */
 	public static void createNewXYPlot(String plotName){
 		if (plotName == ""){
 			plotName = "xyPlot "+xyChartCount;
@@ -101,6 +113,11 @@ public class XYChart {
 		XYSeries tempSerie = plotObj.serie;
 	}
 	
+	/**
+	 * Returns an XYSeries for a given name
+	 * @param plotName the name of the plot
+	 * @return the XYSeries with the plot name
+	 */
 	public static XYSeries getSerieByName(String plotName){
 		System.out.println("getSerieByName entered");
 		for (PlotObj iter : xyPlotCollection){
@@ -110,20 +127,47 @@ public class XYChart {
 		}
 		return null;
 	}
-	
+	/**
+	 * Returns an XYSeries for a given index
+	 * @param index the index of the plot
+	 * @return the XYSeries with the index
+	 */
 	public static XYSeries getSeriesByIndex(int index){
 		System.out.println("getSerieByIndex entered");
 		if (xyPlotCollection.isEmpty()) return null;
 		return xyPlotCollection.get(index).serie;
 	}
-	
+	/**
+	 * Contains every field or object relevant for the plot
+	 */
 	private static class PlotObj{
+		/**
+		 * The index of the axis
+		 */
 		int axisIndex				= -1;
+		/**
+		 * name of the plot
+		 */
 		String plotName				= null;
+		/**
+		 * XYSeries object
+		 */
 		XYSeries serie				= null;
+		/**
+		 * Collection of XYSeries
+		 */
 		XYSeriesCollection dataSet	= null;
+		/**
+		 * The domain axis
+		 */
 		NumberAxis domainAxis		= null;
+		/**
+		 * The range axis
+		 */
 		NumberAxis rangeAxis 		= null;
+		/**
+		 * The renderer
+		 */
 		XYStepRenderer renderer 	= null;
 		
 		public PlotObj(String plotName){

@@ -8,9 +8,10 @@ import com.mongodb.DB;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
-
+/**
+ * Class that handles communication with a MongoDB database 
+ */
 public class MongoDB {
-
 	private static DB db;
 	protected static MongoClient mongoClient;
 	
@@ -38,6 +39,7 @@ public class MongoDB {
 			System.out.println("checkDatetimeExists: Date not found!");
 			return null;}
 	}
+
 		static Object importIntoDatetime(Date date ,Date time){
 			System.out.println("date = "+date+" time = "+time);
 			BasicDBObject doc = new BasicDBObject();
@@ -49,6 +51,7 @@ public class MongoDB {
 			System.out.println("importIntoDatetime: Id_datetime ="+id_datetime.toString());
 			return id_datetime;
 		}
+		
 		static int importValues(int k, Object id_datetime_MongoDB, float timestamp, int can_id, int[] data, float GPS_lat, float GPS_lon){
 
 	        BasicDBObject doc = new BasicDBObject();
@@ -67,7 +70,7 @@ public class MongoDB {
 			return k;
 			}
 
-	 
+	
 		public static int deleteData(Object id_datetime_value) {
 			int numDeletedData=0;
 			System.out.println("id_datetime="+id_datetime_value);
@@ -86,6 +89,7 @@ public class MongoDB {
 			  } 
 			return numDeletedData;
 		}
+
 		public static boolean testConnection(){
 			boolean result = true;
 			try {
