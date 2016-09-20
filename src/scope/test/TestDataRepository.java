@@ -2,6 +2,8 @@ package scope.test;
 
 import static org.junit.Assert.*;
 
+import java.util.LinkedList;
+
 import scope.data.SQLController;
 import scope.gui.*;
 
@@ -14,20 +16,23 @@ import org.junit.Test;
 public class TestDataRepository {
 
 	/**
-	 * Inserts 6 values into a {@link scope.gui.DataRepository}, extracts them and compares both arrays
+	 * Inserts 2 integer arrays into a {@link scope.gui.DataRepository}, extracts them and compares both list containing
+	 * the arrays
 	 */
 	@Test
-	public void testIndex() {
-		DataRepository<Integer> dr = new DataRepository<Integer>();
-		int[] values = {1, 2, 2, 15, 16, 17};
-		for (int i = 0; i < values.length; i++) {
-			dr.addDataSetArray(values[i]);
-		}
-		int[] extractedValues = new int[6];
-		for (int i = 0; i < values.length; i++) {
-			extractedValues[i] = dr.getDataSetArrays().get(i); 
-		}
-		assertSame(values, extractedValues);
+	public void testRepository() {
+		DataRepository<int[]> dr = new DataRepository<int[]>();
+		
+		int[] values = {1, 2};
+		int[] values2 = {15, 16};
+		
+		LinkedList<int[]> list = new LinkedList<int[]>();
+		list.add(values);list.add(values2);
+		dr.addDataSetArray(values);dr.addDataSetArray(values2);
+		
+		LinkedList<int[]> result = new LinkedList<int[]>();
+		result = dr.getDataSetArrays();
+		assertEquals(list, result);
 	}
 
 }
