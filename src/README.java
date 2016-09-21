@@ -15,7 +15,7 @@ equivalent of your GitLab installation to create a new local repository for this
 Now you can open the project in eclipse by creating a new Java Project, Import > Git > Projects from Git > Existing 
 local repository. 
 
-If your team member and you are on the same branch, it's a good idea to 
+If your team member and you are working on the same branch, it's a good idea to 
 'git pull' before working on the project. This ensures, you have the latest version from git.
 
 If you make any change to any project file, eclipse will recognize this and show a '>' in front of the filename in your 
@@ -78,11 +78,5 @@ Compiles the project to the target folder
 'mvn test'
 Runs all tests in src/scope/test via the surefire plugin. This directory can be changed in the pom.xml. Only classes that match the default
 test naming convention are executed, which can be found here: https://maven.apache.org/surefire/maven-surefire-plugin/examples/inclusion-exclusion.html
-
-
-
-
-
-
 
 */

@@ -80,33 +80,12 @@ public class SQLController {
 	 * {@link TimestampProperty} that controls the query's timestamp in the SQLQuerier thread  
 	 */
 	private static DataProperty<Timestamp> timestampProperty;
-//	/**
-//	 * Can be used in the future for 
-//	 */
-//	public static int time = 0;
-//	/**
-//	 * Increases the readIndex and triggers database queries after 1/5th of the ResultSet size (limit)
-//	 */
-//	public static void increaseReadIndex(){
-//		readIndex++;
-////		System.out.println(readIndex);
-//		int lowerLimit = (int) (limit * 1.0/3.0);
-//		int upperLimit = (int) (limit * 2.0/3.0);
-////		System.out.println("lower: " + lowerLimit + " upper: " + upperLimit);
-//		if((readIndex == lowerLimit || readIndex == upperLimit) && !hasActiveThread)
-//			readFromTimestamp(new Timestamp(lastResultsetTimestamp.getTime()));
-//					
-//		if (readIndex > limit)
-//			readIndex = 0;
-//		
-//	}
 	
 	/**
 	 * Creates a new {@link SQLQuerier} Thread, which queries the database. Timestamp is the last timestamp of the last ResultSet.
 	 * @param timestamp the timestamp that will be used in the SQL query
 	 */
 	public static void readFromTimestamp(Timestamp timestamp){
-		//System.out.println("Call DB: " + readIndex);
 		timestampProperty.setData(timestamp);
 		booleanProperty.setData(true);
 		getNewTimestampFlag = true;	

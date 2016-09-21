@@ -56,7 +56,6 @@ public class GUIClass {
 								if(dataList != null && SQLController.listIndex < dataList.size()){
 									
 									data = dataList.get(SQLController.listIndex);
-									//SQLController.increaseReadIndex();
 									if(SQLController.readIndex++ == dataList.size()/2){
 										SQLController.readFromTimestamp(SQLController.lastResultsetTimestamp);
 									}
@@ -78,20 +77,15 @@ public class GUIClass {
 											SQLController.dataListIndex = 1;
 											break;
 									}
-//									System.out.println("Switched to " + SQLController.dataListIndex);
 									SQLController.readIndex = 0;
-								} else {
-									//SQLController.increaseReadIndex();
-									
 								}
 								
-								//data[0] = SQLController.time++;
 								mm.pushDataArray(data);
 							} catch (Exception e) {
 								e.printStackTrace();
 							}
 			            	
-			            	
+			            //Moved to notifyDataChange() in View
 			            //Thread.sleep(20);
 			            
 			            }

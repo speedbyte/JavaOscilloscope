@@ -89,17 +89,9 @@ public class SQLQuerier implements Runnable{
 				
 				
 					int limit = SQLController.limit;
-					//Execute query until a result is returned. This way, live-inserted data can also be read.
-//					while(resultSet == null){
-		//				System.out.println("Frage an");
-						//if(timestamp.getTime() == -1){
-							//resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " ORDER BY PITIME ASC limit " + limit);
-						//} else {
+				
 							resultSet = statement.executeQuery("SELECT * FROM " + dbtable + " WHERE PITIME >= '" + timestampProperty.getData().toString() +"' ORDER BY PITIME ASC limit " + limit);
-						//}
-//					}
-						if(resultSet != null && resultSet.next()){
-							
+						if(resultSet != null && resultSet.next()){			
 							//Save the timestamp from the last row of the current ResultSet, such that the next query can go on from there
 							if(SQLController.getNewTimestampFlag){
 								resultSet.afterLast();
